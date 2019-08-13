@@ -1,0 +1,83 @@
+\hypertarget{classencoder__task__func_1_1Encoder__Task}{}\section{encoder\+\_\+task\+\_\+func.\+Encoder\+\_\+\+Task Class Reference}
+\label{classencoder__task__func_1_1Encoder__Task}\index{encoder\+\_\+task\+\_\+func.\+Encoder\+\_\+\+Task@{encoder\+\_\+task\+\_\+func.\+Encoder\+\_\+\+Task}}
+
+
+This defines the task function method for an encoder.  
+
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \hyperlink{classencoder__task__func_1_1Encoder__Task_aefce5b42f1f0e53b2fae5b253696f514}{\+\_\+\+\_\+init\+\_\+\+\_\+} (self, pan\+\_\+position, timer, pin1, pin2)
+\begin{DoxyCompactList}\small\item\em Construct an encoder task function by initilizing any shared variables and initialize the encoder object. \end{DoxyCompactList}\item 
+def \hyperlink{classencoder__task__func_1_1Encoder__Task_aae20c9351ed173a6dd575031abf971a8}{enc\+\_\+fun} (self)\hypertarget{classencoder__task__func_1_1Encoder__Task_aae20c9351ed173a6dd575031abf971a8}{}\label{classencoder__task__func_1_1Encoder__Task_aae20c9351ed173a6dd575031abf971a8}
+
+\begin{DoxyCompactList}\small\item\em Defines the task function method for an Encoder object. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+{\bfseries pan\+\_\+position}\hypertarget{classencoder__task__func_1_1Encoder__Task_af0b170e05f2b75892241fca13544947c}{}\label{classencoder__task__func_1_1Encoder__Task_af0b170e05f2b75892241fca13544947c}
+
+\item 
+{\bfseries Encoder}\hypertarget{classencoder__task__func_1_1Encoder__Task_a7a8534a9b079061213a9a17952674985}{}\label{classencoder__task__func_1_1Encoder__Task_a7a8534a9b079061213a9a17952674985}
+
+\item 
+\hyperlink{classencoder__task__func_1_1Encoder__Task_a0a42069639ece3d0a4cc3ae7a45a9feb}{state}
+\begin{DoxyCompactList}\small\item\em S\+T\+A\+TE 0\+: Z\+E\+RO R\+E\+F\+E\+R\+E\+N\+CE. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+This defines the task function method for an encoder. 
+
+The encoder passes its data via a shared variable with another task. To create an instance of this task class (example)\+: \subsection*{create encoder position shared variable}
+
+pan\+\_\+position = \hyperlink{classtask__share_1_1Share}{task\+\_\+share.\+Share} (\textquotesingle{}i\textquotesingle{}, thread\+\_\+protect = False, name = \char`\"{}\+Share\+\_\+0\+\_\+pan\+\_\+position\char`\"{}) \subsection*{create encoder 1 task object}
+
+pan\+\_\+encoder = \hyperlink{classencoder__task__func_1_1Encoder__Task}{Encoder\+\_\+\+Task}(pan\+\_\+position, 4, pyb.\+Pin.\+board.\+P\+B6, pyb.\+Pin.\+board.\+P\+B7) \subsection*{create task1 function}
+
+task1 = \hyperlink{classcotask_1_1Task}{cotask.\+Task} (pan\+\_\+encoder.\+enc\+\_\+fun(), name = \textquotesingle{}Task\+\_\+1\textquotesingle{}, priority = 5, period = 2, profile = True, trace = False) \subsection*{append task1 to list of scheduled tasks}
+
+cotask.\+task\+\_\+list.\+append (task1) 
+
+\subsection{Constructor \& Destructor Documentation}
+\index{encoder\+\_\+task\+\_\+func\+::\+Encoder\+\_\+\+Task@{encoder\+\_\+task\+\_\+func\+::\+Encoder\+\_\+\+Task}!\+\_\+\+\_\+init\+\_\+\+\_\+@{\+\_\+\+\_\+init\+\_\+\+\_\+}}
+\index{\+\_\+\+\_\+init\+\_\+\+\_\+@{\+\_\+\+\_\+init\+\_\+\+\_\+}!encoder\+\_\+task\+\_\+func\+::\+Encoder\+\_\+\+Task@{encoder\+\_\+task\+\_\+func\+::\+Encoder\+\_\+\+Task}}
+\subsubsection[{\texorpdfstring{\+\_\+\+\_\+init\+\_\+\+\_\+(self, pan\+\_\+position, timer, pin1, pin2)}{__init__(self, pan_position, timer, pin1, pin2)}}]{\setlength{\rightskip}{0pt plus 5cm}def encoder\+\_\+task\+\_\+func.\+Encoder\+\_\+\+Task.\+\_\+\+\_\+init\+\_\+\+\_\+ (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{pan\+\_\+position, }
+\item[{}]{timer, }
+\item[{}]{pin1, }
+\item[{}]{pin2}
+\end{DoxyParamCaption}
+)}\hypertarget{classencoder__task__func_1_1Encoder__Task_aefce5b42f1f0e53b2fae5b253696f514}{}\label{classencoder__task__func_1_1Encoder__Task_aefce5b42f1f0e53b2fae5b253696f514}
+
+
+Construct an encoder task function by initilizing any shared variables and initialize the encoder object. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em pan\+\_\+position} & The shared variable between tasks that contains the Encoder readings \\
+\hline
+{\em timer} & The Encoder\textquotesingle{}s timer channel \\
+\hline
+{\em pin1} & The Encoder\textquotesingle{}s first pin, Pin A \\
+\hline
+{\em pin2} & The Encoder\textquotesingle{}s second pin, Pin B \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Member Data Documentation}
+\index{encoder\+\_\+task\+\_\+func\+::\+Encoder\+\_\+\+Task@{encoder\+\_\+task\+\_\+func\+::\+Encoder\+\_\+\+Task}!state@{state}}
+\index{state@{state}!encoder\+\_\+task\+\_\+func\+::\+Encoder\+\_\+\+Task@{encoder\+\_\+task\+\_\+func\+::\+Encoder\+\_\+\+Task}}
+\subsubsection[{\texorpdfstring{state}{state}}]{\setlength{\rightskip}{0pt plus 5cm}encoder\+\_\+task\+\_\+func.\+Encoder\+\_\+\+Task.\+state}\hypertarget{classencoder__task__func_1_1Encoder__Task_a0a42069639ece3d0a4cc3ae7a45a9feb}{}\label{classencoder__task__func_1_1Encoder__Task_a0a42069639ece3d0a4cc3ae7a45a9feb}
+
+
+S\+T\+A\+TE 0\+: Z\+E\+RO R\+E\+F\+E\+R\+E\+N\+CE. 
+
+S\+T\+A\+TE 1\+: U\+P\+D\+A\+T\+I\+NG. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+encoder\+\_\+task\+\_\+func.\+py\end{DoxyCompactItemize}

@@ -1,0 +1,39 @@
+\hypertarget{cotask_8py}{}\section{cotask.\+py File Reference}
+\label{cotask_8py}\index{cotask.\+py@{cotask.\+py}}
+
+
+This file contains classes to run cooperatively scheduled tasks in a multitasking system.  
+
+
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \hyperlink{classcotask_1_1Task}{cotask.\+Task}
+\begin{DoxyCompactList}\small\item\em This class implements behavior common to tasks in a cooperative multitasking system which runs in Micro\+Python. \end{DoxyCompactList}\item 
+class \hyperlink{classcotask_1_1TaskList}{cotask.\+Task\+List}
+\begin{DoxyCompactList}\small\item\em This class holds the list of tasks which will be run by the task scheduler. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{cotask_8py_ae54e25f8d14958f642bcc22ddeb6c56f}{cotask.\+task\+\_\+list} = Task\+List()
+\begin{DoxyCompactList}\small\item\em This is {\bfseries the} main task list which is created for scheduling when {\ttfamily \hyperlink{cotask_8py}{cotask.\+py}} is imported into a program. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+This file contains classes to run cooperatively scheduled tasks in a multitasking system. 
+
+Tasks are created as descendents of {\ttfamily class} {\ttfamily Co\+Task}, with the user overriding the {\ttfamily run()} method of {\ttfamily Co\+Task} and the {\ttfamily ready()} method if appropriate. References to all the tasks to be run in the system are kept in a list maintained by class {\ttfamily Co\+Task\+List}; the system scheduler then runs the tasks\textquotesingle{} {\ttfamily run()} methods according to a chosen scheduling algorithm such as round-\/robin or highest-\/priority-\/first.
+
+\begin{DoxyCopyright}{Copyright}
+This program is copyrighted by JR Ridgely and released under the G\+NU Public License, version 3.\+0. 
+\end{DoxyCopyright}
+
+
+\subsection{Variable Documentation}
+\index{cotask.\+py@{cotask.\+py}!task\+\_\+list@{task\+\_\+list}}
+\index{task\+\_\+list@{task\+\_\+list}!cotask.\+py@{cotask.\+py}}
+\subsubsection[{\texorpdfstring{task\+\_\+list}{task_list}}]{\setlength{\rightskip}{0pt plus 5cm}cotask.\+task\+\_\+list = Task\+List()}\hypertarget{cotask_8py_file_ae54e25f8d14958f642bcc22ddeb6c56f}{}\label{cotask_8py_file_ae54e25f8d14958f642bcc22ddeb6c56f}
+
+
+This is {\bfseries the} main task list which is created for scheduling when {\ttfamily \hyperlink{cotask_8py}{cotask.\+py}} is imported into a program. 
+

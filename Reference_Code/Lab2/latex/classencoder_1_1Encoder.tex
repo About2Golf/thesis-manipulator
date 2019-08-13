@@ -1,0 +1,119 @@
+\hypertarget{classencoder_1_1Encoder}{}\section{encoder.\+Encoder Class Reference}
+\label{classencoder_1_1Encoder}\index{encoder.\+Encoder@{encoder.\+Encoder}}
+
+
+This class implements a motor driver for the M\+E405 board.  
+
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \hyperlink{classencoder_1_1Encoder_a16573d613ec4bf625740119851e24c54}{\+\_\+\+\_\+init\+\_\+\+\_\+} (self, timer, pin1, pin2)
+\begin{DoxyCompactList}\small\item\em Initializes the pins and timer channels for an encoder object. \end{DoxyCompactList}\item 
+def \hyperlink{classencoder_1_1Encoder_aed2076559d6f0965f50943bc3b08c220}{read\+\_\+encoder} (self)
+\begin{DoxyCompactList}\small\item\em Reads the current encoder value. \end{DoxyCompactList}\item 
+def \hyperlink{classencoder_1_1Encoder_a95c70f54c321a9acfe4b4ab821afd4f2}{zero\+\_\+encoder} (self)
+\begin{DoxyCompactList}\small\item\em Resets all encoder parameters to zero. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classencoder_1_1Encoder_aeda788d6a64794cb480a3d472c2efa4a}{pin\+\_\+object\+\_\+1}\hypertarget{classencoder_1_1Encoder_aeda788d6a64794cb480a3d472c2efa4a}{}\label{classencoder_1_1Encoder_aeda788d6a64794cb480a3d472c2efa4a}
+
+\begin{DoxyCompactList}\small\item\em First encoder pin associated with the pin1 (A) input parameter. \end{DoxyCompactList}\item 
+\hyperlink{classencoder_1_1Encoder_a7c94c69c4097a87a93ef3d4452fc2581}{pin\+\_\+object\+\_\+2}\hypertarget{classencoder_1_1Encoder_a7c94c69c4097a87a93ef3d4452fc2581}{}\label{classencoder_1_1Encoder_a7c94c69c4097a87a93ef3d4452fc2581}
+
+\begin{DoxyCompactList}\small\item\em Second encoder pin associated with the pin2 (B) input parameter. \end{DoxyCompactList}\item 
+\hyperlink{classencoder_1_1Encoder_a2fcfafbf246c24121f3c299303615d72}{timer\+\_\+val}\hypertarget{classencoder_1_1Encoder_a2fcfafbf246c24121f3c299303615d72}{}\label{classencoder_1_1Encoder_a2fcfafbf246c24121f3c299303615d72}
+
+\begin{DoxyCompactList}\small\item\em Timer number associated with the assigned pins. \end{DoxyCompactList}\item 
+\hyperlink{classencoder_1_1Encoder_a076f2be10f58f336dd7fb70b55feee6f}{ch1}
+\begin{DoxyCompactList}\small\item\em Timer number associated with the assigned pins (Set timer to have one count per encoder count and a period of 65535) \end{DoxyCompactList}\item 
+\hyperlink{classencoder_1_1Encoder_a1c05e07f7131cc3d173daf4d26b605b5}{ch2}\hypertarget{classencoder_1_1Encoder_a1c05e07f7131cc3d173daf4d26b605b5}{}\label{classencoder_1_1Encoder_a1c05e07f7131cc3d173daf4d26b605b5}
+
+\begin{DoxyCompactList}\small\item\em Initializes channel 2 for pin2 (B) timer input. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+This class implements a motor driver for the M\+E405 board. 
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\index{encoder\+::\+Encoder@{encoder\+::\+Encoder}!\+\_\+\+\_\+init\+\_\+\+\_\+@{\+\_\+\+\_\+init\+\_\+\+\_\+}}
+\index{\+\_\+\+\_\+init\+\_\+\+\_\+@{\+\_\+\+\_\+init\+\_\+\+\_\+}!encoder\+::\+Encoder@{encoder\+::\+Encoder}}
+\subsubsection[{\texorpdfstring{\+\_\+\+\_\+init\+\_\+\+\_\+(self, timer, pin1, pin2)}{__init__(self, timer, pin1, pin2)}}]{\setlength{\rightskip}{0pt plus 5cm}def encoder.\+Encoder.\+\_\+\+\_\+init\+\_\+\+\_\+ (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{timer, }
+\item[{}]{pin1, }
+\item[{}]{pin2}
+\end{DoxyParamCaption}
+)}\hypertarget{classencoder_1_1Encoder_a16573d613ec4bf625740119851e24c54}{}\label{classencoder_1_1Encoder_a16573d613ec4bf625740119851e24c54}
+
+
+Initializes the pins and timer channels for an encoder object. 
+
+To create P\+B6 and P\+B7 \hyperlink{classencoder_1_1Encoder}{Encoder} reader\+: ~\newline
+ pin1 = pyb.\+Pin.\+board.\+P\+B6 \# Pin A ~\newline
+ pin2 = pyb.\+Pin.\+board.\+P\+B7 \# Pin B ~\newline
+ timer = 4 ~\newline
+~\newline
+ To create P\+C6 and P\+C7 \hyperlink{classencoder_1_1Encoder}{Encoder} reader\+: ~\newline
+ pin1 = pyb.\+Pin.\+board.\+P\+C6 \# Pin A ~\newline
+ pin2 = pyb.\+Pin.\+board.\+P\+C7 \# Pin B ~\newline
+ timer = 8 ~\newline
+ 
+\begin{DoxyParams}{Parameters}
+{\em timer} & Specifies the timer for the encoder \\
+\hline
+{\em pin1} & First pin (A) used to read the encoder \\
+\hline
+{\em pin2} & Second pin (B) used to read the encoder \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Member Function Documentation}
+\index{encoder\+::\+Encoder@{encoder\+::\+Encoder}!read\+\_\+encoder@{read\+\_\+encoder}}
+\index{read\+\_\+encoder@{read\+\_\+encoder}!encoder\+::\+Encoder@{encoder\+::\+Encoder}}
+\subsubsection[{\texorpdfstring{read\+\_\+encoder(self)}{read_encoder(self)}}]{\setlength{\rightskip}{0pt plus 5cm}def encoder.\+Encoder.\+read\+\_\+encoder (
+\begin{DoxyParamCaption}
+\item[{}]{self}
+\end{DoxyParamCaption}
+)}\hypertarget{classencoder_1_1Encoder_aed2076559d6f0965f50943bc3b08c220}{}\label{classencoder_1_1Encoder_aed2076559d6f0965f50943bc3b08c220}
+
+
+Reads the current encoder value. 
+
+\begin{DoxyReturn}{Returns}
+encoder\+\_\+val 
+\end{DoxyReturn}
+\index{encoder\+::\+Encoder@{encoder\+::\+Encoder}!zero\+\_\+encoder@{zero\+\_\+encoder}}
+\index{zero\+\_\+encoder@{zero\+\_\+encoder}!encoder\+::\+Encoder@{encoder\+::\+Encoder}}
+\subsubsection[{\texorpdfstring{zero\+\_\+encoder(self)}{zero_encoder(self)}}]{\setlength{\rightskip}{0pt plus 5cm}def encoder.\+Encoder.\+zero\+\_\+encoder (
+\begin{DoxyParamCaption}
+\item[{}]{self}
+\end{DoxyParamCaption}
+)}\hypertarget{classencoder_1_1Encoder_a95c70f54c321a9acfe4b4ab821afd4f2}{}\label{classencoder_1_1Encoder_a95c70f54c321a9acfe4b4ab821afd4f2}
+
+
+Resets all encoder parameters to zero. 
+
+\begin{DoxyReturn}{Returns}
+encoder\+\_\+val 
+\end{DoxyReturn}
+
+
+\subsection{Member Data Documentation}
+\index{encoder\+::\+Encoder@{encoder\+::\+Encoder}!ch1@{ch1}}
+\index{ch1@{ch1}!encoder\+::\+Encoder@{encoder\+::\+Encoder}}
+\subsubsection[{\texorpdfstring{ch1}{ch1}}]{\setlength{\rightskip}{0pt plus 5cm}encoder.\+Encoder.\+ch1}\hypertarget{classencoder_1_1Encoder_a076f2be10f58f336dd7fb70b55feee6f}{}\label{classencoder_1_1Encoder_a076f2be10f58f336dd7fb70b55feee6f}
+
+
+Timer number associated with the assigned pins (Set timer to have one count per encoder count and a period of 65535) 
+
+Initializes channel 1 for pin1 (A) timer input 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+encoder.\+py\end{DoxyCompactItemize}

@@ -1,0 +1,2 @@
+Resistor: 12.94 KOhms
+Capacitor: 22 microfahrads

@@ -1,0 +1,154 @@
+\hypertarget{classbno055_1_1bno055}{}\section{bno055.\+bno055 Class Reference}
+\label{classbno055_1_1bno055}\index{bno055.\+bno055@{bno055.\+bno055}}
+
+
+This class implements a simple driver for the B\+N\+O055 Adafruit I\+MU.  
+
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \hyperlink{classbno055_1_1bno055_a6df2c1494372ae43c1f91374a9c2086d}{\+\_\+\+\_\+init\+\_\+\+\_\+} (self, i2c, address)
+\begin{DoxyCompactList}\small\item\em Initialize a B\+N\+O055 driver on the given I\textsuperscript{2}C bus. \end{DoxyCompactList}\item 
+def \hyperlink{classbno055_1_1bno055_ac40430cb358937db4ff3f0189d14e25d}{get\+\_\+euler\+\_\+pitch} (self)
+\begin{DoxyCompactList}\small\item\em Get the absolute euler pitch of the I\+MU. \end{DoxyCompactList}\item 
+def \hyperlink{classbno055_1_1bno055_a49aa987327ae1aaf68e95873b3bf8711}{get\+\_\+euler\+\_\+roll} (self)
+\begin{DoxyCompactList}\small\item\em Get the absolute euler roll of the I\+MU. \end{DoxyCompactList}\item 
+def \hyperlink{classbno055_1_1bno055_af21d62e91fdd3fb667fa29d8d43dfd1f}{get\+\_\+euler\+\_\+yaw} (self)
+\begin{DoxyCompactList}\small\item\em Get the absolute euler yaw of the I\+MU. \end{DoxyCompactList}\item 
+def \hyperlink{classbno055_1_1bno055_abd725ef3dc28867b8dbcd159debd90b3}{sys\+\_\+status} (self)
+\begin{DoxyCompactList}\small\item\em Get the I\+MU status to see if it is running or if there are errors. \end{DoxyCompactList}\item 
+def \hyperlink{classbno055_1_1bno055_abeffd56fdb578df54ddeda7f1074261c}{sys\+\_\+error} (self)
+\begin{DoxyCompactList}\small\item\em Obtain the error, if the I\+MU is not returning values. \end{DoxyCompactList}\item 
+def \hyperlink{classbno055_1_1bno055_ab5028430c3d671bae37b1c9fc1817ed7}{zero\+\_\+\+Euler\+\_\+vals} (self)
+\begin{DoxyCompactList}\small\item\em Zero the I\+MU for calibration purposes. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+This class implements a simple driver for the B\+N\+O055 Adafruit I\+MU. 
+
+This I\+MU talk to the C\+PU over I\textsuperscript{2}C.
+
+\# An example of how to use this driver\+: \#
+\begin{DoxyCode}
+1 \textcolor{comment}{#    imu = BNO055.bno055 (pyb.I2C (1, pyb.I2C.MASTER, baudrate = 100000), const(0x28))}
+2 \textcolor{comment}{#    imu.sys\_status ()}
+3 \textcolor{comment}{#    imu.sys\_error ()}
+4 \textcolor{comment}{#    imu.get\_euler\_pitch ()     # or other data...}
+5 \textcolor{comment}{#    }
+\end{DoxyCode}
+ The example code works for a B\+N\+O055 on a Adafruit\textsuperscript{TM} breakout board. 
+
+\subsection{Constructor \& Destructor Documentation}
+\index{bno055\+::bno055@{bno055\+::bno055}!\+\_\+\+\_\+init\+\_\+\+\_\+@{\+\_\+\+\_\+init\+\_\+\+\_\+}}
+\index{\+\_\+\+\_\+init\+\_\+\+\_\+@{\+\_\+\+\_\+init\+\_\+\+\_\+}!bno055\+::bno055@{bno055\+::bno055}}
+\subsubsection[{\texorpdfstring{\+\_\+\+\_\+init\+\_\+\+\_\+(self, i2c, address)}{__init__(self, i2c, address)}}]{\setlength{\rightskip}{0pt plus 5cm}def bno055.\+bno055.\+\_\+\+\_\+init\+\_\+\+\_\+ (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{i2c, }
+\item[{}]{address}
+\end{DoxyParamCaption}
+)}\hypertarget{classbno055_1_1bno055_a6df2c1494372ae43c1f91374a9c2086d}{}\label{classbno055_1_1bno055_a6df2c1494372ae43c1f91374a9c2086d}
+
+
+Initialize a B\+N\+O055 driver on the given I\textsuperscript{2}C bus. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em i2c} & An I\textsuperscript{2}C bus already set up in Micro\+Python \\
+\hline
+{\em address} & The address of the I\+MU on the I\textsuperscript{2}C bus \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Member Function Documentation}
+\index{bno055\+::bno055@{bno055\+::bno055}!get\+\_\+euler\+\_\+pitch@{get\+\_\+euler\+\_\+pitch}}
+\index{get\+\_\+euler\+\_\+pitch@{get\+\_\+euler\+\_\+pitch}!bno055\+::bno055@{bno055\+::bno055}}
+\subsubsection[{\texorpdfstring{get\+\_\+euler\+\_\+pitch(self)}{get_euler_pitch(self)}}]{\setlength{\rightskip}{0pt plus 5cm}def bno055.\+bno055.\+get\+\_\+euler\+\_\+pitch (
+\begin{DoxyParamCaption}
+\item[{}]{self}
+\end{DoxyParamCaption}
+)}\hypertarget{classbno055_1_1bno055_ac40430cb358937db4ff3f0189d14e25d}{}\label{classbno055_1_1bno055_ac40430cb358937db4ff3f0189d14e25d}
+
+
+Get the absolute euler pitch of the I\+MU. 
+
+(\+\_\+zeroes\mbox{[}0\mbox{]}) \begin{DoxyReturn}{Returns}
+\+\_\+pitch\+\_\+value The calibrated absolute pitch of the I\+MU 
+\end{DoxyReturn}
+\index{bno055\+::bno055@{bno055\+::bno055}!get\+\_\+euler\+\_\+roll@{get\+\_\+euler\+\_\+roll}}
+\index{get\+\_\+euler\+\_\+roll@{get\+\_\+euler\+\_\+roll}!bno055\+::bno055@{bno055\+::bno055}}
+\subsubsection[{\texorpdfstring{get\+\_\+euler\+\_\+roll(self)}{get_euler_roll(self)}}]{\setlength{\rightskip}{0pt plus 5cm}def bno055.\+bno055.\+get\+\_\+euler\+\_\+roll (
+\begin{DoxyParamCaption}
+\item[{}]{self}
+\end{DoxyParamCaption}
+)}\hypertarget{classbno055_1_1bno055_a49aa987327ae1aaf68e95873b3bf8711}{}\label{classbno055_1_1bno055_a49aa987327ae1aaf68e95873b3bf8711}
+
+
+Get the absolute euler roll of the I\+MU. 
+
+(\+\_\+zeroes\mbox{[}1\mbox{]}) \begin{DoxyReturn}{Returns}
+\+\_\+roll\+\_\+value The calibrated absolute roll of the I\+MU 
+\end{DoxyReturn}
+\index{bno055\+::bno055@{bno055\+::bno055}!get\+\_\+euler\+\_\+yaw@{get\+\_\+euler\+\_\+yaw}}
+\index{get\+\_\+euler\+\_\+yaw@{get\+\_\+euler\+\_\+yaw}!bno055\+::bno055@{bno055\+::bno055}}
+\subsubsection[{\texorpdfstring{get\+\_\+euler\+\_\+yaw(self)}{get_euler_yaw(self)}}]{\setlength{\rightskip}{0pt plus 5cm}def bno055.\+bno055.\+get\+\_\+euler\+\_\+yaw (
+\begin{DoxyParamCaption}
+\item[{}]{self}
+\end{DoxyParamCaption}
+)}\hypertarget{classbno055_1_1bno055_af21d62e91fdd3fb667fa29d8d43dfd1f}{}\label{classbno055_1_1bno055_af21d62e91fdd3fb667fa29d8d43dfd1f}
+
+
+Get the absolute euler yaw of the I\+MU. 
+
+(\+\_\+zeroes\mbox{[}2\mbox{]}) \begin{DoxyReturn}{Returns}
+\+\_\+raw\+\_\+value The calibrated absolute yaw of the I\+MU 
+\end{DoxyReturn}
+\index{bno055\+::bno055@{bno055\+::bno055}!sys\+\_\+error@{sys\+\_\+error}}
+\index{sys\+\_\+error@{sys\+\_\+error}!bno055\+::bno055@{bno055\+::bno055}}
+\subsubsection[{\texorpdfstring{sys\+\_\+error(self)}{sys_error(self)}}]{\setlength{\rightskip}{0pt plus 5cm}def bno055.\+bno055.\+sys\+\_\+error (
+\begin{DoxyParamCaption}
+\item[{}]{self}
+\end{DoxyParamCaption}
+)}\hypertarget{classbno055_1_1bno055_abeffd56fdb578df54ddeda7f1074261c}{}\label{classbno055_1_1bno055_abeffd56fdb578df54ddeda7f1074261c}
+
+
+Obtain the error, if the I\+MU is not returning values. 
+
+\begin{DoxyReturn}{Returns}
+\+\_\+error\+\_\+value The 
+\end{DoxyReturn}
+\index{bno055\+::bno055@{bno055\+::bno055}!sys\+\_\+status@{sys\+\_\+status}}
+\index{sys\+\_\+status@{sys\+\_\+status}!bno055\+::bno055@{bno055\+::bno055}}
+\subsubsection[{\texorpdfstring{sys\+\_\+status(self)}{sys_status(self)}}]{\setlength{\rightskip}{0pt plus 5cm}def bno055.\+bno055.\+sys\+\_\+status (
+\begin{DoxyParamCaption}
+\item[{}]{self}
+\end{DoxyParamCaption}
+)}\hypertarget{classbno055_1_1bno055_abd725ef3dc28867b8dbcd159debd90b3}{}\label{classbno055_1_1bno055_abd725ef3dc28867b8dbcd159debd90b3}
+
+
+Get the I\+MU status to see if it is running or if there are errors. 
+
+\begin{DoxyReturn}{Returns}
+\+\_\+status\+\_\+value The absolute pitch of the I\+MU 
+\end{DoxyReturn}
+\index{bno055\+::bno055@{bno055\+::bno055}!zero\+\_\+\+Euler\+\_\+vals@{zero\+\_\+\+Euler\+\_\+vals}}
+\index{zero\+\_\+\+Euler\+\_\+vals@{zero\+\_\+\+Euler\+\_\+vals}!bno055\+::bno055@{bno055\+::bno055}}
+\subsubsection[{\texorpdfstring{zero\+\_\+\+Euler\+\_\+vals(self)}{zero_Euler_vals(self)}}]{\setlength{\rightskip}{0pt plus 5cm}def bno055.\+bno055.\+zero\+\_\+\+Euler\+\_\+vals (
+\begin{DoxyParamCaption}
+\item[{}]{self}
+\end{DoxyParamCaption}
+)}\hypertarget{classbno055_1_1bno055_ab5028430c3d671bae37b1c9fc1817ed7}{}\label{classbno055_1_1bno055_ab5028430c3d671bae37b1c9fc1817ed7}
+
+
+Zero the I\+MU for calibration purposes. 
+
+\begin{DoxyReturn}{Returns}
+\+\_\+zeroes The calibration list for Euler angle outputs 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+bno055.\+py\end{DoxyCompactItemize}

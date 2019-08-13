@@ -1,0 +1,206 @@
+\hypertarget{classcontroller_1_1Controller}{}\section{controller.\+Controller Class Reference}
+\label{classcontroller_1_1Controller}\index{controller.\+Controller@{controller.\+Controller}}
+
+
+This class implements a generic P\+ID gain controller.  
+
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \hyperlink{classcontroller_1_1Controller_a97098372dd1025e6518686ac8d34e5cb}{\+\_\+\+\_\+init\+\_\+\+\_\+} (self, \hyperlink{classcontroller_1_1Controller_a34cf377d78ee193d7160d74adbe9aabf}{Kp}, \hyperlink{classcontroller_1_1Controller_ae2cdbac964e61042bab697b094df1e02}{Ki}, \hyperlink{classcontroller_1_1Controller_aa67f4d0fe3cb5e3659bf036eaa44f246}{Kd}, saturation)
+\begin{DoxyCompactList}\small\item\em Initializes the P,I,D gain, saturation and defines the initial setpoint for the controller. \end{DoxyCompactList}\item 
+def \hyperlink{classcontroller_1_1Controller_acee6fffdca024ce396a2260b72e99059}{set\+\_\+setpoint} (self, new\+\_\+setpoint)
+\begin{DoxyCompactList}\small\item\em Method to enable the user to define a new setpoint that the control loop will use as a reference value. \end{DoxyCompactList}\item 
+def \hyperlink{classcontroller_1_1Controller_a048d7ed4722c40579b6bfbea25ae98c0}{set\+\_\+\+Kp} (self, new\+\_\+\+Kp)
+\begin{DoxyCompactList}\small\item\em Method to enable the user to define a new proportional gain that the control loop will use to multiply the error signal and output an actuation signal. \end{DoxyCompactList}\item 
+def \hyperlink{classcontroller_1_1Controller_a8442b219e2ad2a91acc4918212465d91}{set\+\_\+\+Ki} (self, new\+\_\+\+Ki)
+\begin{DoxyCompactList}\small\item\em Method to enable the user to define a new integral gain that the control loop will use to multiply the error sum signal and output an actuation signal. \end{DoxyCompactList}\item 
+def \hyperlink{classcontroller_1_1Controller_a49fa05357ea552c4582fec518296c6b9}{set\+\_\+new\+Sat} (self, new\+\_\+\+Sat)
+\begin{DoxyCompactList}\small\item\em Method to enable the user to define a integral saturation and output a saturated error signal if saturated. \end{DoxyCompactList}\item 
+def \hyperlink{classcontroller_1_1Controller_ad00c089df25898872508fa038105b728}{set\+\_\+\+Kd} (self, new\+\_\+\+Kd)
+\begin{DoxyCompactList}\small\item\em Method to enable the user to define a new derivative gain that the control loop will use to multiply the error signal and output an actuation signal. \end{DoxyCompactList}\item 
+def \hyperlink{classcontroller_1_1Controller_abe90cd53f3b1712fb253c0feaad18a0d}{repeatedly} (self, current\+\_\+value)
+\begin{DoxyCompactList}\small\item\em Method that repeatedly runs the control algorithm. \end{DoxyCompactList}\item 
+def \hyperlink{classcontroller_1_1Controller_afa5d03dfb05c626390315a989b8db1fa}{percent\+\_\+completion} (self)
+\begin{DoxyCompactList}\small\item\em Returns the completion calculation for the controlled path. \end{DoxyCompactList}\item 
+def \hyperlink{classcontroller_1_1Controller_afa5fa8bbe4614f550a6a96ac1869871a}{clear\+\_\+controller} (self)\hypertarget{classcontroller_1_1Controller_afa5fa8bbe4614f550a6a96ac1869871a}{}\label{classcontroller_1_1Controller_afa5fa8bbe4614f550a6a96ac1869871a}
+
+\begin{DoxyCompactList}\small\item\em Clears the esum for a new target location. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classcontroller_1_1Controller_a34cf377d78ee193d7160d74adbe9aabf}{Kp}\hypertarget{classcontroller_1_1Controller_a34cf377d78ee193d7160d74adbe9aabf}{}\label{classcontroller_1_1Controller_a34cf377d78ee193d7160d74adbe9aabf}
+
+\begin{DoxyCompactList}\small\item\em Proportional gain for a control loop. \end{DoxyCompactList}\item 
+\hyperlink{classcontroller_1_1Controller_ae2cdbac964e61042bab697b094df1e02}{Ki}\hypertarget{classcontroller_1_1Controller_ae2cdbac964e61042bab697b094df1e02}{}\label{classcontroller_1_1Controller_ae2cdbac964e61042bab697b094df1e02}
+
+\begin{DoxyCompactList}\small\item\em Integral gain for a control loop. \end{DoxyCompactList}\item 
+\hyperlink{classcontroller_1_1Controller_aa67f4d0fe3cb5e3659bf036eaa44f246}{Kd}\hypertarget{classcontroller_1_1Controller_aa67f4d0fe3cb5e3659bf036eaa44f246}{}\label{classcontroller_1_1Controller_aa67f4d0fe3cb5e3659bf036eaa44f246}
+
+\begin{DoxyCompactList}\small\item\em Derivative gain for a control loop. \end{DoxyCompactList}\item 
+\hyperlink{classcontroller_1_1Controller_ace8a70b35ea15f3f7b6548c64aee1e48}{setpoint}\hypertarget{classcontroller_1_1Controller_ace8a70b35ea15f3f7b6548c64aee1e48}{}\label{classcontroller_1_1Controller_ace8a70b35ea15f3f7b6548c64aee1e48}
+
+\begin{DoxyCompactList}\small\item\em Desired output target variable. \end{DoxyCompactList}\item 
+{\bfseries saturation}\hypertarget{classcontroller_1_1Controller_a0bd1d798bf2c955536c7109a484ae69d}{}\label{classcontroller_1_1Controller_a0bd1d798bf2c955536c7109a484ae69d}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+This class implements a generic P\+ID gain controller. 
+
+\subsection{Constructor \& Destructor Documentation}
+\index{controller\+::\+Controller@{controller\+::\+Controller}!\+\_\+\+\_\+init\+\_\+\+\_\+@{\+\_\+\+\_\+init\+\_\+\+\_\+}}
+\index{\+\_\+\+\_\+init\+\_\+\+\_\+@{\+\_\+\+\_\+init\+\_\+\+\_\+}!controller\+::\+Controller@{controller\+::\+Controller}}
+\subsubsection[{\texorpdfstring{\+\_\+\+\_\+init\+\_\+\+\_\+(self, Kp, Ki, Kd, saturation)}{__init__(self, Kp, Ki, Kd, saturation)}}]{\setlength{\rightskip}{0pt plus 5cm}def controller.\+Controller.\+\_\+\+\_\+init\+\_\+\+\_\+ (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{Kp, }
+\item[{}]{Ki, }
+\item[{}]{Kd, }
+\item[{}]{saturation}
+\end{DoxyParamCaption}
+)}\hypertarget{classcontroller_1_1Controller_a97098372dd1025e6518686ac8d34e5cb}{}\label{classcontroller_1_1Controller_a97098372dd1025e6518686ac8d34e5cb}
+
+
+Initializes the P,I,D gain, saturation and defines the initial setpoint for the controller. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em Kp} & Sets proportional gain value \\
+\hline
+{\em Ki} & Sets integral gain value \\
+\hline
+{\em Kd} & Sets derivative gain value \\
+\hline
+{\em saturation} & The anti-\/wind up integration saturation limit \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Member Function Documentation}
+\index{controller\+::\+Controller@{controller\+::\+Controller}!percent\+\_\+completion@{percent\+\_\+completion}}
+\index{percent\+\_\+completion@{percent\+\_\+completion}!controller\+::\+Controller@{controller\+::\+Controller}}
+\subsubsection[{\texorpdfstring{percent\+\_\+completion(self)}{percent_completion(self)}}]{\setlength{\rightskip}{0pt plus 5cm}def controller.\+Controller.\+percent\+\_\+completion (
+\begin{DoxyParamCaption}
+\item[{}]{self}
+\end{DoxyParamCaption}
+)}\hypertarget{classcontroller_1_1Controller_afa5d03dfb05c626390315a989b8db1fa}{}\label{classcontroller_1_1Controller_afa5d03dfb05c626390315a989b8db1fa}
+
+
+Returns the completion calculation for the controlled path. 
+
+\begin{DoxyReturn}{Returns}
+error The error from the desired position and current position 
+\end{DoxyReturn}
+\index{controller\+::\+Controller@{controller\+::\+Controller}!repeatedly@{repeatedly}}
+\index{repeatedly@{repeatedly}!controller\+::\+Controller@{controller\+::\+Controller}}
+\subsubsection[{\texorpdfstring{repeatedly(self, current\+\_\+value)}{repeatedly(self, current_value)}}]{\setlength{\rightskip}{0pt plus 5cm}def controller.\+Controller.\+repeatedly (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{current\+\_\+value}
+\end{DoxyParamCaption}
+)}\hypertarget{classcontroller_1_1Controller_abe90cd53f3b1712fb253c0feaad18a0d}{}\label{classcontroller_1_1Controller_abe90cd53f3b1712fb253c0feaad18a0d}
+
+
+Method that repeatedly runs the control algorithm. 
+
+Compares setpoint to actual signal value. This error is multiplied by the proportional gain and sent to the plant. 
+\begin{DoxyParams}{Parameters}
+{\em current\+\_\+value} & Received current value from feedback loop \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+actuate\+\_\+signal\+: \% duty cycle sent to device driver 
+\end{DoxyReturn}
+\index{controller\+::\+Controller@{controller\+::\+Controller}!set\+\_\+\+Kd@{set\+\_\+\+Kd}}
+\index{set\+\_\+\+Kd@{set\+\_\+\+Kd}!controller\+::\+Controller@{controller\+::\+Controller}}
+\subsubsection[{\texorpdfstring{set\+\_\+\+Kd(self, new\+\_\+\+Kd)}{set_Kd(self, new_Kd)}}]{\setlength{\rightskip}{0pt plus 5cm}def controller.\+Controller.\+set\+\_\+\+Kd (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{new\+\_\+\+Kd}
+\end{DoxyParamCaption}
+)}\hypertarget{classcontroller_1_1Controller_ad00c089df25898872508fa038105b728}{}\label{classcontroller_1_1Controller_ad00c089df25898872508fa038105b728}
+
+
+Method to enable the user to define a new derivative gain that the control loop will use to multiply the error signal and output an actuation signal. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em new\+\_\+\+Kd} & User-\/defined derivative gain that is multiplied by error -\/ previous error to produce and actuation signal \\
+\hline
+\end{DoxyParams}
+\index{controller\+::\+Controller@{controller\+::\+Controller}!set\+\_\+\+Ki@{set\+\_\+\+Ki}}
+\index{set\+\_\+\+Ki@{set\+\_\+\+Ki}!controller\+::\+Controller@{controller\+::\+Controller}}
+\subsubsection[{\texorpdfstring{set\+\_\+\+Ki(self, new\+\_\+\+Ki)}{set_Ki(self, new_Ki)}}]{\setlength{\rightskip}{0pt plus 5cm}def controller.\+Controller.\+set\+\_\+\+Ki (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{new\+\_\+\+Ki}
+\end{DoxyParamCaption}
+)}\hypertarget{classcontroller_1_1Controller_a8442b219e2ad2a91acc4918212465d91}{}\label{classcontroller_1_1Controller_a8442b219e2ad2a91acc4918212465d91}
+
+
+Method to enable the user to define a new integral gain that the control loop will use to multiply the error sum signal and output an actuation signal. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em new\+\_\+\+Ki} & User-\/defined integral gain that is multiplied by error to produce an actuation signal \\
+\hline
+\end{DoxyParams}
+\index{controller\+::\+Controller@{controller\+::\+Controller}!set\+\_\+\+Kp@{set\+\_\+\+Kp}}
+\index{set\+\_\+\+Kp@{set\+\_\+\+Kp}!controller\+::\+Controller@{controller\+::\+Controller}}
+\subsubsection[{\texorpdfstring{set\+\_\+\+Kp(self, new\+\_\+\+Kp)}{set_Kp(self, new_Kp)}}]{\setlength{\rightskip}{0pt plus 5cm}def controller.\+Controller.\+set\+\_\+\+Kp (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{new\+\_\+\+Kp}
+\end{DoxyParamCaption}
+)}\hypertarget{classcontroller_1_1Controller_a048d7ed4722c40579b6bfbea25ae98c0}{}\label{classcontroller_1_1Controller_a048d7ed4722c40579b6bfbea25ae98c0}
+
+
+Method to enable the user to define a new proportional gain that the control loop will use to multiply the error signal and output an actuation signal. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em new\+\_\+\+Kp} & User-\/defined propotional gain that is multiplied by error to produce and actuation signal \\
+\hline
+\end{DoxyParams}
+\index{controller\+::\+Controller@{controller\+::\+Controller}!set\+\_\+new\+Sat@{set\+\_\+new\+Sat}}
+\index{set\+\_\+new\+Sat@{set\+\_\+new\+Sat}!controller\+::\+Controller@{controller\+::\+Controller}}
+\subsubsection[{\texorpdfstring{set\+\_\+new\+Sat(self, new\+\_\+\+Sat)}{set_newSat(self, new_Sat)}}]{\setlength{\rightskip}{0pt plus 5cm}def controller.\+Controller.\+set\+\_\+new\+Sat (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{new\+\_\+\+Sat}
+\end{DoxyParamCaption}
+)}\hypertarget{classcontroller_1_1Controller_a49fa05357ea552c4582fec518296c6b9}{}\label{classcontroller_1_1Controller_a49fa05357ea552c4582fec518296c6b9}
+
+
+Method to enable the user to define a integral saturation and output a saturated error signal if saturated. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em new\+Sat} & User-\/defined saturation that is used to prevent integral wind up. \\
+\hline
+\end{DoxyParams}
+\index{controller\+::\+Controller@{controller\+::\+Controller}!set\+\_\+setpoint@{set\+\_\+setpoint}}
+\index{set\+\_\+setpoint@{set\+\_\+setpoint}!controller\+::\+Controller@{controller\+::\+Controller}}
+\subsubsection[{\texorpdfstring{set\+\_\+setpoint(self, new\+\_\+setpoint)}{set_setpoint(self, new_setpoint)}}]{\setlength{\rightskip}{0pt plus 5cm}def controller.\+Controller.\+set\+\_\+setpoint (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{new\+\_\+setpoint}
+\end{DoxyParamCaption}
+)}\hypertarget{classcontroller_1_1Controller_acee6fffdca024ce396a2260b72e99059}{}\label{classcontroller_1_1Controller_acee6fffdca024ce396a2260b72e99059}
+
+
+Method to enable the user to define a new setpoint that the control loop will use as a reference value. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em new\+\_\+setpoint} & User-\/defined setpoint that the controller uses as its reference value \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+controller.\+py\end{DoxyCompactItemize}

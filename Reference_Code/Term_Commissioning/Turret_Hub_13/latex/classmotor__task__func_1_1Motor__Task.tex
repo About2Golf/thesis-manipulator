@@ -1,0 +1,118 @@
+\hypertarget{classmotor__task__func_1_1Motor__Task}{}\section{motor\+\_\+task\+\_\+func.\+Motor\+\_\+\+Task Class Reference}
+\label{classmotor__task__func_1_1Motor__Task}\index{motor\+\_\+task\+\_\+func.\+Motor\+\_\+\+Task@{motor\+\_\+task\+\_\+func.\+Motor\+\_\+\+Task}}
+
+
+This defines the task function method for a motor.  
+
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \hyperlink{classmotor__task__func_1_1Motor__Task_add76e1a811f52794af8457d3168848a4}{\+\_\+\+\_\+init\+\_\+\+\_\+} (self, position, coordinate, timer, E\+N\+\_\+\+Pin, pin1, pin2, Kp, Ki, Kd, saturation)
+\begin{DoxyCompactList}\small\item\em Construct an encoder task function by initilizing any shared variables and initialize the encoder object \#. \end{DoxyCompactList}\item 
+def \hyperlink{classmotor__task__func_1_1Motor__Task_aa3835e11e339baa7d4307cbb880c3592}{mot\+\_\+fun} (self)\hypertarget{classmotor__task__func_1_1Motor__Task_aa3835e11e339baa7d4307cbb880c3592}{}\label{classmotor__task__func_1_1Motor__Task_aa3835e11e339baa7d4307cbb880c3592}
+
+\begin{DoxyCompactList}\small\item\em Defines the task function method for a Motor object. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+{\bfseries position}\hypertarget{classmotor__task__func_1_1Motor__Task_acceb80bb53adab2e82316b4f0b1106d6}{}\label{classmotor__task__func_1_1Motor__Task_acceb80bb53adab2e82316b4f0b1106d6}
+
+\item 
+{\bfseries coordinate}\hypertarget{classmotor__task__func_1_1Motor__Task_aa3c4b7c549cf5ce2ea041b097075c2b3}{}\label{classmotor__task__func_1_1Motor__Task_aa3c4b7c549cf5ce2ea041b097075c2b3}
+
+\item 
+{\bfseries Motor}\hypertarget{classmotor__task__func_1_1Motor__Task_a625735c62f6b22e02d1d5a31606ed3cf}{}\label{classmotor__task__func_1_1Motor__Task_a625735c62f6b22e02d1d5a31606ed3cf}
+
+\item 
+{\bfseries Controller}\hypertarget{classmotor__task__func_1_1Motor__Task_a23a4ecb2af35593aa381c4f97956cb95}{}\label{classmotor__task__func_1_1Motor__Task_a23a4ecb2af35593aa381c4f97956cb95}
+
+\item 
+\hyperlink{classmotor__task__func_1_1Motor__Task_a663cf01c6093dee5df31db371be9210f}{state}
+\begin{DoxyCompactList}\small\item\em S\+T\+A\+TE 0\+: I\+N\+IT. \end{DoxyCompactList}\item 
+{\bfseries Duty\+\_\+\+Cycle}\hypertarget{classmotor__task__func_1_1Motor__Task_a42763856446f503f32d55c1de26edda7}{}\label{classmotor__task__func_1_1Motor__Task_a42763856446f503f32d55c1de26edda7}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+This defines the task function method for a motor. 
+
+The motor utilizes shared data from an encoder to know where it is. To create an instance of this task class (example)\+: \subsection*{have run shared variable declared}
+
+Run = \hyperlink{classtask__share_1_1Share}{task\+\_\+share.\+Share}(\textquotesingle{}i\textquotesingle{}, thread\+\_\+protect = False, name = \char`\"{}\+Run\+\_\+\+Intertask\+\_\+\+Comm\+\_\+\+Variable\char`\"{}) \subsection*{have encoder position shared variable declared}
+
+enc\+\_\+1\+\_\+position = \hyperlink{classtask__share_1_1Share}{task\+\_\+share.\+Share} (\textquotesingle{}i\textquotesingle{}, thread\+\_\+protect = False, name = \char`\"{}\+Share\+\_\+0\+\_\+enc\+\_\+1\+\_\+position\char`\"{}) \subsection*{create motor 1 task object}
+
+Motor\+\_\+1 = \hyperlink{classmotor__task__func_1_1Motor__Task}{motor\+\_\+task\+\_\+func.\+Motor\+\_\+\+Task}(Run, enc\+\_\+1\+\_\+position, 4, pyb.\+Pin.\+board.\+P\+B6, pyb.\+Pin.\+board.\+P\+B7) \subsection*{create task2 function, adjust parameters for implementation}
+
+task2 = \hyperlink{classcotask_1_1Task}{cotask.\+Task} (Motor\+\_\+1.\+enc\+\_\+fun(), name = \textquotesingle{}Task\+\_\+2\textquotesingle{}, priority = 5, period = 2, profile = True, trace = False) \subsection*{append task2 to list of scheduled tasks}
+
+cotask.\+task\+\_\+list.\+append (task2) 
+
+\subsection{Constructor \& Destructor Documentation}
+\index{motor\+\_\+task\+\_\+func\+::\+Motor\+\_\+\+Task@{motor\+\_\+task\+\_\+func\+::\+Motor\+\_\+\+Task}!\+\_\+\+\_\+init\+\_\+\+\_\+@{\+\_\+\+\_\+init\+\_\+\+\_\+}}
+\index{\+\_\+\+\_\+init\+\_\+\+\_\+@{\+\_\+\+\_\+init\+\_\+\+\_\+}!motor\+\_\+task\+\_\+func\+::\+Motor\+\_\+\+Task@{motor\+\_\+task\+\_\+func\+::\+Motor\+\_\+\+Task}}
+\subsubsection[{\texorpdfstring{\+\_\+\+\_\+init\+\_\+\+\_\+(self, position, coordinate, timer, E\+N\+\_\+\+Pin, pin1, pin2, Kp, Ki, Kd, saturation)}{__init__(self, position, coordinate, timer, EN_Pin, pin1, pin2, Kp, Ki, Kd, saturation)}}]{\setlength{\rightskip}{0pt plus 5cm}def motor\+\_\+task\+\_\+func.\+Motor\+\_\+\+Task.\+\_\+\+\_\+init\+\_\+\+\_\+ (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{position, }
+\item[{}]{coordinate, }
+\item[{}]{timer, }
+\item[{}]{E\+N\+\_\+\+Pin, }
+\item[{}]{pin1, }
+\item[{}]{pin2, }
+\item[{}]{Kp, }
+\item[{}]{Ki, }
+\item[{}]{Kd, }
+\item[{}]{saturation}
+\end{DoxyParamCaption}
+)}\hypertarget{classmotor__task__func_1_1Motor__Task_add76e1a811f52794af8457d3168848a4}{}\label{classmotor__task__func_1_1Motor__Task_add76e1a811f52794af8457d3168848a4}
+
+
+Construct an encoder task function by initilizing any shared variables and initialize the encoder object \#. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em completion} & Indicate the percentage completion of the motor\textquotesingle{}s control path \\
+\hline
+{\em position} & The shared variable between tasks that contains the Encoder readings \\
+\hline
+{\em coordinate} & The desired coordinate to which to move the motor \\
+\hline
+{\em timer} & The Motor\textquotesingle{}s timer channel \\
+\hline
+{\em E\+N\+\_\+pin} & The Motor\textquotesingle{}s \+\_\+\+\_\+?\+\_\+\+\_\+ pin \\
+\hline
+{\em pin1} & The Motor\textquotesingle{}s first pin, Pin A \\
+\hline
+{\em pin2} & The Motor\textquotesingle{}s second pin, Pin B \\
+\hline
+{\em Kp} & The Motor Controller\textquotesingle{}s proportional gain \\
+\hline
+{\em Ki} & The Motor Controller\textquotesingle{}s integral gain \\
+\hline
+{\em Ki} & The Motor Controller\textquotesingle{}s integral gain \\
+\hline
+{\em Setpoint} & Where the motor is desired to go \\
+\hline
+{\em saturation} & The anti wind up saturation limit \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Member Data Documentation}
+\index{motor\+\_\+task\+\_\+func\+::\+Motor\+\_\+\+Task@{motor\+\_\+task\+\_\+func\+::\+Motor\+\_\+\+Task}!state@{state}}
+\index{state@{state}!motor\+\_\+task\+\_\+func\+::\+Motor\+\_\+\+Task@{motor\+\_\+task\+\_\+func\+::\+Motor\+\_\+\+Task}}
+\subsubsection[{\texorpdfstring{state}{state}}]{\setlength{\rightskip}{0pt plus 5cm}motor\+\_\+task\+\_\+func.\+Motor\+\_\+\+Task.\+state}\hypertarget{classmotor__task__func_1_1Motor__Task_a663cf01c6093dee5df31db371be9210f}{}\label{classmotor__task__func_1_1Motor__Task_a663cf01c6093dee5df31db371be9210f}
+
+
+S\+T\+A\+TE 0\+: I\+N\+IT. 
+
+S\+T\+A\+TE 2\+: M\+O\+V\+I\+NG TO T\+A\+R\+G\+ET.
+
+S\+T\+A\+TE 1\+: S\+T\+O\+P\+P\+ED. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+motor\+\_\+task\+\_\+func.\+py\end{DoxyCompactItemize}

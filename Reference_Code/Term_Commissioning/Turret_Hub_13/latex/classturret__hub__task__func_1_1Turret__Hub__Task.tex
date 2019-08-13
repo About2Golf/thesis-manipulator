@@ -1,0 +1,235 @@
+\hypertarget{classturret__hub__task__func_1_1Turret__Hub__Task}{}\section{turret\+\_\+hub\+\_\+task\+\_\+func.\+Turret\+\_\+\+Hub\+\_\+\+Task Class Reference}
+\label{classturret__hub__task__func_1_1Turret__Hub__Task}\index{turret\+\_\+hub\+\_\+task\+\_\+func.\+Turret\+\_\+\+Hub\+\_\+\+Task@{turret\+\_\+hub\+\_\+task\+\_\+func.\+Turret\+\_\+\+Hub\+\_\+\+Task}}
+
+
+This defines the task function method for a nerf turret hub.  
+
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \hyperlink{classturret__hub__task__func_1_1Turret__Hub__Task_aef3d389ffa8ab5461ca905705ea7027d}{\+\_\+\+\_\+init\+\_\+\+\_\+} (self, pan\+\_\+position, tilt\+\_\+angle, pan\+\_\+coords, tilt\+\_\+coords, F\+E\+E\+D\+\_\+\+B\+U\+L\+L\+E\+TS, W\+I\+N\+D\+U\+P\+\_\+\+G\+UN)
+\begin{DoxyCompactList}\small\item\em Construct a turret hub task function by initilizing any shared variables and objects. \end{DoxyCompactList}\item 
+def \hyperlink{classturret__hub__task__func_1_1Turret__Hub__Task_ac88dbb9caa30adca8c9c33f0bf63e10f}{read\+\_\+\+G\+UI} (self)\hypertarget{classturret__hub__task__func_1_1Turret__Hub__Task_ac88dbb9caa30adca8c9c33f0bf63e10f}{}\label{classturret__hub__task__func_1_1Turret__Hub__Task_ac88dbb9caa30adca8c9c33f0bf63e10f}
+
+\begin{DoxyCompactList}\small\item\em Reads the serial port for incoming commands and executes the command. \end{DoxyCompactList}\item 
+def \hyperlink{classturret__hub__task__func_1_1Turret__Hub__Task_afde6b31121bcb5febadcac8d793d372a}{turret\+\_\+hub\+\_\+fun} (self)\hypertarget{classturret__hub__task__func_1_1Turret__Hub__Task_afde6b31121bcb5febadcac8d793d372a}{}\label{classturret__hub__task__func_1_1Turret__Hub__Task_afde6b31121bcb5febadcac8d793d372a}
+
+\begin{DoxyCompactList}\small\item\em Defines the task function method for a turret hub object. \end{DoxyCompactList}\item 
+def \hyperlink{classturret__hub__task__func_1_1Turret__Hub__Task_a2f73e545adeae63df7c41bfaa4d2bec4}{target\+\_\+cmd} (self, pan, tilt, target\+\_\+cmd=True)
+\begin{DoxyCompactList}\small\item\em Defines what to do when target cmd is entered through the G\+UI. \end{DoxyCompactList}\item 
+def \hyperlink{classturret__hub__task__func_1_1Turret__Hub__Task_ae055fe9d0cd5011fced5fb270a463249}{calibrate\+\_\+point} (self, index, pan\+\_\+coor, tilt\+\_\+coor, pan=False, tilt=False)
+\begin{DoxyCompactList}\small\item\em enters the calibrated point into the proper centroid list. \end{DoxyCompactList}\item 
+def \hyperlink{classturret__hub__task__func_1_1Turret__Hub__Task_a093eac7997f4225b4ad498f0751c01d4}{G\+U\+I\+\_\+\+Lookup\+\_\+\+Table} (self, command)
+\begin{DoxyCompactList}\small\item\em Decodes G\+UI commands based on a defined list of commands. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+{\bfseries pan\+\_\+position}\hypertarget{classturret__hub__task__func_1_1Turret__Hub__Task_a4c823222d75a79de4c9124be294c621a}{}\label{classturret__hub__task__func_1_1Turret__Hub__Task_a4c823222d75a79de4c9124be294c621a}
+
+\item 
+{\bfseries tilt\+\_\+angle}\hypertarget{classturret__hub__task__func_1_1Turret__Hub__Task_a7bb149cdf5c36636e5fee2085b6a3177}{}\label{classturret__hub__task__func_1_1Turret__Hub__Task_a7bb149cdf5c36636e5fee2085b6a3177}
+
+\item 
+{\bfseries pan\+\_\+coords}\hypertarget{classturret__hub__task__func_1_1Turret__Hub__Task_a4bc4d33412492bc65f0fbd03d45511d3}{}\label{classturret__hub__task__func_1_1Turret__Hub__Task_a4bc4d33412492bc65f0fbd03d45511d3}
+
+\item 
+{\bfseries tilt\+\_\+coords}\hypertarget{classturret__hub__task__func_1_1Turret__Hub__Task_af8bbc3c191ef1b4028747f7a3313abf0}{}\label{classturret__hub__task__func_1_1Turret__Hub__Task_af8bbc3c191ef1b4028747f7a3313abf0}
+
+\item 
+{\bfseries F\+E\+E\+D\+\_\+\+B\+U\+L\+L\+E\+TS}\hypertarget{classturret__hub__task__func_1_1Turret__Hub__Task_ab0faa87b898cc16b0d43d42b4908294e}{}\label{classturret__hub__task__func_1_1Turret__Hub__Task_ab0faa87b898cc16b0d43d42b4908294e}
+
+\item 
+{\bfseries W\+I\+N\+D\+U\+P\+\_\+\+G\+UN}\hypertarget{classturret__hub__task__func_1_1Turret__Hub__Task_a64b322d95b3b6734723a2c21ab07780f}{}\label{classturret__hub__task__func_1_1Turret__Hub__Task_a64b322d95b3b6734723a2c21ab07780f}
+
+\item 
+{\bfseries T\+A\+R\+G\+E\+T\+\_\+\+C\+MD}\hypertarget{classturret__hub__task__func_1_1Turret__Hub__Task_a8cf288e5f8e1e2ac4dad86167c3bae2e}{}\label{classturret__hub__task__func_1_1Turret__Hub__Task_a8cf288e5f8e1e2ac4dad86167c3bae2e}
+
+\item 
+{\bfseries C\+A\+L\+I\+B\+R\+A\+T\+I\+O\+N\+\_\+\+F\+LG}\hypertarget{classturret__hub__task__func_1_1Turret__Hub__Task_a9297a06f0ad180fbfafb3e7df8987cbe}{}\label{classturret__hub__task__func_1_1Turret__Hub__Task_a9297a06f0ad180fbfafb3e7df8987cbe}
+
+\item 
+{\bfseries pan\+\_\+rec}\hypertarget{classturret__hub__task__func_1_1Turret__Hub__Task_adfb357201a446191017506d326b90ccd}{}\label{classturret__hub__task__func_1_1Turret__Hub__Task_adfb357201a446191017506d326b90ccd}
+
+\item 
+{\bfseries tilt\+\_\+rec}\hypertarget{classturret__hub__task__func_1_1Turret__Hub__Task_a74a0e26bee095a8e6caff8d95f473ecc}{}\label{classturret__hub__task__func_1_1Turret__Hub__Task_a74a0e26bee095a8e6caff8d95f473ecc}
+
+\item 
+{\bfseries pan\+\_\+centroids}\hypertarget{classturret__hub__task__func_1_1Turret__Hub__Task_ad4b8bdf1413d9b718ad487873131461e}{}\label{classturret__hub__task__func_1_1Turret__Hub__Task_ad4b8bdf1413d9b718ad487873131461e}
+
+\item 
+{\bfseries tilt\+\_\+centroids}\hypertarget{classturret__hub__task__func_1_1Turret__Hub__Task_a8ba64ab332d687aa0771ca31bf729213}{}\label{classturret__hub__task__func_1_1Turret__Hub__Task_a8ba64ab332d687aa0771ca31bf729213}
+
+\item 
+{\bfseries G\+U\+I\+\_\+input}\hypertarget{classturret__hub__task__func_1_1Turret__Hub__Task_abda7ce4b19f9f1b6ab4dcdb98f557331}{}\label{classturret__hub__task__func_1_1Turret__Hub__Task_abda7ce4b19f9f1b6ab4dcdb98f557331}
+
+\item 
+{\bfseries vcp}\hypertarget{classturret__hub__task__func_1_1Turret__Hub__Task_a5419f82374a7bfba4c9079cdec5f5289}{}\label{classturret__hub__task__func_1_1Turret__Hub__Task_a5419f82374a7bfba4c9079cdec5f5289}
+
+\item 
+\hyperlink{classturret__hub__task__func_1_1Turret__Hub__Task_a259370821a4dcfed2621debae7558850}{state}
+\begin{DoxyCompactList}\small\item\em S\+T\+A\+TE 0\+: C\+A\+L\+I\+B\+R\+A\+TE P\+O\+I\+NT A. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+This defines the task function method for a nerf turret hub. 
+
+\subsection{Constructor \& Destructor Documentation}
+\index{turret\+\_\+hub\+\_\+task\+\_\+func\+::\+Turret\+\_\+\+Hub\+\_\+\+Task@{turret\+\_\+hub\+\_\+task\+\_\+func\+::\+Turret\+\_\+\+Hub\+\_\+\+Task}!\+\_\+\+\_\+init\+\_\+\+\_\+@{\+\_\+\+\_\+init\+\_\+\+\_\+}}
+\index{\+\_\+\+\_\+init\+\_\+\+\_\+@{\+\_\+\+\_\+init\+\_\+\+\_\+}!turret\+\_\+hub\+\_\+task\+\_\+func\+::\+Turret\+\_\+\+Hub\+\_\+\+Task@{turret\+\_\+hub\+\_\+task\+\_\+func\+::\+Turret\+\_\+\+Hub\+\_\+\+Task}}
+\subsubsection[{\texorpdfstring{\+\_\+\+\_\+init\+\_\+\+\_\+(self, pan\+\_\+position, tilt\+\_\+angle, pan\+\_\+coords, tilt\+\_\+coords, F\+E\+E\+D\+\_\+\+B\+U\+L\+L\+E\+T\+S, W\+I\+N\+D\+U\+P\+\_\+\+G\+U\+N)}{__init__(self, pan_position, tilt_angle, pan_coords, tilt_coords, FEED_BULLETS, WINDUP_GUN)}}]{\setlength{\rightskip}{0pt plus 5cm}def turret\+\_\+hub\+\_\+task\+\_\+func.\+Turret\+\_\+\+Hub\+\_\+\+Task.\+\_\+\+\_\+init\+\_\+\+\_\+ (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{pan\+\_\+position, }
+\item[{}]{tilt\+\_\+angle, }
+\item[{}]{pan\+\_\+coords, }
+\item[{}]{tilt\+\_\+coords, }
+\item[{}]{F\+E\+E\+D\+\_\+\+B\+U\+L\+L\+E\+TS, }
+\item[{}]{W\+I\+N\+D\+U\+P\+\_\+\+G\+UN}
+\end{DoxyParamCaption}
+)}\hypertarget{classturret__hub__task__func_1_1Turret__Hub__Task_aef3d389ffa8ab5461ca905705ea7027d}{}\label{classturret__hub__task__func_1_1Turret__Hub__Task_aef3d389ffa8ab5461ca905705ea7027d}
+
+
+Construct a turret hub task function by initilizing any shared variables and objects. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em pan\+\_\+position} & The shared variable for the pan position \\
+\hline
+{\em tilt\+\_\+angle} & The shared variable for the tilt position \\
+\hline
+{\em pan\+\_\+coords} & The queue of coordinates for the pan axis \\
+\hline
+{\em tilt\+\_\+coords} & The queue of coordinates for the tilt axis \\
+\hline
+{\em F\+E\+E\+D\+\_\+\+B\+U\+L\+L\+E\+TS} & The shared variable flag for the nerf gun shooting \\
+\hline
+{\em W\+I\+N\+D\+U\+P\+\_\+\+G\+UN} & The shared variable flag for the nerf gun motors \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Member Function Documentation}
+\index{turret\+\_\+hub\+\_\+task\+\_\+func\+::\+Turret\+\_\+\+Hub\+\_\+\+Task@{turret\+\_\+hub\+\_\+task\+\_\+func\+::\+Turret\+\_\+\+Hub\+\_\+\+Task}!calibrate\+\_\+point@{calibrate\+\_\+point}}
+\index{calibrate\+\_\+point@{calibrate\+\_\+point}!turret\+\_\+hub\+\_\+task\+\_\+func\+::\+Turret\+\_\+\+Hub\+\_\+\+Task@{turret\+\_\+hub\+\_\+task\+\_\+func\+::\+Turret\+\_\+\+Hub\+\_\+\+Task}}
+\subsubsection[{\texorpdfstring{calibrate\+\_\+point(self, index, pan\+\_\+coor, tilt\+\_\+coor, pan=\+False, tilt=\+False)}{calibrate_point(self, index, pan_coor, tilt_coor, pan=False, tilt=False)}}]{\setlength{\rightskip}{0pt plus 5cm}def turret\+\_\+hub\+\_\+task\+\_\+func.\+Turret\+\_\+\+Hub\+\_\+\+Task.\+calibrate\+\_\+point (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{index, }
+\item[{}]{pan\+\_\+coor, }
+\item[{}]{tilt\+\_\+coor, }
+\item[{}]{pan = {\ttfamily False}, }
+\item[{}]{tilt = {\ttfamily False}}
+\end{DoxyParamCaption}
+)}\hypertarget{classturret__hub__task__func_1_1Turret__Hub__Task_ae055fe9d0cd5011fced5fb270a463249}{}\label{classturret__hub__task__func_1_1Turret__Hub__Task_ae055fe9d0cd5011fced5fb270a463249}
+
+
+enters the calibrated point into the proper centroid list. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em index} & The index of the point in the centroid list \\
+\hline
+{\em pan\+\_\+coor} & The pan coordinate of the point \\
+\hline
+{\em tilt\+\_\+coor} & The tilt coordinate of the point \\
+\hline
+{\em pan} & Indicate if it\textquotesingle{}s a pan calibration point \\
+\hline
+{\em tilt} & Indicate if it\textquotesingle{}s a tilt calibration point \\
+\hline
+\end{DoxyParams}
+\index{turret\+\_\+hub\+\_\+task\+\_\+func\+::\+Turret\+\_\+\+Hub\+\_\+\+Task@{turret\+\_\+hub\+\_\+task\+\_\+func\+::\+Turret\+\_\+\+Hub\+\_\+\+Task}!G\+U\+I\+\_\+\+Lookup\+\_\+\+Table@{G\+U\+I\+\_\+\+Lookup\+\_\+\+Table}}
+\index{G\+U\+I\+\_\+\+Lookup\+\_\+\+Table@{G\+U\+I\+\_\+\+Lookup\+\_\+\+Table}!turret\+\_\+hub\+\_\+task\+\_\+func\+::\+Turret\+\_\+\+Hub\+\_\+\+Task@{turret\+\_\+hub\+\_\+task\+\_\+func\+::\+Turret\+\_\+\+Hub\+\_\+\+Task}}
+\subsubsection[{\texorpdfstring{G\+U\+I\+\_\+\+Lookup\+\_\+\+Table(self, command)}{GUI_Lookup_Table(self, command)}}]{\setlength{\rightskip}{0pt plus 5cm}def turret\+\_\+hub\+\_\+task\+\_\+func.\+Turret\+\_\+\+Hub\+\_\+\+Task.\+G\+U\+I\+\_\+\+Lookup\+\_\+\+Table (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{command}
+\end{DoxyParamCaption}
+)}\hypertarget{classturret__hub__task__func_1_1Turret__Hub__Task_a093eac7997f4225b4ad498f0751c01d4}{}\label{classturret__hub__task__func_1_1Turret__Hub__Task_a093eac7997f4225b4ad498f0751c01d4}
+
+
+Decodes G\+UI commands based on a defined list of commands. 
+
+G\+UI Layout\+: 
+
+ $\vert$ A1 B1 C1 D1 E1 Wind\+\_\+on Up I\+\_\+\+Location $\vert$
+
+$\vert$ A2 B2 C2 D2 E2 Feed\+\_\+on Down I\+I\+\_\+\+Location $\vert$
+
+$\vert$ A3 B3 C3 D3 E3 Wind\+\_\+off Left I\+I\+I\+\_\+\+Location $\vert$
+
+$\vert$ A4 B4 C4 D4 E4 Feed\+\_\+off Right $\vert$
+
+$\vert$ A5 B5 C5 D5 E5 Home $\vert$ 
+
+
+
+G\+UI Command Numbers\+: 
+
+ $\vert$ 1 6 11 16 21 26 31 36 $\vert$
+
+$\vert$ 2 7 12 17 22 27 32 37 $\vert$
+
+$\vert$ 3 8 13 18 23 28 33 38 $\vert$
+
+$\vert$ 4 9 14 19 24 29 34 $\vert$
+
+$\vert$ 5 10 15 20 25 30 $\vert$ 
+
+
+
+
+\begin{DoxyParams}{Parameters}
+{\em command} & The incoming G\+UI command to decode \\
+\hline
+\end{DoxyParams}
+\index{turret\+\_\+hub\+\_\+task\+\_\+func\+::\+Turret\+\_\+\+Hub\+\_\+\+Task@{turret\+\_\+hub\+\_\+task\+\_\+func\+::\+Turret\+\_\+\+Hub\+\_\+\+Task}!target\+\_\+cmd@{target\+\_\+cmd}}
+\index{target\+\_\+cmd@{target\+\_\+cmd}!turret\+\_\+hub\+\_\+task\+\_\+func\+::\+Turret\+\_\+\+Hub\+\_\+\+Task@{turret\+\_\+hub\+\_\+task\+\_\+func\+::\+Turret\+\_\+\+Hub\+\_\+\+Task}}
+\subsubsection[{\texorpdfstring{target\+\_\+cmd(self, pan, tilt, target\+\_\+cmd=\+True)}{target_cmd(self, pan, tilt, target_cmd=True)}}]{\setlength{\rightskip}{0pt plus 5cm}def turret\+\_\+hub\+\_\+task\+\_\+func.\+Turret\+\_\+\+Hub\+\_\+\+Task.\+target\+\_\+cmd (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{pan, }
+\item[{}]{tilt, }
+\item[{}]{target\+\_\+cmd = {\ttfamily True}}
+\end{DoxyParamCaption}
+)}\hypertarget{classturret__hub__task__func_1_1Turret__Hub__Task_a2f73e545adeae63df7c41bfaa4d2bec4}{}\label{classturret__hub__task__func_1_1Turret__Hub__Task_a2f73e545adeae63df7c41bfaa4d2bec4}
+
+
+Defines what to do when target cmd is entered through the G\+UI. 
+
+
+
+\subsection{Member Data Documentation}
+\index{turret\+\_\+hub\+\_\+task\+\_\+func\+::\+Turret\+\_\+\+Hub\+\_\+\+Task@{turret\+\_\+hub\+\_\+task\+\_\+func\+::\+Turret\+\_\+\+Hub\+\_\+\+Task}!state@{state}}
+\index{state@{state}!turret\+\_\+hub\+\_\+task\+\_\+func\+::\+Turret\+\_\+\+Hub\+\_\+\+Task@{turret\+\_\+hub\+\_\+task\+\_\+func\+::\+Turret\+\_\+\+Hub\+\_\+\+Task}}
+\subsubsection[{\texorpdfstring{state}{state}}]{\setlength{\rightskip}{0pt plus 5cm}turret\+\_\+hub\+\_\+task\+\_\+func.\+Turret\+\_\+\+Hub\+\_\+\+Task.\+state}\hypertarget{classturret__hub__task__func_1_1Turret__Hub__Task_a259370821a4dcfed2621debae7558850}{}\label{classturret__hub__task__func_1_1Turret__Hub__Task_a259370821a4dcfed2621debae7558850}
+
+
+S\+T\+A\+TE 0\+: C\+A\+L\+I\+B\+R\+A\+TE P\+O\+I\+NT A. 
+
+S\+T\+A\+TE 11\+: S\+T\+O\+P\+P\+ED, S\+H\+O\+O\+T\+I\+NG.
+
+S\+T\+A\+TE 10\+: M\+O\+V\+I\+NG, S\+H\+O\+O\+T\+I\+NG.
+
+S\+T\+A\+TE 9\+: S\+T\+O\+P\+P\+ED, N\+OT S\+H\+O\+O\+T\+I\+NG.
+
+S\+T\+A\+TE 8\+: C\+A\+L\+I\+B\+R\+A\+TE P\+O\+I\+NT 5.
+
+S\+T\+A\+TE 7\+: C\+A\+L\+I\+B\+R\+A\+TE P\+O\+I\+NT 4.
+
+S\+T\+A\+TE 6\+: C\+A\+L\+I\+B\+R\+A\+TE P\+O\+I\+NT 3.
+
+S\+T\+A\+TE 5\+: C\+A\+L\+I\+B\+R\+A\+TE P\+O\+I\+NT 2.
+
+S\+T\+A\+TE 4\+: C\+A\+L\+I\+B\+R\+A\+TE P\+O\+I\+NT E \& 1.
+
+S\+T\+A\+TE 3\+: C\+A\+L\+I\+B\+R\+A\+TE P\+O\+I\+NT D.
+
+S\+T\+A\+TE 2\+: C\+A\+L\+I\+B\+R\+A\+TE P\+O\+I\+NT C.
+
+S\+T\+A\+TE 1\+: C\+A\+L\+I\+B\+R\+A\+TE P\+O\+I\+NT B. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+turret\+\_\+hub\+\_\+task\+\_\+func.\+py\end{DoxyCompactItemize}

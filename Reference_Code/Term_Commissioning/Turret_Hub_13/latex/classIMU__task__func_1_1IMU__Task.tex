@@ -1,0 +1,76 @@
+\hypertarget{classIMU__task__func_1_1IMU__Task}{}\section{I\+M\+U\+\_\+task\+\_\+func.\+I\+M\+U\+\_\+\+Task Class Reference}
+\label{classIMU__task__func_1_1IMU__Task}\index{I\+M\+U\+\_\+task\+\_\+func.\+I\+M\+U\+\_\+\+Task@{I\+M\+U\+\_\+task\+\_\+func.\+I\+M\+U\+\_\+\+Task}}
+
+
+This defines the task function method for an I\+MU.  
+
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \hyperlink{classIMU__task__func_1_1IMU__Task_a1567b8075b1b37122d16acc01bc87da6}{\+\_\+\+\_\+init\+\_\+\+\_\+} (self, tilt\+\_\+angle)
+\begin{DoxyCompactList}\small\item\em Construct an I\+MU task function by initilizing any shared variables and initialize the I\+MU object. \end{DoxyCompactList}\item 
+def \hyperlink{classIMU__task__func_1_1IMU__Task_a7a222352bd6595871941fa2985c0b652}{I\+M\+U\+\_\+fun} (self)\hypertarget{classIMU__task__func_1_1IMU__Task_a7a222352bd6595871941fa2985c0b652}{}\label{classIMU__task__func_1_1IMU__Task_a7a222352bd6595871941fa2985c0b652}
+
+\begin{DoxyCompactList}\small\item\em Defines the task function method for an I\+MU object. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+{\bfseries tilt\+\_\+angle}\hypertarget{classIMU__task__func_1_1IMU__Task_a55dc83aea265bc0662cc1cb2e2f84743}{}\label{classIMU__task__func_1_1IMU__Task_a55dc83aea265bc0662cc1cb2e2f84743}
+
+\item 
+{\bfseries imu}\hypertarget{classIMU__task__func_1_1IMU__Task_a39088aba51fefae785a075109af0195f}{}\label{classIMU__task__func_1_1IMU__Task_a39088aba51fefae785a075109af0195f}
+
+\item 
+\hyperlink{classIMU__task__func_1_1IMU__Task_ab0d43e6f1c7383062cbe178648b51225}{state}
+\begin{DoxyCompactList}\small\item\em S\+T\+A\+TE 0\+: Initialize State Machine. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+This defines the task function method for an I\+MU. 
+
+The I\+MU passes its data via a shared variable with another task. To create an instance of this task class (example)\+: \subsection*{create run shared variable}
+
+Run = \hyperlink{classtask__share_1_1Share}{task\+\_\+share.\+Share}(\textquotesingle{}i\textquotesingle{}, thread\+\_\+protect = False, name = \char`\"{}\+Run\+\_\+\+Intertask\+\_\+\+Comm\+\_\+\+Variable\char`\"{}) \subsection*{create I\+MU position shared variable}
+
+I\+M\+U\+\_\+position = \hyperlink{classtask__share_1_1Share}{task\+\_\+share.\+Share} (\textquotesingle{}i\textquotesingle{}, thread\+\_\+protect = False, name = \char`\"{}\+I\+M\+U\+\_\+position\char`\"{}) \subsection*{create I\+MU 1 task object}
+
+I\+M\+U\+\_\+1 = \hyperlink{classIMU__task__func_1_1IMU__Task}{I\+M\+U\+\_\+\+Task}(Run, I\+M\+U\+\_\+position, 4, pyb.\+Pin.\+board.\+P\+B6, pyb.\+Pin.\+board.\+P\+B7) \subsection*{create task1 function}
+
+task1 = \hyperlink{classcotask_1_1Task}{cotask.\+Task} (I\+M\+U\+\_\+1.\+I\+M\+U\+\_\+fun, name = \textquotesingle{}Task\+\_\+1\textquotesingle{}, priority = 3, period = 10, profile = True, trace = False) \subsection*{append task1 to list of scheduled tasks}
+
+cotask.\+task\+\_\+list.\+append (task1) 
+
+\subsection{Constructor \& Destructor Documentation}
+\index{I\+M\+U\+\_\+task\+\_\+func\+::\+I\+M\+U\+\_\+\+Task@{I\+M\+U\+\_\+task\+\_\+func\+::\+I\+M\+U\+\_\+\+Task}!\+\_\+\+\_\+init\+\_\+\+\_\+@{\+\_\+\+\_\+init\+\_\+\+\_\+}}
+\index{\+\_\+\+\_\+init\+\_\+\+\_\+@{\+\_\+\+\_\+init\+\_\+\+\_\+}!I\+M\+U\+\_\+task\+\_\+func\+::\+I\+M\+U\+\_\+\+Task@{I\+M\+U\+\_\+task\+\_\+func\+::\+I\+M\+U\+\_\+\+Task}}
+\subsubsection[{\texorpdfstring{\+\_\+\+\_\+init\+\_\+\+\_\+(self, tilt\+\_\+angle)}{__init__(self, tilt_angle)}}]{\setlength{\rightskip}{0pt plus 5cm}def I\+M\+U\+\_\+task\+\_\+func.\+I\+M\+U\+\_\+\+Task.\+\_\+\+\_\+init\+\_\+\+\_\+ (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{tilt\+\_\+angle}
+\end{DoxyParamCaption}
+)}\hypertarget{classIMU__task__func_1_1IMU__Task_a1567b8075b1b37122d16acc01bc87da6}{}\label{classIMU__task__func_1_1IMU__Task_a1567b8075b1b37122d16acc01bc87da6}
+
+
+Construct an I\+MU task function by initilizing any shared variables and initialize the I\+MU object. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em tilt\+\_\+angle} & The shared variable between tasks that contains the I\+MU title readings \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Member Data Documentation}
+\index{I\+M\+U\+\_\+task\+\_\+func\+::\+I\+M\+U\+\_\+\+Task@{I\+M\+U\+\_\+task\+\_\+func\+::\+I\+M\+U\+\_\+\+Task}!state@{state}}
+\index{state@{state}!I\+M\+U\+\_\+task\+\_\+func\+::\+I\+M\+U\+\_\+\+Task@{I\+M\+U\+\_\+task\+\_\+func\+::\+I\+M\+U\+\_\+\+Task}}
+\subsubsection[{\texorpdfstring{state}{state}}]{\setlength{\rightskip}{0pt plus 5cm}I\+M\+U\+\_\+task\+\_\+func.\+I\+M\+U\+\_\+\+Task.\+state}\hypertarget{classIMU__task__func_1_1IMU__Task_ab0d43e6f1c7383062cbe178648b51225}{}\label{classIMU__task__func_1_1IMU__Task_ab0d43e6f1c7383062cbe178648b51225}
+
+
+S\+T\+A\+TE 0\+: Initialize State Machine. 
+
+S\+T\+A\+TE 1\+: Get I\+MU Values. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+I\+M\+U\+\_\+task\+\_\+func.\+py\end{DoxyCompactItemize}

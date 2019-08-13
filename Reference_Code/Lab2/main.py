@@ -1,0 +1,177 @@
+"""
+Created on Thu Jan 25 19:31:26 2018
+
+@author: Jason Grillo, Thomas Goehring, Trent Peterson
+"""
+
+#Yellow Encoder Cable: B7
+#Gray Encoder Cable: B6
+ 
+import pyb
+import encoder
+import motor
+import controller
+import utime
+
+# Create all objects
+DC_Motor_1 = motor.MotorDriver()
+Encoder_1  = encoder.Encoder(4,pyb.Pin.board.PB6,pyb.Pin.board.PB7)
+Controller_1 = controller.Controller(.01,40000) 
+
+# Setup/Initialization
+def setup():
+    ''' This initializes the encoder and motor to zero values. '''
+    Encoder_1.zero_encoder()    
+    DC_Motor_1.set_duty_cycle(0)
+
+
+# Continuous loop
+def loop():
+    ''' This is the main loop that handles the DC Motor step response
+        functionality. '''
+    # Wait for User Input
+    parameters = User_Input() # result is parameters = [Kp, Setpoint]
+    Controller_1.set_Kp(parameters[0])         # set Kp to user inputted value
+    Controller_1.set_setpoint(parameters[1])   # set Setpoint to user inputted value
+    
+    # Define the time to run the step response test (currently 1 second)
+    count = 100
+    time = []
+    position = []
+    while(count>0):
+        # Add current time to list of times
+        time.append(utime.ticks_ms())
+        # Read current encoder value & store it in list of encoder vals
+        current_enc_read = Encoder_1.read_encoder()
+        position.append(current_enc_read)
+        # Use controller object to get appropriate duty cycle for motor
+        Duty_Cycle_1 = Controller_1.repeatedly(current_enc_read)
+        # Set duty cycle to motor
+        DC_Motor_1.set_duty_cycle(Duty_Cycle_1)
+        # Delay 10 ms.... Need to use interrupts and raise a flag later...
+        utime.sleep_ms(10)
+        count -= 1
+    # Turn off motor once test is complete
+    DC_Motor_1.set_duty_cycle(0)
+    # Print time and position data to the terminal
+    print_lists(time,position)
+    # Write time and position data to a csv file
+    csv_write(time,position)
+
+# Get User Input Method
+def User_Input(Kp = '.01', setpoint = '40000'):
+    ''' This method waits for user input through the terminal and
+        returns the values to the calling function. 
+    '''
+    # Referenced https://www.cs.usfca.edu/~wolber/courses/107/lectures/pythonio.htm
+    # Define default/initial values of parameters in case they aren't changed
+    parameters_init = [float(Kp),float(setpoint)]
+    print('\n\n'+'Kp = '+str(parameters_init[0]) + '\t' + 'Setpoint = '+str(parameters_init[1]) +'\n\n')
+    # Display user prompts
+    print('To change Kp...' + 'PRESS: K' + '\n')
+    print('To change Setpoint...' + 'PRESS: S' + '\n')
+    print('To run a Step Response...' + 'PRESS: ENTER' + '\n')
+    # Wait for user to type something and press carriage return
+    user_string = input()   # always returns a string!!
+    parameters = UI_search_1(user_string,parameters_init)
+    return parameters
+
+
+# Search the user input string for further action
+def UI_search_1(change_string,parameters):
+    ''' Decide what to do with the User input. It checks if Kp or Setpoint
+        have been changed, saves the change, and asks the user for a different
+        input.
+    '''
+    if 'K' in change_string:    # Kp is desired to change...
+        user_string_Kp = input('Enter new Kp value:\t') # ask user for new Kp
+        try:
+            new_Kp = float(user_string_Kp)  # convert Kp string into float data type
+        except ValueError:
+            print('/n/n' + 'ERROR - Kp must be a floating number... Try again.')
+            User_Input()
+        else:
+            parameters[0] = new_Kp  # store new Kp value into returned parameters
+            print('\n'+ 'Kp = ' + str(parameters[0]))
+        # Ask User for additional inputs...
+        print('\n\n' + 'To change Setpoint...' + 'PRESS: S' + '\n')
+        print('\n' + 'To run a Step Response...' + 'PRESS: ENTER' + '\n')
+        user_string_2 = input()   # always returns a string!!
+        parameters_UI_1 = UI_search_2(user_string_2,parameters,changed = 'Kp')    # Decode user input a second time
+    
+    elif 'S' in change_string:  # Setpoint is desired to change...
+        user_string_Setpoint = input('Enter new Setpoint value:\t') # ask User for new Setpoint
+        try:
+            new_setpoint = float(user_string_Setpoint) # convert Setpoint into float data type
+        except ValueError:
+            print('\n\n' + 'ERROR - Setpoint must be a floating number... Try again.')
+            User_Input()
+        else:
+            parameters[1] = new_setpoint # store new Setpoint value into returned parameters
+        # Ask User for additional inputs...
+        print('\n\n' + 'To change Kp...' + 'PRESS: K' + '\n')
+        print('\n' + 'To run a Step Response...' + 'PRESS: ENTER' + '\n')
+        user_string_2 = input()   # always returns a string!!
+        parameters_UI_1 = UI_search_2(user_string_2,parameters,changed = 'setpoint')    # decode user input a second time
+    else:
+        # No values are changed (i.e. ENTER was pressed)
+        parameters_UI_1 = parameters        
+        print('\n\n' + 'Running a new Step Response with unchanged Kp and Setpoint')
+    return parameters_UI_1
+
+
+def UI_search_2(string, parameters, changed = 'NULL'):
+    ''' Similar to UI_search_2, this method saves user inputs to Kp and
+        the setpoint after either a Kp or Setpoint has already been changed.
+        If no other variable is changed, the method will simply return.
+    '''
+    if 'Kp' in changed: # Since Kp was previously changed, check user input string for either a setpoint change or enter press
+        if 'S' in string:   # if S was pressed, prompt user to enter a new Setpoint value
+            user_string_Setpoint = input('Enter new Setpoint value:\t')
+            try:
+                new_setpoint = float(user_string_Setpoint)  # Store new setpoint value into float data type
+            except ValueError:
+                print('\n\n' + 'ERROR - Setpoint must be a floating number... Try again.')
+                User_Input()
+            else:
+                parameters[1] = new_setpoint    # Save new Setpoint into returned parameters
+                print('\n\n' + 'Running a new Step Response with new Kp and Setpoint')
+        else:
+            # No values are changed (i.e. ENTER was pressed)
+            print('Running a new Step Response with new Kp')
+    elif 'setpoint' in changed: # Since Setpoint was previously changed, check user input string for either a Kp change or enter press
+        if 'K' in string: # if Kp was pressed, prompt user to enter a new Kp value
+            user_string_Kp = input('Enter new Kp value:\t')
+            try:
+                new_Kp = float(user_string_Kp)  # store new Kp value into float data type
+            except ValueError:
+                print('\n\n' + 'ERROR - Kp must be a floating number... Try again.')
+                User_Input()
+            else:
+                parameters[0] = new_Kp  # Save new Kp into returned parameters
+                print('\n\n' + 'Running a new Step Response with new Kp and Setpoint')
+        else:
+            # No values are changed (i.e. ENTER was pressed)
+            print('\n\n' + 'Running a new Step Response with new Setpoint')
+    return parameters
+
+
+# Print the Time and Position
+def print_lists(list1,list2):
+    ''' Prints two columns to the terminal separated by commas. '''
+    print('Time[ms]' + ',' + 'Position[ticks]')
+    for (time,position) in zip(list1,list2): # Referenced https://stackoverflow.com/questions/1663807/how-to-iterate-through-two-lists-in-parallel
+        print(str(time) + ',' + str(position))
+
+# Write the data to a CSV file... Referenced https://code.tutsplus.com/tutorials/how-to-read-and-write-csv-files-in-python--cms-29907
+def csv_write(list1,list2):
+    # ... Need to figure this one out still...
+    fileName = 'StepResponse.csv'
+    print(fileName)
+    
+# --------------------------------------------------------------------------- #
+#                                         Runs The Code
+# --------------------------------------------------------------------------- #
+setup()
+while(1):
+    loop()

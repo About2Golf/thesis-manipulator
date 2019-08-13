@@ -1,0 +1,69 @@
+\hypertarget{classnerf__task__func_1_1Nerf__Task}{}\section{nerf\+\_\+task\+\_\+func.\+Nerf\+\_\+\+Task Class Reference}
+\label{classnerf__task__func_1_1Nerf__Task}\index{nerf\+\_\+task\+\_\+func.\+Nerf\+\_\+\+Task@{nerf\+\_\+task\+\_\+func.\+Nerf\+\_\+\+Task}}
+
+
+This defines the task function method for a nerf gun.  
+
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \hyperlink{classnerf__task__func_1_1Nerf__Task_a073f35baf65e032a886807ea445eb8a9}{\+\_\+\+\_\+init\+\_\+\+\_\+} (self, W\+I\+N\+D\+U\+P\+\_\+\+G\+UN, F\+E\+E\+D\+\_\+\+B\+U\+L\+L\+E\+TS, pin1, pin2)
+\begin{DoxyCompactList}\small\item\em Construct an encoder task function by initilizing any shared variables and initialize the encoder object. \end{DoxyCompactList}\item 
+def \hyperlink{classnerf__task__func_1_1Nerf__Task_aa555816a1725c1f62a36e28b6d70ea87}{gun\+\_\+fun} (self)\hypertarget{classnerf__task__func_1_1Nerf__Task_aa555816a1725c1f62a36e28b6d70ea87}{}\label{classnerf__task__func_1_1Nerf__Task_aa555816a1725c1f62a36e28b6d70ea87}
+
+\begin{DoxyCompactList}\small\item\em Defines the task function method for an N\+E\+RF G\+UN object. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classnerf__task__func_1_1Nerf__Task_aba96bf43bf05d15d36252b89611ebdd4}{state}
+\begin{DoxyCompactList}\small\item\em S\+T\+A\+TE 0\+: N\+OT W\+I\+N\+D\+UP A\+ND N\+OT S\+H\+O\+OT. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+This defines the task function method for a nerf gun. 
+
+\subsection{Constructor \& Destructor Documentation}
+\index{nerf\+\_\+task\+\_\+func\+::\+Nerf\+\_\+\+Task@{nerf\+\_\+task\+\_\+func\+::\+Nerf\+\_\+\+Task}!\+\_\+\+\_\+init\+\_\+\+\_\+@{\+\_\+\+\_\+init\+\_\+\+\_\+}}
+\index{\+\_\+\+\_\+init\+\_\+\+\_\+@{\+\_\+\+\_\+init\+\_\+\+\_\+}!nerf\+\_\+task\+\_\+func\+::\+Nerf\+\_\+\+Task@{nerf\+\_\+task\+\_\+func\+::\+Nerf\+\_\+\+Task}}
+\subsubsection[{\texorpdfstring{\+\_\+\+\_\+init\+\_\+\+\_\+(self, W\+I\+N\+D\+U\+P\+\_\+\+G\+U\+N, F\+E\+E\+D\+\_\+\+B\+U\+L\+L\+E\+T\+S, pin1, pin2)}{__init__(self, WINDUP_GUN, FEED_BULLETS, pin1, pin2)}}]{\setlength{\rightskip}{0pt plus 5cm}def nerf\+\_\+task\+\_\+func.\+Nerf\+\_\+\+Task.\+\_\+\+\_\+init\+\_\+\+\_\+ (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{W\+I\+N\+D\+U\+P\+\_\+\+G\+UN, }
+\item[{}]{F\+E\+E\+D\+\_\+\+B\+U\+L\+L\+E\+TS, }
+\item[{}]{pin1, }
+\item[{}]{pin2}
+\end{DoxyParamCaption}
+)}\hypertarget{classnerf__task__func_1_1Nerf__Task_a073f35baf65e032a886807ea445eb8a9}{}\label{classnerf__task__func_1_1Nerf__Task_a073f35baf65e032a886807ea445eb8a9}
+
+
+Construct an encoder task function by initilizing any shared variables and initialize the encoder object. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em W\+I\+N\+D\+U\+P\+\_\+\+G\+UN} & The shared variable flag indicating when to windup shooting motors \\
+\hline
+{\em F\+E\+E\+D\+\_\+\+B\+U\+L\+L\+E\+TS} & The shared variable flag indicating when to shoot bullets \\
+\hline
+{\em pin1} & The motor windup pin (connected to mosfet) \\
+\hline
+{\em pin2} & The bullet feeder pin (connected to mosfet) \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Member Data Documentation}
+\index{nerf\+\_\+task\+\_\+func\+::\+Nerf\+\_\+\+Task@{nerf\+\_\+task\+\_\+func\+::\+Nerf\+\_\+\+Task}!state@{state}}
+\index{state@{state}!nerf\+\_\+task\+\_\+func\+::\+Nerf\+\_\+\+Task@{nerf\+\_\+task\+\_\+func\+::\+Nerf\+\_\+\+Task}}
+\subsubsection[{\texorpdfstring{state}{state}}]{\setlength{\rightskip}{0pt plus 5cm}nerf\+\_\+task\+\_\+func.\+Nerf\+\_\+\+Task.\+state}\hypertarget{classnerf__task__func_1_1Nerf__Task_aba96bf43bf05d15d36252b89611ebdd4}{}\label{classnerf__task__func_1_1Nerf__Task_aba96bf43bf05d15d36252b89611ebdd4}
+
+
+S\+T\+A\+TE 0\+: N\+OT W\+I\+N\+D\+UP A\+ND N\+OT S\+H\+O\+OT. 
+
+S\+T\+A\+TE 2\+: W\+I\+N\+D\+UP A\+ND S\+H\+O\+OT.
+
+S\+T\+A\+TE 1\+: W\+I\+N\+D\+UP A\+ND N\+OT S\+H\+O\+OT. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+nerf\+\_\+task\+\_\+func.\+py\end{DoxyCompactItemize}

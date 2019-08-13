@@ -1,0 +1,120 @@
+\hypertarget{classcontroller_1_1Controller}{}\section{controller.\+Controller Class Reference}
+\label{classcontroller_1_1Controller}\index{controller.\+Controller@{controller.\+Controller}}
+
+
+Created on Thu Jan 25 18\+:30\+:59 2018.  
+
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \hyperlink{classcontroller_1_1Controller_ae1f906f61cf6e1d30278aa39f6604657}{\+\_\+\+\_\+init\+\_\+\+\_\+} (self, \hyperlink{classcontroller_1_1Controller_a34cf377d78ee193d7160d74adbe9aabf}{Kp}, \hyperlink{classcontroller_1_1Controller_ace8a70b35ea15f3f7b6548c64aee1e48}{setpoint})
+\begin{DoxyCompactList}\small\item\em Initializes the proportional gain and defines the initial setpoint for the controller. \end{DoxyCompactList}\item 
+def \hyperlink{classcontroller_1_1Controller_acee6fffdca024ce396a2260b72e99059}{set\+\_\+setpoint} (self, new\+\_\+setpoint)
+\begin{DoxyCompactList}\small\item\em Method to enable the user to define a new setpoint that the control loop will use as a reference value. \end{DoxyCompactList}\item 
+def \hyperlink{classcontroller_1_1Controller_a048d7ed4722c40579b6bfbea25ae98c0}{set\+\_\+\+Kp} (self, new\+\_\+\+Kp)
+\begin{DoxyCompactList}\small\item\em Method to enable the user to define a new proportional gain that the control loop will use to multiply the error signal and output an actuation signal. \end{DoxyCompactList}\item 
+def \hyperlink{classcontroller_1_1Controller_abe90cd53f3b1712fb253c0feaad18a0d}{repeatedly} (self, current\+\_\+value)
+\begin{DoxyCompactList}\small\item\em Method that repeatedly runs the control algorithm. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classcontroller_1_1Controller_a34cf377d78ee193d7160d74adbe9aabf}{Kp}\hypertarget{classcontroller_1_1Controller_a34cf377d78ee193d7160d74adbe9aabf}{}\label{classcontroller_1_1Controller_a34cf377d78ee193d7160d74adbe9aabf}
+
+\begin{DoxyCompactList}\small\item\em Proportional gain for a control loop. \end{DoxyCompactList}\item 
+\hyperlink{classcontroller_1_1Controller_ace8a70b35ea15f3f7b6548c64aee1e48}{setpoint}\hypertarget{classcontroller_1_1Controller_ace8a70b35ea15f3f7b6548c64aee1e48}{}\label{classcontroller_1_1Controller_ace8a70b35ea15f3f7b6548c64aee1e48}
+
+\begin{DoxyCompactList}\small\item\em Desired output target. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Created on Thu Jan 25 18\+:30\+:59 2018. 
+
+\begin{DoxyAuthor}{Author}
+\+: Jason Grillo, Thomas Goehring, Trent Peterson This class implements a generic proportional gain controller 
+\end{DoxyAuthor}
+
+
+\subsection{Constructor \& Destructor Documentation}
+\index{controller\+::\+Controller@{controller\+::\+Controller}!\+\_\+\+\_\+init\+\_\+\+\_\+@{\+\_\+\+\_\+init\+\_\+\+\_\+}}
+\index{\+\_\+\+\_\+init\+\_\+\+\_\+@{\+\_\+\+\_\+init\+\_\+\+\_\+}!controller\+::\+Controller@{controller\+::\+Controller}}
+\subsubsection[{\texorpdfstring{\+\_\+\+\_\+init\+\_\+\+\_\+(self, Kp, setpoint)}{__init__(self, Kp, setpoint)}}]{\setlength{\rightskip}{0pt plus 5cm}def controller.\+Controller.\+\_\+\+\_\+init\+\_\+\+\_\+ (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{Kp, }
+\item[{}]{setpoint}
+\end{DoxyParamCaption}
+)}\hypertarget{classcontroller_1_1Controller_ae1f906f61cf6e1d30278aa39f6604657}{}\label{classcontroller_1_1Controller_ae1f906f61cf6e1d30278aa39f6604657}
+
+
+Initializes the proportional gain and defines the initial setpoint for the controller. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em Kp} & Sets proportional gain value \\
+\hline
+{\em setpoint} & Sets initial setpoint value that is referenced by the controller \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Member Function Documentation}
+\index{controller\+::\+Controller@{controller\+::\+Controller}!repeatedly@{repeatedly}}
+\index{repeatedly@{repeatedly}!controller\+::\+Controller@{controller\+::\+Controller}}
+\subsubsection[{\texorpdfstring{repeatedly(self, current\+\_\+value)}{repeatedly(self, current_value)}}]{\setlength{\rightskip}{0pt plus 5cm}def controller.\+Controller.\+repeatedly (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{current\+\_\+value}
+\end{DoxyParamCaption}
+)}\hypertarget{classcontroller_1_1Controller_abe90cd53f3b1712fb253c0feaad18a0d}{}\label{classcontroller_1_1Controller_abe90cd53f3b1712fb253c0feaad18a0d}
+
+
+Method that repeatedly runs the control algorithm. 
+
+Compares setpoint to actual signal value. This error is multiplied by the proportional gain and sent to the plant. 
+\begin{DoxyParams}{Parameters}
+{\em current\+\_\+value} & Received current value from feedback loop \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+actuate\+\_\+signal\+: \% duty cycle sent to device driver 
+\end{DoxyReturn}
+\index{controller\+::\+Controller@{controller\+::\+Controller}!set\+\_\+\+Kp@{set\+\_\+\+Kp}}
+\index{set\+\_\+\+Kp@{set\+\_\+\+Kp}!controller\+::\+Controller@{controller\+::\+Controller}}
+\subsubsection[{\texorpdfstring{set\+\_\+\+Kp(self, new\+\_\+\+Kp)}{set_Kp(self, new_Kp)}}]{\setlength{\rightskip}{0pt plus 5cm}def controller.\+Controller.\+set\+\_\+\+Kp (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{new\+\_\+\+Kp}
+\end{DoxyParamCaption}
+)}\hypertarget{classcontroller_1_1Controller_a048d7ed4722c40579b6bfbea25ae98c0}{}\label{classcontroller_1_1Controller_a048d7ed4722c40579b6bfbea25ae98c0}
+
+
+Method to enable the user to define a new proportional gain that the control loop will use to multiply the error signal and output an actuation signal. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em new\+\_\+\+Kp} & User-\/defined propotional gain that is multiplied by error to produce and actuation signal \\
+\hline
+\end{DoxyParams}
+\index{controller\+::\+Controller@{controller\+::\+Controller}!set\+\_\+setpoint@{set\+\_\+setpoint}}
+\index{set\+\_\+setpoint@{set\+\_\+setpoint}!controller\+::\+Controller@{controller\+::\+Controller}}
+\subsubsection[{\texorpdfstring{set\+\_\+setpoint(self, new\+\_\+setpoint)}{set_setpoint(self, new_setpoint)}}]{\setlength{\rightskip}{0pt plus 5cm}def controller.\+Controller.\+set\+\_\+setpoint (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{new\+\_\+setpoint}
+\end{DoxyParamCaption}
+)}\hypertarget{classcontroller_1_1Controller_acee6fffdca024ce396a2260b72e99059}{}\label{classcontroller_1_1Controller_acee6fffdca024ce396a2260b72e99059}
+
+
+Method to enable the user to define a new setpoint that the control loop will use as a reference value. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em new\+\_\+setpoint} & User-\/defined setpoint that the controller uses as its reference value \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+controller.\+py\end{DoxyCompactItemize}
