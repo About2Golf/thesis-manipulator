@@ -27,78 +27,72 @@ class Motor_Task:
             cotask.task_list.append (task2)
     '''
 
-    def __init__(self, EN_Pin, step_pin, dir_pin, Diag0_pin, Diag1_pin):
+    def __init__(self, params, enable, EN_Pin, step_pin, dir_pin, Diag0_pin, Diag1_pin, timer, channel):
         ''' Construct a motor task function by initilizing any shared
             variables and initialize the motor object
+            @param coordinate The motor's queue variable with the step info
             @param EN_pin The Motor's CSN and Enable pin (shared)
             @param step_pin The motor's step pin
             @param dir_pin The motor's direction pin
             @param Diag0_pin The motor's diagnostic pin 0
             @param Diag1_pin The motor's diagnostic pin 1
         '''
-        # self.position = position
-        # self.coordinate = coordinate
-        self.Motor = motor.MotorDriver(EN_Pin, step_pin, dir_pin, Diag0_pin, Diag1_pin)
-        # self.Controller = controller.Controller(Kp, Ki, Kd, saturation)
+        self.params = params
+        self.enable = enable
+        self.Motor = motor.MotorDriver(EN_Pin, step_pin, dir_pin, Diag0_pin, Diag1_pin, timer, channel)
 
     def mot_fun(self):
-        ''' Defines the task function method for a Motor object.
         '''
-        STATE_0 = micropython.const (0)
+        Defines the task function method for a Motor object.
+        '''
         STATE_1 = micropython.const (1)
         STATE_2 = micropython.const (2)
         STATE_3 = micropython.const (3)
+        STATE_4 = micropython.const (4)
 
-        self.state = STATE_0
-        self.counter = 0
+        self.state = STATE_1
 
         while True:
-            ## STATE 0: Idle
-            self.counter+=1
-
-            if self.state == STATE_0:
-                # Stop motor
-                self.Motor.generate_pulse(0)
-                self.Motor.disable_motor()
-                if (self.counter >30):
-                    self.counter = 0
-                    self.state = STATE_1
-
-            ## STATE 1: Accelerating
-            elif self.state == STATE_1:
-                # if self.coordinate.any():
-                #     print('new coordinate to move to!')
-                #     self.Controller.clear_controller()
-                #     self.Controller.set_setpoint(self.coordinate.get())
-                # Use controller object to get appropriate duty cycle for motor
-                # self.Duty_Cycle = self.Controller.repeatedly(self.position.get())
-                # Set duty cycle to motor
-                # self.Motor.set_duty_cycle(self.Duty_Cycle)
-                if (self.counter > 15):
-                    self.Motor.set_direction(1)
-                else:
-                    self.Motor.set_direction(-1)
-                self.Motor.generate_pulse(1)
-                self.Motor.enable_motor()
-                if (self.counter > 30):
-                    self.counter = 0
+            ## STATE 1: Idle
+            if self.state == STATE_1:
+                check_disable()
+                if self.params.any():
+                    get_params()
+                    self.Motor.set_setpoint(steps)
+                    self.Motor.set_ramp_parameters(max_speed, accel_rate)
+                    # generate ramp (steps, speed, acceleration)
                     self.state = STATE_2
 
-            ## STATE 2: Max Velocity
+            ## STATE 2: Accelerating
             elif self.state == STATE_2:
-                if (self.counter > 15):
-                    self.Motor.set_direction(1)
-                else:
-                    self.Motor.set_direction(-1)
-                self.Motor.generate_pulse(0)
-                if (self.counter > 30):
-                    self.counter = 0
-                    self.state = STATE_1
+                check_disable()
+                self.Motor.accelerate(accel_steps)
+                # count steps...
 
-            # ## STATE 3: Decelerating
-            # elif self.state == STATE_3:
-            #     self.Motor.generate_pulse(0)
-            #     if (self.counter >30 and <60)
-            #         self.state = STATE_1
+            ## STATE 3: CONSTANT SPEED
+            elif self.state == STATE_3:
+                check_disable()
+                # run the motor constant speed method
+
+            ## STATE 4: Decelerating
+            elif self.state == STATE_4:
+                check_disable()
+                # run the motor deceleration method
 
             yield(self.state)
+
+# --------------------------------------------------------------------------- #
+# --------------------------------------------------------------------------- #
+    def check_disable(self):
+        '''
+        '''
+        if not self.enable.get():
+            self.Motor.disable_motor()
+        else:
+            self.Motor.enable_motor()
+
+# --------------------------------------------------------------------------- #
+# --------------------------------------------------------------------------- #
+    def get_params(self):
+        '''
+        '''

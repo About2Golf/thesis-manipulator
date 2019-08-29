@@ -4,7 +4,7 @@ class Encoder:
     '''
     '''
 
-    def __init__ (self, timer, pin1, pin2):
+    def __init__ (self, timer, enc_A, enc_B):
         '''
         Initializes the pins and timer channels for an encoder object.
         To create PB6 and PB7 Encoder reader: \n
@@ -21,9 +21,9 @@ class Encoder:
         '''
         print ('Creating an encoder')
         ## First encoder pin associated with the pin1 (A) input parameter
-        self.pin_object_1 = pyb.Pin(pin1)
+        self.pin_object_1 = pyb.Pin(enc_A)
         ## Second encoder pin associated with the pin2 (B) input parameter
-        self.pin_object_2 = pyb.Pin(pin2)
+        self.pin_object_2 = pyb.Pin(enc_B)
         ## Timer number associated with the assigned pins
         self.timer_val = pyb.Timer(timer)
         ## Timer number associated with the assigned pins (Set timer to have one count per encoder count and a period of 65535)
