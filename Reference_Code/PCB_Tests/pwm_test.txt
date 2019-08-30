@@ -1,0 +1,24 @@
+pin = pyb.Pin(pyb.Pin.board.PC6, pyb.Pin.AF_PP, af=2)
+timer= pyb.Timer(8, freq=20000)
+channel = timer.channel(1, pyb.Timer.PWM, pin=pin)
+channel.pulse_width_percent(50)
+timer.freq(1)
+
+pin = pyb.Pin(pyb.Pin.board.PC8, pyb.Pin.AF_PP, af=2)
+timer= pyb.Timer(8, freq=20000)
+channel = timer.channel(3, pyb.Timer.PWM, pin=pin)
+channel.pulse_width_percent(50)
+timer.freq(1)
+
+pin = pyb.Pin(pyb.Pin.board.PA2, pyb.Pin.AF_PP, af=2)
+timer= pyb.Timer(5, freq=20000)
+channel = timer.channel(3, pyb.Timer.PWM, pin=pin)
+channel.pulse_width_percent(50)
+timer.freq(1)
+
+
+pin = pyb.Pin(pyb.Pin.board.PA3, pyb.Pin.AF_PP, af=2)
+timer= pyb.Timer(5, freq=20000)
+channel = timer.channel(4, pyb.Timer.PWM, pin=pin)
+channel.pulse_width_percent(50)
+timer.freq(1)
