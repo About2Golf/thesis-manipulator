@@ -8,6 +8,7 @@ Created on Fri Feb 16 16:53:17 2018
 
 import pyb
 import micropython
+import ustruct
 
 # import limit_switch
 import encoder
@@ -52,6 +53,11 @@ if __name__ == "__main__":
     enn_csn_y = output_pin.Output_Pin(pyb.Pin.board.PB11, 'enn_csn_y')
     enn_csn_p = output_pin.Output_Pin(pyb.Pin.board.PC12, 'enn_csn_p')
 #
+    enn_csn_x.set_high()
+    enn_csn_z.set_high()
+    enn_csn_y.set_high()
+    enn_csn_p.set_high()
+
     dcen = output_pin.Output_Pin(pyb.Pin.board.PC4, 'dcen')
 #
     en_x = encoder.Encoder(1, pyb.Pin.board.PA8, pyb.Pin.board.PA9, 'en_x')
@@ -64,15 +70,32 @@ if __name__ == "__main__":
     step_y = motor.MotorDriver(pyb.Pin.board.PC7, 8, 2, 3, 'step_y')
     step_p = motor.MotorDriver(pyb.Pin.board.PC9, 8, 4, 3, 'step_p')
 
-    spi2 = pyb.SPI(2,pyb.SPI.MASTER, baudrate=100000, polarity=1, crc=0x7)
+    spi2 = pyb.SPI(2,pyb.SPI.MASTER, prescaler=256, crc=0x7)
 
+    print('sending spi command')
+    spi_command = str(0x5555555555)
+    enn_csn_p.set_low()
+    spi2.send(spi_command)
+    enn_csn_p.set_high()
 
+def convert_hexstring_to_bytearray(hex):
+    decimal_str = str(hex)
+    return decimal_str.encode('ascii')
 
+def convert_bytearray_to_hexstring(byte_array):
+    data_decode = ustruct.unpack('<h',byte_array)
+    return
 
+def send_recv_spi_data(data, enable_pin):
+    enable_pin.set_low()
+    return_data = spi2.send_recv(data)
+    enable_pin.set_high()
+    return return_data
 
-
-
-
+def send_spi_data(data, enable_pin):
+    enable_pin.set_low()
+    spi2.send(data)
+    enable_pin.set_high()
 
 
 
