@@ -1,6 +1,8 @@
 # import asyncio, logging, time
 import utime
-import RPi.GPIO as GPIO
+import pyb
+import machine
+# import RPi.GPIO as GPIO
 
 # logging.basicConfig(level=logging.DEBUG)
 # log = logging.getLogger(__name__)
@@ -22,7 +24,7 @@ class StepperDriver:
   """
 
   def __init__(self, motor_steps, dir_pin, step_pin,
-               enable_pin=None, pin_mode=GPIO.BOARD, microsteps=1, rpm=60):
+               enable_pin, microsteps=256, rpm=60):
     """
     Arguments:
         motor_steps: number of steps per revolution
@@ -31,10 +33,16 @@ class StepperDriver:
         enable_pin: pin number of ENABLE pin
         us_to_step: Number of microseconds to wait for motor to take a step.
     """
+        # self.enable = pyb.Pin(EN_Pin,pyb.Pin.OUT_OD, pull=pyb.Pin.PULL_UP)
+        # self.step = pyb.Pin(step_pin,pyb.Pin.OUT_OD, pull=pyb.Pin.PULL_UP)
+        # self.dir = pyb.Pin(dir_pin,pyb.Pin.OUT_OD, pull=pyb.Pin.PULL_UP)
+    self.diag0 = machine.Pin(Diag0_pin, machine.Pin.IN, machine.Pin.PULL_UP)
+    self.diag1 = machine.Pin(Diag1_pin, machine.Pin.IN, machine.Pin.PULL_UP)
+
     self.motor_steps = motor_steps
-    self.dir_pin = dir_pin
-    self.step_pin = step_pin
-    self.enable_pin = enable_pin
+    self.dir_pin = pyb.Pin(dir_pin,pyb.Pin.OUT_OD, pull=pyb.Pin.PULL_UP)
+    self.step_pin = pyb.Pin(step_pin,pyb.Pin.OUT_OD, pull=pyb.Pin.PULL_UP)
+    self.enable_pin = pyb.Pin(EN_Pin,pyb.Pin.OUT_OD, pull=pyb.Pin.PULL_UP)
     self.microsteps = microsteps
     self.rpm = rpm
 
@@ -48,7 +56,7 @@ class StepperDriver:
     # TODO make this an atomic int
     self._steps_to_move = 0
 
-    GPIO.setmode(pin_mode)
+    # GPIO.setmode(pin_mode)
     GPIO.setup(dir_pin, GPIO.OUT, initial=GPIO.HIGH)
     GPIO.setup(step_pin, GPIO.OUT, initial=GPIO.LOW)
 
@@ -179,6 +187,12 @@ class StepperDriver:
     self._direction = direction
     logic_value = GPIO.LOW if direction < 0 else GPIO.HIGH
     GPIO.output(self.dir_pin, logic_value)
+
+  def read_diagnostics (self):
+    ''' This method returns the values of the diagnostics pins.
+    @return diag0 The status of the motor Diag0 Pin
+    @return diag1 The status of the motor Diag1 Pin'''
+    return (self.diag0.value(), self.diag1.value())
 
   @property
   def step_counter(self):
