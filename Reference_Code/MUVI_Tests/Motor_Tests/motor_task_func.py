@@ -3,8 +3,8 @@ Created on Fri Feb  9 23:53:47 2018
 
 @author: JasonGrillo
 """
-import motor
-import controller
+import stepdir
+# import controller
 import micropython
 
 class Motor_Task:
@@ -27,7 +27,10 @@ class Motor_Task:
             cotask.task_list.append (task2)
     '''
 
-    def __init__(self, params, enable, EN_Pin, step_pin, dir_pin, Diag0_pin, Diag1_pin, timer, channel):
+    # def __init__(self, params, motor_steps, dir_pin, step_pin, enable_pin,
+    #                 DCO_pin, Diag0_pin, Diag1_pin):
+    def __init__(self, motor_steps, dir_pin, step_pin, enable_pin,
+                    DCO_pin, Diag0_pin, Diag1_pin):
         ''' Construct a motor task function by initilizing any shared
             variables and initialize the motor object
             @param coordinate The motor's queue variable with the step info
@@ -37,9 +40,11 @@ class Motor_Task:
             @param Diag0_pin The motor's diagnostic pin 0
             @param Diag1_pin The motor's diagnostic pin 1
         '''
-        self.params = params
-        self.enable = enable
-        self.Motor = motor.MotorDriver(EN_Pin, step_pin, dir_pin, Diag0_pin, Diag1_pin, timer, channel)
+        # self.params = params
+        self.enable = 0
+        self.Motor = stepdir.StepperDriver(motor_steps, dir_pin, step_pin,
+                                            enable_pin, DCO_pin, Diag0_pin,
+                                            Diag1_pin, microsteps=256, rpm=100)
 
     def mot_fun(self):
         '''
@@ -47,8 +52,8 @@ class Motor_Task:
         '''
         STATE_1 = micropython.const (1)
         STATE_2 = micropython.const (2)
-        STATE_3 = micropython.const (3)
-        STATE_4 = micropython.const (4)
+        # STATE_3 = micropython.const (3)
+        # STATE_4 = micropython.const (4)
 
         self.state = STATE_1
 
@@ -58,26 +63,26 @@ class Motor_Task:
                 check_disable()
                 if self.params.any():
                     get_params()
-                    self.Motor.set_setpoint(steps)
-                    self.Motor.set_ramp_parameters(max_speed, accel_rate)
-                    # generate ramp (steps, speed, acceleration)
                     self.state = STATE_2
+                    # self.Motor.set_ramp_parameters(max_speed, accel_rate)
+                    # self.Motor.set_setpoint(steps)
+                    # generate ramp (steps, speed, acceleration)
 
-            ## STATE 2: Accelerating
+            ## STATE 2: Moving
             elif self.state == STATE_2:
                 check_disable()
-                self.Motor.accelerate(accel_steps)
+                # self.Motor.accelerate(accel_steps)
                 # count steps...
 
-            ## STATE 3: CONSTANT SPEED
-            elif self.state == STATE_3:
-                check_disable()
-                # run the motor constant speed method
-
-            ## STATE 4: Decelerating
-            elif self.state == STATE_4:
-                check_disable()
-                # run the motor deceleration method
+            # ## STATE 3: CONSTANT SPEED
+            # elif self.state == STATE_3:
+            #     check_disable()
+            #     # run the motor constant speed method
+            #
+            # ## STATE 4: Decelerating
+            # elif self.state == STATE_4:
+            #     check_disable()
+            #     # run the motor deceleration method
 
             yield(self.state)
 
@@ -87,9 +92,9 @@ class Motor_Task:
         '''
         '''
         if not self.enable.get():
-            self.Motor.disable_motor()
+            self.Motor.set_state(DISABLED)
         else:
-            self.Motor.enable_motor()
+            self.Motor.set_state(ENABLED)
 
 # --------------------------------------------------------------------------- #
 # --------------------------------------------------------------------------- #

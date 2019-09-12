@@ -19,12 +19,12 @@ def sleep_microseconds(us_to_sleep):
   time.sleep(us_to_sleep / float(1000000))
 
 class StepperDriver:
-  """
-  Basic driver for all stepper drivers with DIR and STEP pins.
-  """
+    """
+    Basic driver for all stepper drivers with DIR and STEP pins.
+    """
 
   def __init__(self, motor_steps, dir_pin, step_pin,
-               enable_pin, microsteps=256, rpm=60):
+               enable_pin, DCO_pin, Diag0_pin, Diag1_pin, microsteps=256, rpm=100):
     """
     Arguments:
         motor_steps: number of steps per revolution
@@ -38,6 +38,7 @@ class StepperDriver:
         # self.dir = pyb.Pin(dir_pin,pyb.Pin.OUT_OD, pull=pyb.Pin.PULL_UP)
     self.diag0 = machine.Pin(Diag0_pin, machine.Pin.IN, machine.Pin.PULL_UP)
     self.diag1 = machine.Pin(Diag1_pin, machine.Pin.IN, machine.Pin.PULL_UP)
+    self.dco = machine.Pin(DCO_pin, machine.Pin.IN, machine.Pin.PULL_UP)
 
     self.motor_steps = motor_steps
     self.dir_pin = pyb.Pin(dir_pin,pyb.Pin.OUT_OD, pull=pyb.Pin.PULL_UP)
@@ -57,8 +58,11 @@ class StepperDriver:
     self._steps_to_move = 0
 
     # GPIO.setmode(pin_mode)
-    GPIO.setup(dir_pin, GPIO.OUT, initial=GPIO.HIGH)
-    GPIO.setup(step_pin, GPIO.OUT, initial=GPIO.LOW)
+    # GPIO.setup(dir_pin, GPIO.OUT, initial=GPIO.HIGH)
+    # GPIO.setup(step_pin, GPIO.OUT, initial=GPIO.LOW)
+    self.enable_pin.high()
+    self.step_pin.low()
+    self.dir_pin.low()
 
   def _calc_step_pulse_us(self):
     """
@@ -73,7 +77,8 @@ class StepperDriver:
       # Other option is step_high_min, pulse_duration-step_high_min.
       self.pulse_duration_us = self.step_pulse_us / 2
 
-  async def move(self, steps):
+  # async def move(self, steps):
+  def move(self, steps):
     """
     Move the motor a given number of steps.
 
@@ -104,7 +109,7 @@ class StepperDriver:
     # Move the motor
     self._is_moving = True
     while abs(self._steps_to_move) > 0:
-      await asyncio.sleep(0)
+      # await asyncio.sleep(0)
 
       if self._aborted:
         # log.debug('Aborted move with %s steps still to move', self._steps_to_move)
@@ -153,12 +158,14 @@ class StepperDriver:
 
   def enable(self):
     if self.enable_pin:
-      GPIO.setup(self.enable_pin, GPIO.OUT, initial=GPIO.LOW)
+        self.enable.low()
+      # GPIO.setup(self.enable_pin, GPIO.OUT, initial=GPIO.LOW)
     # else error
 
   def disable(self):
     if self.enable_pin:
-      GPIO.setup(self.enable_pin, GPIO.OUT, initial=GPIO.HIGH)
+        self.enable.high()
+      # GPIO.setup(self.enable_pin, GPIO.OUT, initial=GPIO.HIGH)
     # else error
 
   def set_state(self, state):
@@ -185,14 +192,21 @@ class StepperDriver:
     Direction: HIGH = forward, LOW = reverse
     """
     self._direction = direction
-    logic_value = GPIO.LOW if direction < 0 else GPIO.HIGH
-    GPIO.output(self.dir_pin, logic_value)
+    if direction < 0:
+        self.dir_pin.low()
+    else:
+        self.dir_pin.high()
+    # logic_value = GPIO.LOW if direction < 0 else GPIO.HIGH
+    # GPIO.output(self.dir_pin, logic_value)
 
   def read_diagnostics (self):
     ''' This method returns the values of the diagnostics pins.
     @return diag0 The status of the motor Diag0 Pin
     @return diag1 The status of the motor Diag1 Pin'''
     return (self.diag0.value(), self.diag1.value())
+
+  def step_pulse_us(self):
+      return self.pulse_duration_us
 
   @property
   def step_counter(self):

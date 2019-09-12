@@ -72,11 +72,20 @@ if __name__ == "__main__":
 
     spi2 = pyb.SPI(2,pyb.SPI.MASTER, prescaler=256, crc=0x7)
 
-    print('sending spi command')
-    spi_command = str(0x5555555555)
-    enn_csn_p.set_low()
-    spi2.send(spi_command)
-    enn_csn_p.set_high()
+    spi_command1 = b'\xEC\x00\x01\x00\xC3'
+    spi_command2 = b'\x90\x00\x06\x1F\x0A'
+    spi_command3 = b'\x91\x00\x00\x00\x0A'
+    spi_command4 = b'\x80\x00\x00\x00\x04'
+    spi_command5 = b'\x93\x00\x00\x01\xF4'
+
+    print('Ready to Send Commands')
+    # send_spi_data(spi_command1, enn_csn_p)
+    # spi_command = str(0xEC000100C3)
+
+
+    # enn_csn_p.set_low()
+    # spi2.send(spi_command)
+    # enn_csn_p.set_high()
 
 def convert_hexstring_to_bytearray(hex):
     decimal_str = str(hex)
