@@ -130,7 +130,10 @@ if __name__ == "__main__":
     #         else:
     #             # print('not stepping')
 
-    x_step = steppin.StepPin(8, 3, pyb.Pin.board.PC8, 1, 4, 5, 4, 5, 'x')
+    x_step = steppin.StepPin(8, 3, pyb.Pin.board.PC8, pyb.Pin.board.PC2, 1, 30, 5, 5, 3, 'x')
+    z_step = steppin.StepPin(8, 1, pyb.Pin.board.PC6, pyb.Pin.board.PC3, 1, 30, 5, 5, 1, 'z')
+    y_step = steppin.StepPin(8, 2, pyb.Pin.board.PC7, pyb.Pin.board.PC1, 1, 30, 5, 5, 2, 'y')
+    p_step = steppin.StepPin(8, 4, pyb.Pin.board.PC9, pyb.Pin.board.PC0, 1, 30, 5, 5, 4, 'p')
     # p_step = StepPin(8, 4, pyb.Pin.board.PC9, 'p')
 
 
