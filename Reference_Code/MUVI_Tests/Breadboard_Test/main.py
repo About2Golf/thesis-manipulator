@@ -58,12 +58,12 @@ if __name__ == "__main__":
     drv_enn_z = output_pin.Output_Pin(pyb.Pin.board.PA15, 'drv_enn_z')
     drv_enn_y = output_pin.Output_Pin(pyb.Pin.board.PD2, 'drv_enn_y')
     drv_enn_p = output_pin.Output_Pin(pyb.Pin.board.PB9, 'drv_enn_p')
-#
+
     drv_enn_x.set_high()
     drv_enn_z.set_high()
     drv_enn_y.set_high()
     drv_enn_p.set_high()
-
+#
     dcen = output_pin.Output_Pin(pyb.Pin.board.PC4, 'dcen')
 
     dcen.set_low()

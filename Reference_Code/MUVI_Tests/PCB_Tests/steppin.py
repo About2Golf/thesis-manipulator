@@ -59,7 +59,14 @@ class StepPin(object):
                     else:
                         self.step_pin.value(0)
                 else:
-                    self.paused = 1
+                    # self.paused = 1
+                    # delete below for working version
+                    self.paused = 0
+                    self.step_count +=1
+                    if not self.step_pin.value():
+                        self.step_pin.value(1)
+                    else:
+                        self.step_pin.value(0)
             else:
                 self.stepping = 0
                 self.accelerating = 0
