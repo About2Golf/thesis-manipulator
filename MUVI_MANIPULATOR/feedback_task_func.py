@@ -5,7 +5,10 @@ Created on Fri Feb  9 23:53:47 2018
 """
 import encoder
 import limit_switch
+
+import pyb
 import micropython
+import machine
 
 class Feedback_Task:
     ''' This defines the task function method for an encoder and limit switch. The class
@@ -24,7 +27,7 @@ class Feedback_Task:
             cotask.task_list.append (task1)
     '''
 
-    def __init__(self, encoder_share, limit_share, timer, enc_A, enc_B, ls_pin_m, ls_pin_p):
+    def __init__(self, encoder_share, limit_share, zero_share, timer, enc_A, enc_B, ls_pin_m, ls_pin_p, name):
         ''' Construct an encoder task function by initilizing any shared
             variables and initialize the encoder object
             @param encoder_share The shared variable between tasks that contains the Encoder readings
@@ -34,8 +37,9 @@ class Feedback_Task:
         '''
         self.encoder = encoder_share
         self.limit = limit_share
-        self.Encoder = encoder.Encoder(timer, enc_A, enc_B)
-        self.Limit = limit_switch.Limit_Switch(ls_pin_m, ls_pin_p)
+        self.zero = zero_share
+        self.Encoder = encoder.Encoder(timer, enc_A, enc_B, name)
+        self.Limit = limit_switch.Limit_Switch(ls_pin_m, ls_pin_p, name)
 
     def fb_fun(self):
         '''
@@ -49,15 +53,14 @@ class Feedback_Task:
         while True:
             ## STATE 1: Send Feedback
             if self.state == STATE_1:
-                self.limit.put(self.Limit_Switch.read_limit())
+                self.limit.put(self.Limit.read_limit())
                 self.encoder.put(self.Encoder.read_encoder())
-                if ():
+                if self.zero.get():
                     self.state = STATE_2
 
             ## STATE 2: Zero Encoder
             elif self.state == STATE_2:
                 self.Encoder.zero_encoder()
-
-
+                self.state = STATE_1
 
             yield(self.state)

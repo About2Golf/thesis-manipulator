@@ -1,128 +1,162 @@
 """
 Created on Thu Jan 11 21:19:40 2018
 
-@author: mecha10, JGrillo, TGoehring, TPeterson
+@author: mecha10, JGrillo
 """
 import pyb
+import micropython
 import machine
 
-class MotorDriver:
-    ''' This class implements a motor driver for the
-    ME405 board.
-    either  MotorDriver(3, pyb.Pin.board.PA10, pyb.Pin.board.PB4, pyb.Pin.board.PB5)
-            MotorDriver(5, pyb.Pin.board.PC1, pyb.Pin.board.PA0, pyb.Pin.board.PA1)
+class TMC2160Driver:
+    '''
     '''
 
-    def __init__ (self, EN_Pin, step_pin, dir_pin, Diag0_pin, Diag1_pin, timer, channel):
-        ''' Creates a motor driver by initializing GPIO
-        pins and turning the motor off for safety. '''
-
-        ## Set Pin PA10 toas open-drain output with pull up resistors
-        self.enable = pyb.Pin(EN_Pin,pyb.Pin.OUT_OD, pull=pyb.Pin.PULL_UP)
-        self.step = pyb.Pin(step_pin,pyb.Pin.OUT_OD, pull=pyb.Pin.PULL_UP)
-        self.dir = pyb.Pin(dir_pin,pyb.Pin.OUT_OD, pull=pyb.Pin.PULL_UP)
-        self.diag0 = machine.Pin(Diag0_pin, machine.Pin.IN, machine.Pin.PULL_UP)
-        self.diag1 = machine.Pin(Diag1_pin, machine.Pin.IN, machine.Pin.PULL_UP)
-
-        # https://electronics.stackexchange.com/questions/176922/setting-the-frequency-of-a-pwm-on-a-stm32
-
-        self.timer= pyb.Timer(timer, freq=20000)                             # Set Timer 3 to a frequency of 20,000 Hz
-        self.ch1 = self.timer.channel(1, pyb.Timer.PWM, pin=self.Pin_1) # Set Timer 3 Channel 1 to PWM for pin PB4
-        self.ch2 = self.timer.channel(2, pyb.Timer.PWM, pin=self.Pin_2) # Set Timer 3 Channel 2 to PWM for pin PB5
-        self.ch1.pulse_width_percent(50)
-
-        self.enable.low()                                         # Set Pins Low on startup
-        self.step.low()
-        self.dir.low()
-        print ('Motor successfully initialized')
-
-        # ## Set Pin PB4 as push-pull with the correct alternate function (timer)
-        # self.Pin_1=pyb.Pin(Pin_1, pyb.Pin.AF_PP,af=2)
-        # ## Set Pin PB5 as push-pull with the correct alternate function (timer)
-        # self.Pin_2=pyb.Pin(Pin_2, pyb.Pin.AF_PP,af=2)
-        # self.timer= pyb.Timer(timer, freq=20000)                             # Set Timer 3 to a frequency of 20,000 Hz
-        # self.ch1 = self.timer.channel(1, pyb.Timer.PWM, pin=self.Pin_1) # Set Timer 3 Channel 1 to PWM for pin PB4
-        # self.ch2 = self.timer.channel(2, pyb.Timer.PWM, pin=self.Pin_2) # Set Timer 3 Channel 2 to PWM for pin PB5
-
-    def set_direction (self, direction):
-        ''' This method sets the direction of the motor.
-        @param direction Either 1 or -1'''
-        if (direction > 0):
-            self.dir.high()
-        else:
-            self.dir.low()
-
-    def generate_pulse (self, level):
-        ''' This method turns on the step pin for pulse generation.
-        @param level Either 1 or 0'''
-        #print ('Setting duty cycle to ' + str (level))
-        if (level):
-            self.step.high()
-        else:
-            self.step.low()
-        # if (level >= 0):
-        #     self.ch1.pulse_width_percent(0)
-        #     self.ch2.pulse_width_percent(level)
-        # else:
-        #     self.ch2.pulse_width_percent(0)
-        #     self.ch1.pulse_width_percent(-level)
-        # self.EN_Pin.high()
-
-    def accelerate(self):
+    def __init__ (self, step_pin, dir_pin, enable_pin, dco_pin, step_timer, step_channel, accel_timer, accel_ch, name):
         '''
-        Method to turn on the increase the step rate.
         '''
+        # Initialize Stepper Driver Pins
+        self.step =  machine.Pin(step_pin, mode = machine.Pin.OUT, pull = machine.Pin.PULL_UP)
+        self.dir = machine.Pin(dir_pin, mode = machine.Pin.OUT, pull = machine.Pin.PULL_UP)
+        self.enable = machine.Pin(enable_pin, mode = machine.Pin.OUT, pull = machine.Pin.PULL_UP)
+        self.dco = machine.Pin(dco_pin, machine.Pin.IN, machine.Pin.PULL_UP)
+        # Initialize Default Ramp Parameters
+        self.init_speed = 50
+        self.step_rate = self.init_speed
+        self.max_step_rate = 10000
+        self.accel_rate = 50
+        # Initialize Step and Acceleration Timers
+        self.step_timer = pyb.Timer(step_timer, freq=self.step_rate)
+        self.step_channel = self.step_timer.channel(step_channel, pyb.Timer.OC_TIMING, callback=self.cb)
+        self.accel_timer = pyb.Timer(accel_timer, freq=self.accel_rate)
+        self.accel_channel = self.accel_timer.channel(accel_ch, pyb.Timer.OC_TIMING, callback=self.accel_cb)
+        # Initialize Profile Variables
+        self.stepping = 0
+        self.accelerating = 0
+        self.paused = 0
+        self.step_count = 0
+        self.total_steps = 0
+        self.name = name
+        self.DONE = 1
+        # Initialize Startup State
+        self.enable.value(0)
+        self.step.value(0)
+        self.dir.value(0)
+        print (self.name + 'Stepper Successfully Initialized')
 
-    def constant_speed(self):
+    def move_to(self, steps):
         '''
-        Method to maintain current step rate.
         '''
+        if steps == 0:
+            return
+        self.DONE = 0
+        self.total_steps = 2*steps
+        accel1 = round(self.total_steps*0.20)
+        accel2 = round(self.max_step_rate*self.init_speed/self.accel_rate)
+        self.accel_steps = min(accel1,accel2)
+        self.steps_to_stop = self.total_steps - self.accel_steps
+        self.stepping = 1
+        self.accelerating = 1
 
-    def decelerate(self):
-        '''
-        Method to turn decrease the step rate.
-        '''
-
-    def turn_off(self):
+    def stop(self):
         '''
         Method to turn off the step generator.
         '''
-    def set_setpoint(self, new_setpoint):
-        '''
-        Method to enable the user to define a new setpoint that the
-        control loop will use as a reference value.
-        @param new_setpoint: User-defined setpoint that the controller uses as its reference value
-        '''
-        self.setpoint = new_setpoint
+        self.stepping = 0
+        self.accelerating = 0
+        self.step_count = 0
+        self.total_steps = 0
+        self.step_rate = self.init_speed
+        self.DONE = 1
 
-    def set_ramp_parameters(self, new_period, new_speed, new_accel):
-        ''' Method to change the stepper motor frequency.
+    def cb(self, tim):
         '''
-        self.max_speed = new_speed
-        self.accel_rate = new_accel
-        self.timer.period(new_period)
+        '''
+        if self.stepping:
+            if self.step_count <= self.total_steps:
+                # Comment Below for DC Step Operation
+                self.step_count +=1
+                if not self.step.value():
+                    self.step.value(1)
+                else:
+                    self.step.value(0)
+                # # Uncomment below for DC Step Operation
+                # if self.dco_pin.value():
+                #     self.paused = 0
+                #     self.step_count +=1
+                #     if not self.step.value():
+                #         self.step.value(1)
+                #     else:
+                #         self.step.value(0)
+                # else:
+                #     self.paused = 1
+            else:
+                self.stepping = 0
+                self.accelerating = 0
+                self.step_count = 0
+                self.total_steps = 0
+                self.step_rate = self.init_speed
+                self.step_timer.freq(self.step_rate)
+                self.DONE = 1
+        else:
+            self.step.value(0)
 
-        # #define CLOCK_CYCLES_PER_SECOND  72000000
-        # #define MAX_RELOAD               0xFFFF
-        #
-        # uint32_t period_cycles = CLOCK_CYCLES_PER_SECOND / freq;
-        # uint16_t prescaler = (uint16)(period_cycles / MAX_RELOAD + 1);
-        # uint16_t overflow = (uint16)((period_cycles + (prescaler / 2)) / prescaler);
-        # uint16_t duty = (uint16)(overflow / 2);
+    def accel_cb(self, tim):
+        '''
+        '''
+        if self.accelerating and not self.paused:
+            if self.step_count <= self.accel_steps:
+                if self.step_rate < self.max_step_rate:
+                    self.step_rate += 1
+                    self.step_timer.freq(self.step_rate)
+            elif self.step_count >= self.steps_to_stop:
+                if self.step_rate > self.init_speed:
+                    self.step_rate -= 1
+                else:
+                    self.step_rate = self.init_speed
+                self.step_timer.freq(self.step_rate)
+        else:
+            return
 
+    def set_direction (self, direction):
+        ''' This method sets the direction of the motor.
+        @param direction Either 1 or 0'''
+        if (direction > 0):
+            self.dir.value(1)
+        else:
+            self.dir.value(0)
+
+    def set_init_speed(self,init_speed):
+        '''
+        '''
+        self.init_speed = init_speed
+        self.set_step_freq(self.init_speed)
+
+    def set_max_speed(self,max_step_rate):
+        '''
+        '''
+        self.max_step_rate = max_step_rate
+
+    def set_accel_rate(self,accel_rate):
+        '''
+        '''
+        self.accel_rate = accel_rate
+        self.accel_timer.freq(self.accel_rate)
+
+    def set_step_freq(self,step_rate):
+        '''
+        '''
+        self.step_rate = step_rate
+        self.step_timer.freq(self.step_rate)
 
     def enable_motor (self):
         ''' This method turns on the motor.'''
-        self.enable.high()
+        self.enable.value(1)
 
     def disable_motor (self):
         ''' This method turns off the motor.'''
-        self.enable.low()
+        self.enable.value(0)
 
-
-
-    def read_diagnostics (self):
-        ''' This method returns the values of the diagnostics pins.
-        @return diag0 The status of the motor Diag0 Pin
-        @return diag1 The status of the motor Diag1 Pin'''
-        return (self.diag0.value(), self.diag1.value())
+    def is_done (self):
+        '''
+        '''
+        return self.DONE

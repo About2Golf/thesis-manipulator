@@ -28,9 +28,18 @@ def send_recv_spi_data(data, enable_pin):
     enable_pin.set_high()
     return return_data
 
-def send_spi_data(data, enable_pin):
+def send_spi_data(enable_pin):
     enable_pin.set_low()
-    spi2.send(data)
+    spi2.send(spi_command1)
+    utime.sleep_us(20)
+    spi2.send(spi_command2)
+    utime.sleep_us(20)
+    spi2.send(spi_command3)
+    utime.sleep_us(20)
+    spi2.send(spi_command4)
+    utime.sleep_us(20)
+    spi2.send(spi_command5)
+    utime.sleep_us(20)
     enable_pin.set_high()
 
 if __name__ == "__main__":
@@ -93,20 +102,27 @@ if __name__ == "__main__":
     en_y = encoder.Encoder(3, pyb.Pin.board.PA6, pyb.Pin.board.PA7, 'en_y')
     en_p = encoder.Encoder(4, pyb.Pin.board.PB6, pyb.Pin.board.PB7, 'en_p')
 #
-    x_step = steppin.StepPin(8, 3, pyb.Pin.board.PC8, pyb.Pin.board.PC2, 50, 1000, 10, 5, 3, 'x_step')
-    z_step = steppin.StepPin(8, 1, pyb.Pin.board.PC6, pyb.Pin.board.PC3, 50, 1000, 10, 5, 1, 'z_step')
-    y_step = steppin.StepPin(8, 2, pyb.Pin.board.PC7, pyb.Pin.board.PC1, 50, 1000, 10, 5, 2, 'y_step')
-    p_step = steppin.StepPin(8, 4, pyb.Pin.board.PC9, pyb.Pin.board.PC0, 50, 1000, 10, 5, 4, 'p_step')
+    # step_timer, step_channel, step_pin, dco_pin, init_speed, max_speed, accel_rate, accel_timer, accel_ch, name
+    x_step = steppin.StepPin(8, 3, pyb.Pin.board.PC8, pyb.Pin.board.PC2, 50, 6000, 50, 5, 3, 'x_step')
+    z_step = steppin.StepPin(8, 1, pyb.Pin.board.PC6, pyb.Pin.board.PC3, 50, 6000, 50, 5, 1, 'z_step')
+    y_step = steppin.StepPin(8, 2, pyb.Pin.board.PC7, pyb.Pin.board.PC1, 50, 6000, 50, 5, 2, 'y_step')
+    p_step = steppin.StepPin(8, 4, pyb.Pin.board.PC9, pyb.Pin.board.PC0, 50, 6000, 50, 5, 4, 'p_step')
 
     spi2 = pyb.SPI(2,pyb.SPI.MASTER, prescaler=256, crc=0x7)
 
-    spi_command1 = b'\xEC\x00\x01\x00\xC3'
+    spi_command1 = b'\xEC\x07\x01\x00\xC3'
     spi_command2 = b'\x90\x00\x06\x1F\x0A'
     spi_command3 = b'\x91\x00\x00\x00\x0A'
     spi_command4 = b'\x80\x00\x00\x00\x04'
     spi_command5 = b'\x93\x00\x00\x01\xF4'
 
     print('Ready to Send Commands')
+    send_spi_data(enn_csn_p)
+    utime.sleep_us(20)
+    send_spi_data(enn_csn_y)
+    utime.sleep_us(20)
+    send_spi_data(enn_csn_z)
+
     # send_spi_data(spi_command1, enn_csn_p)
     # utime.sleep_us(20)
     # send_spi_data(spi_command2, enn_csn_p)

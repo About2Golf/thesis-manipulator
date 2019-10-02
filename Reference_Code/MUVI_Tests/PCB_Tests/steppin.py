@@ -105,3 +105,4 @@ class StepPin(object):
 
     def set_init_speed(self,init_speed):
         self.init_speed = init_speed
+        self.set_step_freq(self.init_speed)
