@@ -96,6 +96,7 @@ class Hub_Task:
             if self.state == STATE_1:
                 self.update_feedback()
                 self.read_GUI()
+                yield()
                 if self.Y_POSITIONING and self.y_enable.get():
                     self.Y_POSITIONING = False
                     self.state = STATE_2
@@ -117,6 +118,7 @@ class Hub_Task:
             elif self.state == STATE_2:
                 self.update_feedback()
                 self.read_GUI()
+                yield()
                 # wait for motor to say done or limit reached or motor disabled
                 if (self.y_status.get()) or abs(self.y_limit.get()) or not self.y_enable.get():
                     self.state = STATE_1
@@ -125,6 +127,7 @@ class Hub_Task:
             elif self.state == STATE_3:
                 self.update_feedback()
                 self.read_GUI()
+                yield()
                 # wait for motor to say done or limit reached or motor disabled
                 if (self.p_status.get()) or abs(self.p_limit.get()) or not self.p_enable.get():
                     self.state = STATE_1
@@ -133,6 +136,7 @@ class Hub_Task:
             elif self.state == STATE_3:
                 self.update_feedback()
                 self.read_GUI()
+                yield()
                 # wait for motor to say done or limit reached or motor disabled
                 if (self.z_status.get()) or abs(self.z_limit.get()) or not self.z_enable.get():
                     self.state = STATE_1
@@ -141,10 +145,11 @@ class Hub_Task:
             elif self.state == STATE_3:
                 self.update_feedback()
                 self.read_GUI()
+                yield()
                 # wait for motor to say done or limit reached or motor disabled
                 if (self.x_status.get()) or (self.x_limit.get()) or not self.x_enable.get():
                     self.state = STATE_1
-
+            # print(self.state)
             yield(self.state)
 
 
@@ -161,15 +166,15 @@ class Hub_Task:
         spi_command5 = b'\x93\x00\x00\x01\xF4'
         csn_pin.value(0)
         self.spi2.send(spi_command1)
-        utime.sleep_us(10)
+        # utime.sleep_us(10)
         self.spi2.send(spi_command2)
-        utime.sleep_us(10)
+        # utime.sleep_us(10)
         self.spi2.send(spi_command3)
-        utime.sleep_us(10)
+        # utime.sleep_us(10)
         self.spi2.send(spi_command4)
-        utime.sleep_us(10)
+        # utime.sleep_us(10)
         self.spi2.send(spi_command5)
-        utime.sleep_us(10)
+        # utime.sleep_us(10)
         csn_pin.value(1)
         self.dcen_pin.value(0)
         # !!!!! put dcen pin high here to setup DC STEP on the steppers
@@ -179,6 +184,7 @@ class Hub_Task:
     def update_feedback(self):
         '''
         '''
+        # print('updating feedback')
         # write the following to the GUI
         x_enc = str(self.x_encoder.get())
         z_enc = str(self.z_encoder.get())
@@ -190,14 +196,17 @@ class Hub_Task:
         p_lim = str(self.p_limit.get())
         feedback_data = x_enc +";"+ z_enc +";"+ y_enc +";"+ p_enc +";"+ \
                             x_lim +";"+ z_lim +";"+ y_lim +";"+ p_lim
-        self.vcp.send(feedback_data, timeout=5000)
+        # print(feedback_data)
 
 # --------------------------------------------------------------------------- #
 # --------------------------------------------------------------------------- #
     def read_GUI(self):
         ''' Reads the serial port for incoming commands and executes the command.
         '''
+        # print('reading gui')
+        # print(self.vcp.isconnected())
         if self.vcp.any():
+            print('command received')
             self.GUI_input = self.vcp.read().decode('UTF-8')
             self.GUI_Lookup_Table(self.GUI_input.split(";"))
 
@@ -219,6 +228,7 @@ class Hub_Task:
             self.z_enable.put(0)
             self.y_enable.put(0)
             self.p_enable.put(0)
+            print('a')
 
         # ENABLE MOTOR
         elif action == "e":
@@ -230,6 +240,7 @@ class Hub_Task:
                 self.y_enable.put(1)
             elif axis == "p":
                 self.p_enable.put(1)
+            print('e')
 
         # DISABLE MOTOR
         elif action == "d":
@@ -241,6 +252,7 @@ class Hub_Task:
                 self.y_enable.put(0)
             elif axis == "p":
                 self.p_enable.put(0)
+            print('d')
 
         # MOVE MOTOR
         elif action == "m":
@@ -256,8 +268,9 @@ class Hub_Task:
             elif axis == "p":
                 self.P_POSITIONING = True
                 self.p_params.put(int(command[2:]))
+            print('m')
 
-        # ZERO ENCODER
+        # ZERO
         elif action == "z":
             if axis == "x":
                 self.x_zero.put(1)
@@ -267,3 +280,4 @@ class Hub_Task:
                 self.y_zero.put(1)
             elif axis == "p":
                 self.p_zero.put(1)
+            print('z')

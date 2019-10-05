@@ -5,23 +5,23 @@ import time
 x = [(85*i) for i in range(9)]
 y = [(50*i) for i in range(5)]
 width = 10
-serial_port = 'COM3'
+serial_port = 'COM6'
 
 class Window(Frame):
 
     def __init__(self, master=None):
-        Frame.__init__(self, master)                 
+        Frame.__init__(self, master)
         self.master = master
         self.init_window()
 #        self.x = [0,200,400,600,800,1000,1150,1250]
 #        self.y = [0,150,300,450,600]
 #        self.width = 10
 #        self.serial_port = 'COM3'
-    
+
     #Creation of init_window
     def init_window(self):
-        
-        # changing the title of our master widget      
+
+        # changing the title of our master widget
         self.master.title("GUI")
 
         # allowing the widget to take the full space of the root window
@@ -103,57 +103,57 @@ class Window(Frame):
 
         Button_E4 = Button(self, text="E4", width = width, height = 2,command=ButtonE4)
         Button_E4.place(x=x[4], y=y[3])
-        
+
         Button_E5 = Button(self, text="E5", width = width, height = 2,command=ButtonE5)
         Button_E5.place(x=x[4], y=y[4])
 
         #Fire Buttons
         Button_WindUp_On = Button(self, text="WINDUP_ON", width = width, height = 2,command=Button_WindUpOn)
         Button_WindUp_On.place(x=x[5], y=y[0])
-        
+
         Button_Fire_On = Button(self, text="FIRE_ON", width = width, height = 2,command=Button_FireOn)
         Button_Fire_On.place(x=x[5], y=y[1])
-        
+
         Button_WindUp_Off = Button(self, text="WINDUP_OFF", width = width, height = 2,command=Button_WindUpOff)
         Button_WindUp_Off.place(x=x[5], y=y[2])
-        
+
         Button_Fire_Off = Button(self, text="FIRE_OFF", width = width, height = 2,command=Button_FireOff)
         Button_Fire_Off.place(x=x[5], y=y[3])
-        
+
         #Home Button
         Button_HomeButton = Button(self, text="Home", width = width, height = 2,command=Home)
         Button_HomeButton.place(x=x[5], y=y[4])
-        
+
         #Manual Control Buttons
         Button_Up = Button(self, text="Up", width = width, height = 2,command=ButtonUp)
         Button_Up.place(x=x[6], y=y[0])
-        
+
         Button_Down = Button(self, text="Down", width = width, height = 2,command=ButtonDown)
         Button_Down.place(x=x[6], y=y[1])
-        
+
         Button_Left = Button(self, text="Left", width = width, height = 2,command=ButtonLeft)
         Button_Left.place(x=x[6], y=y[2])
-        
+
         Button_Right = Button(self, text="Right", width = width, height = 2,command=ButtonRight)
         Button_Right.place(x=x[6], y=y[3])
-        
+
         #Calibration Buttons
         Button_CalI = Button(self, text="I Cal Set", width = width, height = 2,command=CalISet)
         Button_CalI.place(x=x[7], y=y[0])
-        
+
         Button_CalII = Button(self, text="II Cal Set", width = width, height = 2,command=CalIISet)
         Button_CalII.place(x=x[7], y=y[1])
-        
+
         Button_CalIII = Button(self, text="III Cal Set", width = width, height = 2,command=CalIIISet)
-        Button_CalIII.place(x=x[7], y=y[2])      
-        
+        Button_CalIII.place(x=x[7], y=y[2])
+
         #Quit
         Button_Quit = Button(self, text="Quit UI", width = width, height = 2,command=Quit)
-        Button_Quit.place(x=x[8], y=y[0]) 
-        
+        Button_Quit.place(x=x[8], y=y[0])
+
         #System Reset
         Button_Reset = Button(self, text="System Reset", width = width, height = 2,command=Reset)
-        Button_Reset.place(x=x[8], y=y[1])    
+        Button_Reset.place(x=x[8], y=y[1])
 
 
 
@@ -176,7 +176,7 @@ def ButtonA4():
 def ButtonA5():
     print('ButtonA5')
     ser_port.write(b'05')
-    
+
 def ButtonB1():
     print('ButtonB1')
     ser_port.write(b'06')
@@ -196,7 +196,7 @@ def ButtonB4():
 def ButtonB5():
     print('ButtonB5')
     ser_port.write(b'10')
-    
+
 def ButtonC1():
     print('ButtonC1')
     ser_port.write(b'11')
@@ -216,7 +216,7 @@ def ButtonC4():
 def ButtonC5():
     print('ButtonC5')
     ser_port.write(b'15')
-    
+
 def ButtonD1():
     print('ButtonD1')
     ser_port.write(b'16')
@@ -256,7 +256,7 @@ def ButtonE4():
 def ButtonE5():
     print('ButtonE5')
     ser_port.write(b'25')
-    
+
 def Button_WindUpOn():
     print('WindUp On')
     ser_port.write(b'26')
@@ -272,7 +272,7 @@ def Button_WindUpOff():
 def Button_FireOff():
     print('Fire Off')
     ser_port.write(b'29')
-    
+
 def ButtonUp():
     print('Move Up')
     ser_port.write(b'31')
@@ -288,7 +288,7 @@ def ButtonLeft():
 def ButtonRight():
     print('Fire Right')
     ser_port.write(b'34')
-    
+
 def CalISet():
     print('First Calibration Set')
     ser_port.write(b'36')
@@ -309,7 +309,7 @@ def Quit():
 def Reset():
     print('Reset')
     ser_port.write(b'\x03') #takes and puts value in byte format
-    ser_port.write(b'\x04')   
+    ser_port.write(b'\x04')
 
 def Home():
     print('Home')
@@ -318,7 +318,7 @@ def Home():
 #----------------------------
 #Test Code
 #----------------------------
-    
+
 
 root = Tk()
 #size of the window
@@ -336,20 +336,20 @@ while(1):
     root.update()
     data = (ser_port.readline()).decode('UTF-8')
     print(str(data))
-   
+
 
 # =============================================================================
 # while(1):
-#   
-#   with serial.Serial('/dev/ttyACM0',115200,timeout = .1) as ser_port:    
-#      ser_port.write(b'\x03')    
+#
+#   with serial.Serial('/dev/ttyACM0',115200,timeout = .1) as ser_port:
+#      ser_port.write(b'\x03')
 #      ser_port.write(b'\x04')
 #      time.sleep(4)
 #      data_list_motor1[:] = []
-#      for count in range(1030):    
-#       
+#      for count in range(1030):
+#
 #      if any("Motor 1:" in line for line in data_list):
 #          for value in range(100):
 #              data_list_motor1.append()
-#      plot_data(data_list,plot_title = 'RC Step Response',xtitle = 'Time (ms)', ytitle = 'Voltage (V)')    
+#      plot_data(data_list,plot_title = 'RC Step Response',xtitle = 'Time (ms)', ytitle = 'Voltage (V)')
 # =============================================================================
