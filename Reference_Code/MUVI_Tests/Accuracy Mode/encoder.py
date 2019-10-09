@@ -1,12 +1,10 @@
 import pyb
-import micropython
-import machine
 
 class Encoder:
     '''
     '''
 
-    def __init__ (self, timer, enc_A, enc_B, name):
+    def __init__ (self, timer, pin1, pin2):
         '''
         Initializes the pins and timer channels for an encoder object.
         To create PB6 and PB7 Encoder reader: \n
@@ -21,11 +19,11 @@ class Encoder:
         @param pin1: First pin (A) used to read the encoder
         @param pin2: Second pin (B) used to read the encoder
         '''
-        # print ('Creating an encoder')
+        print ('Creating an encoder')
         ## First encoder pin associated with the pin1 (A) input parameter
-        self.pin_object_1 = pyb.Pin(enc_A)
+        self.pin_object_1 = pyb.Pin(pin1)
         ## Second encoder pin associated with the pin2 (B) input parameter
-        self.pin_object_2 = pyb.Pin(enc_B)
+        self.pin_object_2 = pyb.Pin(pin2)
         ## Timer number associated with the assigned pins
         self.timer_val = pyb.Timer(timer)
         ## Timer number associated with the assigned pins (Set timer to have one count per encoder count and a period of 65535)
@@ -42,9 +40,7 @@ class Encoder:
         self.__last_count = 0
         # Current absolute position of the encoder
         self.__encoder_val = 0
-        self.name = name
-        string = self.name + 'Encoder Successfully Initialized\r\n'
-        print (string.encode('UTF-8'))
+        print('Encoder object successfully created')
 
     def read_encoder(self):
         '''

@@ -225,8 +225,8 @@ def set_motion_params():
 def send_cmd():
     print('sent')
     # ser.write(cmd.get().encode())
-    ser.write(b'1')
-    # ser.write(bytes(cmd.get().encode('utf-8')))
+    # ser.write(b'1')
+    ser.write(bytes(cmd.get().encode('utf-8')))
     # messagebox.showinfo("Control","Sending command")
 
 def log_print(to_print):
@@ -287,6 +287,7 @@ cmd_label = Label(control_frame, text="Send Command:", bg='white').grid(row=1,co
 cmd = Entry(control_frame, width = 25, bg="white", justify='right')
 cmd.grid(row=1, column=4, columnspan = 4, sticky=W)
 cmd.insert(0,'m;p;1000;1;50;6000;50')
+# cmd.insert(0,'d;p')
 
 Button(control_frame, text ="Send", command = send_cmd, height=2, width=20).grid(row=1,column=9, sticky='W')
 
@@ -335,14 +336,15 @@ Label(window, text="Created by: Jason Grillo \n Cal Poly Mechanical Engineering 
 log = Text (window, width=80, height=30, takefocus=0, bg='white')
 log.grid(row=0,rowspan=10, column = 60, sticky = E)
 
-serialPort = "COM6"
+# serialPort = "COM6"
+serialPort = "COM7"
 baudRate = 115200
 try:
     ser = serial.Serial(serialPort , baudRate, timeout=0, writeTimeout=0,dsrdtr=True) #ensure non-blocking
     ser.setDTR(True)
     # ser.flush()
-    ser.write(b'\x03') #takes and puts value in byte format
-    ser.write(b'\x04')
+    # ser.write(b'\x03') #takes and puts value in byte format
+    # ser.write(b'\x04')
     # ser.write(b'hello')
 except:
     log_print("Unable to open Serial Port")

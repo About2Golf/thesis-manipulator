@@ -13,7 +13,8 @@ class Limit_Switch:
         self.pin_m = machine.Pin(pin_minus, machine.Pin.IN, machine.Pin.PULL_UP)
         self.pin_p = machine.Pin(pin_plus, machine.Pin.IN, machine.Pin.PULL_UP)
         self.name = name
-        print(self.name + 'Limit Switch Successfully Initialized')
+        string = self.name + 'Limit Switch Successfully Initialized\r\n'
+        print (string.encode('UTF-8'))
 
     def read_limit(self):
         '''

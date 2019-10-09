@@ -43,11 +43,12 @@ class Motor_Task:
             if self.state == STATE_1:
                 self.check_disable()
                 if self.params.any() and self.ENABLED:
-                    self.Motor.set_direction(self.params.get()[1])
-                    self.Motor.set_init_speed(self.params.get()[2])
-                    self.Motor.set_max_speed(self.params.get()[3])
-                    self.Motor.set_accel_rate(self.params.get()[4])
-                    self.Motor.move_to(self.params.get()[0])
+                    command = self.params.get().split(';')
+                    self.Motor.set_direction(int(command[3]))
+                    self.Motor.set_init_speed(int(command[4]))
+                    self.Motor.set_max_speed(int(command[5]))
+                    self.Motor.set_accel_rate(int(command[6]))
+                    self.Motor.move_to(int(command[2]))
                     self.DONE = 0
                     self.state = STATE_2
                 self.status.put(self.DONE)

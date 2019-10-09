@@ -8,6 +8,8 @@ import micropython
 import machine
 import utime
 
+import print_task
+
 class Hub_Task:
     '''
     '''
@@ -21,6 +23,7 @@ class Hub_Task:
                                             dcen_pin):
         '''
         '''
+        # self.print_q = printing_object
         # Motor Parameters Task Queue
         self.x_params = x_params
         self.z_params = z_params
@@ -64,7 +67,8 @@ class Hub_Task:
         self.Y_POSITIONING = False
         self.P_POSITIONING = False
         # Serial Initialization
-        self.vcp = pyb.USB_VCP()
+        self.uart = pyb.UART(2,115200)
+        self.uart.init(115200, bits=8, parity=None, stop=1)
         self.spi2 = pyb.SPI(2,pyb.SPI.MASTER, prescaler=256, crc=0x7)
 
     def hub_fun(self):
@@ -94,25 +98,25 @@ class Hub_Task:
 
             ## STATE 1: IDLE
             if self.state == STATE_1:
-                self.update_feedback()
+                # self.update_feedback()
                 self.read_GUI()
                 yield()
                 if self.Y_POSITIONING and self.y_enable.get():
                     self.Y_POSITIONING = False
                     self.state = STATE_2
-                    print("Moving Y")
+                    # print("Moving Y")
                 elif self.P_POSITIONING and self.p_enable.get():
                     self.P_POSITIONING = False
                     self.state = STATE_3
-                    print("Moving P")
+                    # print("Moving P")
                 elif self.Z_POSITIONING and self.z_enable.get():
                     self.Z_POSITIONING = False
                     self.state = STATE_4
-                    print("Moving Z")
+                    # print("Moving Z")
                 elif self.X_POSITIONING and self.x_enable.get():
                     self.X_POSITIONING = False
                     self.state = STATE_5
-                    print("Moving X")
+                    # print("Moving X")
 
             ## STATE 2: MOVING YAW
             elif self.state == STATE_2:
@@ -149,7 +153,7 @@ class Hub_Task:
                 # wait for motor to say done or limit reached or motor disabled
                 if (self.x_status.get()) or (self.x_limit.get()) or not self.x_enable.get():
                     self.state = STATE_1
-            # print(self.state)
+            print(self.state)
             yield(self.state)
 
 
@@ -196,7 +200,8 @@ class Hub_Task:
         p_lim = str(self.p_limit.get())
         feedback_data = x_enc +";"+ z_enc +";"+ y_enc +";"+ p_enc +";"+ \
                             x_lim +";"+ z_lim +";"+ y_lim +";"+ p_lim
-        # print(feedback_data)
+        # self.put_bytes(feedback_data.encode('UTF-8'))
+        print(feedback_data.encode('UTF-8'))
 
 # --------------------------------------------------------------------------- #
 # --------------------------------------------------------------------------- #
@@ -205,14 +210,18 @@ class Hub_Task:
         '''
         # print('reading gui')
         # print(self.vcp.isconnected())
-        if self.vcp.any():
-            print('command received')
-            self.GUI_input = self.vcp.read().decode('UTF-8')
-            self.GUI_Lookup_Table(self.GUI_input.split(";"))
+        # if self.vcp.any():
+        #     print('command received')
+        #     self.GUI_input = self.vcp.read().decode('UTF-8')
+        #     self.GUI_Lookup_Table(self.GUI_input.split(";"))
+        if self.uart.any():
+            self.GUI_input = self.uart.read().decode('UTF-8')
+            # self.GUI_Lookup_Table(self.GUI_input.split(";"))
+            self.GUI_Lookup_Table(self.GUI_input)
 
 # --------------------------------------------------------------------------- #
 # --------------------------------------------------------------------------- #
-    def GUI_Lookup_Table(self, command):
+    def GUI_Lookup_Table(self, input):
         ''' Decodes GUI commands based on a defined list of commands.
         @param command The incoming GUI command to decode.
         Command Variations:
@@ -220,6 +229,7 @@ class Hub_Task:
             "enable (e); axis (x,z,y,p)" or "disable (d); axis (x,z,y,p)"
             "move (m); axis (x,z,y,p); steps; direction; init speed; max speed; accel rate"
         '''
+        command = input.split(";")
         action = command[0]
         axis = command[1]
 
@@ -228,7 +238,8 @@ class Hub_Task:
             self.z_enable.put(0)
             self.y_enable.put(0)
             self.p_enable.put(0)
-            print('a')
+            # shares.print_task.put_bytes(b'a')
+            print(b'a')
 
         # ENABLE MOTOR
         elif action == "e":
@@ -240,7 +251,8 @@ class Hub_Task:
                 self.y_enable.put(1)
             elif axis == "p":
                 self.p_enable.put(1)
-            print('e')
+            # shares.print_task.put_bytes(b'e')
+            print(b'e')
 
         # DISABLE MOTOR
         elif action == "d":
@@ -252,23 +264,48 @@ class Hub_Task:
                 self.y_enable.put(0)
             elif axis == "p":
                 self.p_enable.put(0)
-            print('d')
+            # shares.print_task.put_bytes(b'd')
+            print(b'd')
 
         # MOVE MOTOR
         elif action == "m":
+            steps = int(command[2])
+            direction = int(command[3])
+            init_speed = int(command[4])
+            max_speed = int(command[5])
+            accel_rate = int(command[6])
             if axis == "x":
                 self.X_POSITIONING = True
-                self.x_params.put(int(command[2:]))
+                self.x_params.put(direction)
+                self.x_params.put(init_speed)
+                self.x_params.put(max_speed)
+                self.x_params.put(accel_rate)
+                self.x_params.put(steps)
             elif axis == "z":
                 self.Z_POSITIONING = True
-                self.z_params.put(int(command[2:]))
+                self.z_params.put(direction)
+                self.z_params.put(init_speed)
+                self.z_params.put(max_speed)
+                self.z_params.put(accel_rate)
+                self.z_params.put(steps)
             elif axis == "y":
                 self.Y_POSITIONING = True
-                self.y_params.put(int(command[2:]))
+                self.y_params.put(direction)
+                self.y_params.put(init_speed)
+                self.y_params.put(max_speed)
+                self.y_params.put(accel_rate)
+                self.y_params.put(steps)
             elif axis == "p":
                 self.P_POSITIONING = True
-                self.p_params.put(int(command[2:]))
-            print('m')
+                # print(type(input).encode('UTF-8'))
+                # print(move[2].encode('UTF-8'))
+                self.p_params.put(direction)
+                self.p_params.put(init_speed)
+                self.p_params.put(max_speed)
+                self.p_params.put(accel_rate)
+                self.p_params.put(steps)
+            # shares.print_task.put_bytes(b'm')
+            print(b'm')
 
         # ZERO
         elif action == "z":
@@ -280,4 +317,5 @@ class Hub_Task:
                 self.y_zero.put(1)
             elif axis == "p":
                 self.p_zero.put(1)
-            print('z')
+            # shares.print_task.put_bytes(b'z')
+            print(b'z')

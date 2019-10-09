@@ -5,7 +5,7 @@ import time
 x = [(85*i) for i in range(9)]
 y = [(50*i) for i in range(5)]
 width = 10
-serial_port = 'COM6'
+serial_port = 'COM7'
 
 class Window(Frame):
 
