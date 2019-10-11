@@ -31,15 +31,27 @@ def send_recv_spi_data(data, enable_pin):
 def send_spi_data(enable_pin):
     enable_pin.set_low()
     spi2.send(spi_command1)
-    utime.sleep_us(20)
+    utime.sleep_us(10)
+    enable_pin.set_high()
+    utime.sleep_us(10)
+    enable_pin.set_low()
     spi2.send(spi_command2)
-    utime.sleep_us(20)
+    utime.sleep_us(10)
+    enable_pin.set_high()
+    utime.sleep_us(10)
+    enable_pin.set_low()
     spi2.send(spi_command3)
-    utime.sleep_us(20)
+    utime.sleep_us(10)
+    enable_pin.set_high()
+    utime.sleep_us(10)
+    enable_pin.set_low()
     spi2.send(spi_command4)
-    utime.sleep_us(20)
+    utime.sleep_us(10)
+    enable_pin.set_high()
+    utime.sleep_us(10)
+    enable_pin.set_low()
     spi2.send(spi_command5)
-    utime.sleep_us(20)
+    utime.sleep_us(10)
     enable_pin.set_high()
 
 if __name__ == "__main__":
@@ -111,6 +123,7 @@ if __name__ == "__main__":
     spi2 = pyb.SPI(2,pyb.SPI.MASTER, prescaler=256, crc=0x7)
 
     spi_command1 = b'\xEC\x07\x01\x00\xC3'
+    # spi_command1 = b'\xEC\x00\x01\x00\xC3'
     spi_command2 = b'\x90\x00\x06\x1F\x0A'
     spi_command3 = b'\x91\x00\x00\x00\x0A'
     spi_command4 = b'\x80\x00\x00\x00\x04'

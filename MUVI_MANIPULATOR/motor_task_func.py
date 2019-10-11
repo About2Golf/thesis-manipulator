@@ -28,6 +28,8 @@ class Motor_Task:
         self.Motor = motor.TMC2160Driver(step_pin, dir_pin, enable_pin, dco_pin, step_timer, step_channel, accel_timer, accel_ch, name)
         self.ENABLED = 0
         self.DONE = 1
+        self.en_counter = 0
+        self.name = name
 
     def mot_fun(self):
         '''
@@ -43,12 +45,17 @@ class Motor_Task:
             if self.state == STATE_1:
                 self.check_disable()
                 if self.params.any() and self.ENABLED:
-                    command = self.params.get().split(';')
-                    self.Motor.set_direction(int(command[3]))
-                    self.Motor.set_init_speed(int(command[4]))
-                    self.Motor.set_max_speed(int(command[5]))
-                    self.Motor.set_accel_rate(int(command[6]))
-                    self.Motor.move_to(int(command[2]))
+                    # command = self.params.get().split(';')
+                    # self.Motor.set_direction(int(command[3]))
+                    # self.Motor.set_init_speed(int(command[4]))
+                    # self.Motor.set_max_speed(int(command[5]))
+                    # self.Motor.set_accel_rate(int(command[6]))
+                    # self.Motor.move_to(int(command[2]))
+                    self.Motor.set_direction(int(self.params.get()))
+                    self.Motor.set_init_speed(int(self.params.get()))
+                    self.Motor.set_max_speed(int(self.params.get()))
+                    self.Motor.set_accel_rate(int(self.params.get()))
+                    self.Motor.move_to(int(self.params.get()))
                     self.DONE = 0
                     self.state = STATE_2
                 self.status.put(self.DONE)
@@ -56,7 +63,12 @@ class Motor_Task:
             ## STATE 2: MOVING
             elif self.state == STATE_2:
                 self.check_disable()
+                # print('mot')
+                # print(self.Motor.is_done())
+                # print(self.limit.get())
+                # print(self.ENABLED)
                 if self.Motor.is_done() or abs(self.limit.get()) or not self.ENABLED:
+                # if self.Motor.is_done() or abs(self.limit.get()):
                     self.Motor.stop()
                     self.DONE = 1
                     self.state = STATE_1
@@ -69,9 +81,15 @@ class Motor_Task:
     def check_disable(self):
         '''
         '''
+        # self.en_counter +=1
+        # print('check disable')
+        # print(self.enable.get())
+        # print(self.en_counter)
         if not self.enable.get():
+            # print('disable')
             self.Motor.disable_motor()
             self.ENABLED = 0
         else:
+            # print('enable')
             self.Motor.enable_motor()
             self.ENABLED = 1

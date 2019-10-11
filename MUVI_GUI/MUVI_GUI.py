@@ -39,7 +39,7 @@ class status_box():
         self.speed.grid(row=(self.row+1), column=self.column+1, sticky=E)
         self.speed_units = Label(self.status_frame, text=(self.units+"/s"), bg='white').grid(row=(self.row+1),column=self.column+2, sticky=W)
 
-        self.datum_label = Label(self.status_frame, text="Datum:", bg='white').grid(row=(self.row+2),column=self.column, sticky=W)
+        self.datum_label = Label(self.status_frame, text="Mark:", bg='white').grid(row=(self.row+2),column=self.column, sticky=W)
         self.datum = Entry(self.status_frame, width = 10, bg='gray80',  justify='right')
         # self.datum.insert(0, "0123")
         self.datum.grid(row=(self.row+2), column=self.column+1, sticky=E)
@@ -56,7 +56,7 @@ class status_box():
         self.p_limit_button.grid(row=(self.row+4),column=self.column+1, sticky=E)
         self.p_lim = self.p_limit_button.create_oval(5,5,25,25, fill ='gray80')
 
-        self.mark_datum = Button(self.status_frame, text="Mark Datum", width=15, command=self.mark_datum)
+        self.mark_datum = Button(self.status_frame, text="Mark Position", width=15, command=self.mark_datum)
         self.mark_datum.grid(row=self.row+5, column=self.column,columnspan=4, sticky=W)
 
     def limit_on(self, identifier):
@@ -91,12 +91,13 @@ class status_box():
         return self.datum.get()
 
 class control_box():
-    def __init__(self, frame, row, column, units, name, status_box):
+    def __init__(self, frame, row, column, units, name, status_box, stage):
         self.status_box = status_box
         self.row = row
         self.column = column
         self.units = units
         self.name = name
+        self.stage = stage
         self.TARGET = 0
         self.JOGSIZE = 0
         self.ENABLED = 0
@@ -138,9 +139,13 @@ class control_box():
         to get the present state of the toggle button
         '''
         if (self.enable_mot.config('text')[-1] == 'ON' or not force) and disable:
+            string = 'd;' + self.stage
+            ser.write(bytes(string.encode('utf-8')))
             self.enable_mot.config(text='OFF')
             self.ENABLED = 0
         else:
+            string = 'e;' + self.stage
+            ser.write(bytes(string.encode('utf-8')))
             self.enable_mot.config(text='ON')
             self.ENABLED = 1
 
@@ -180,9 +185,13 @@ class control_box():
 
 def stop_manipulator():
     # code to stop manipulator
+    ser.write(bytes('d;x'.encode('utf-8')))
     x_control_frame.toggle_enable(force = 0, disable = 1)
+    ser.write(bytes('d;z'.encode('utf-8')))
     z_control_frame.toggle_enable(force = 0, disable = 1)
+    ser.write(bytes('d;y'.encode('utf-8')))
     y_control_frame.toggle_enable(force = 0, disable = 1)
+    ser.write(bytes('d;p'.encode('utf-8')))
     p_control_frame.toggle_enable(force = 0, disable = 1)
     messagebox.showinfo("Manipulator Status","Manipulator stopped by user.")
 
@@ -210,9 +219,13 @@ def move_stages():
     messagebox.showinfo("Control","Moving stages")
 
 def enable_all():
+    ser.write(bytes('e;x'.encode('utf-8')))
     x_control_frame.toggle_enable(disable=0)
+    ser.write(bytes('e;z'.encode('utf-8')))
     z_control_frame.toggle_enable(disable=0)
+    ser.write(bytes('e;y'.encode('utf-8')))
     y_control_frame.toggle_enable(disable=0)
+    ser.write(bytes('e;p'.encode('utf-8')))
     p_control_frame.toggle_enable(disable=0)
 
 def zero_all():
@@ -229,8 +242,86 @@ def send_cmd():
     ser.write(bytes(cmd.get().encode('utf-8')))
     # messagebox.showinfo("Control","Sending command")
 
+prev_x_pos = 0.0
+prev_z_pos = 0.0
+prev_y_pos = 0.0
+prev_p_pos = 0.0
+
+def update_status(status_string):
+    global prev_x_pos, prev_z_pos, prev_y_pos, prev_p_pos
+    status = status_string[1::] # remove first character (b)
+    status = status[1::] # remove first character (')
+    status = status[:-1:] # remove last character (/n)
+    status = status[:-1:] # remove last character (')
+    status = status.split(';')
+    # print(status.split(';'))
+    # status = status_string.decode('utf-8').split(';')
+    # print(status[0])
+    # print(' ' in status[0])
+    # print(status[0].isalpha())
+    if not status[0].isalpha() and not (' ' in status[0]):
+        x_pos = float(status[0])*360/(4000*72)  # convert to deg
+        z_pos = float(status[1])*360/(4000*72)
+        y_pos = float(status[2])*360/(4000*72)
+        p_pos = float(status[3])*360/(4000*72)
+        x_lim = float(status[4])
+        z_lim = float(status[5])
+        y_lim = float(status[6])
+        p_lim = float(status[7])
+        x_speed = 1000*(x_pos - prev_x_pos)/(200)
+        z_speed = 1000*(z_pos - prev_z_pos)/(200)
+        y_speed = 1000*(y_pos - prev_y_pos)/(200)  # convert to deg/s
+        p_speed = 1000*(p_pos - prev_p_pos)/(200)
+        prev_x_pos = x_pos
+        prev_z_pos = z_pos
+        prev_y_pos = y_pos
+        prev_p_pos = p_pos
+        x_status_frame.update_position("{0:.4f}".format(x_pos)) # convert to deg
+        z_status_frame.update_position("{0:.4f}".format(z_pos))
+        y_status_frame.update_position("{0:.4f}".format(y_pos))
+        p_status_frame.update_position("{0:.4f}".format(p_pos))
+        x_status_frame.update_speed("{0:.2f}".format(x_speed))
+        z_status_frame.update_speed("{0:.2f}".format(z_speed))
+        y_status_frame.update_speed("{0:.2f}".format(y_speed))
+        p_status_frame.update_speed("{0:.2f}".format(p_speed))
+        if x_lim <0:
+            x_status_frame.limit_on('m')
+        elif x_lim >0:
+            x_status_frame.limit_on('p')
+        else:
+            x_status_frame.limit_off('p')
+            x_status_frame.limit_off('m')
+        if z_lim <0:
+            z_status_frame.limit_on('m')
+        elif z_lim >0:
+            z_status_frame.limit_on('p')
+        else:
+            z_status_frame.limit_off('p')
+            z_status_frame.limit_off('m')
+        if y_lim <0:
+            y_status_frame.limit_on('m')
+        elif y_lim >0:
+            y_status_frame.limit_on('p')
+        else:
+            y_status_frame.limit_off('p')
+            y_status_frame.limit_off('m')
+        if p_lim <0:
+            p_status_frame.limit_on('m')
+        elif p_lim >0:
+            p_status_frame.limit_on('p')
+        else:
+            p_status_frame.limit_off('p')
+            p_status_frame.limit_off('m')
+
+
+
+prev_string = ''
 def log_print(to_print):
-    log.insert(END, to_print)
+    global prev_string
+    if to_print != prev_string:
+        log.insert(END, to_print)
+        # update_status(to_print)
+    prev_string = to_print
 
 # -----------------------------------------------------------------------------#
 # -----------------------------------------------------------------------------#
@@ -299,10 +390,10 @@ Button(control_frame, text= "Zero All", height=2, width=20, command=zero_all).gr
 
 Button(control_frame, text= "Set Motion Parameters", height=2, width=20, command=set_motion_params).grid(row=9, column=9, sticky=W)
 
-x_control_frame = control_box(control_frame, 10, 0, "mm", "X Translation", x_status_frame)
-z_control_frame = control_box(control_frame, 10, 3, "mm", "Z Translation", z_status_frame)
-y_control_frame = control_box(control_frame, 10, 6, "deg", "Yaw Rotation", y_status_frame)
-p_control_frame = control_box(control_frame, 10, 9, "deg", "Pitch Rotation", p_status_frame)
+x_control_frame = control_box(control_frame, 10, 0, "mm", "X Translation", x_status_frame, 'x')
+z_control_frame = control_box(control_frame, 10, 3, "mm", "Z Translation", z_status_frame, 'z')
+y_control_frame = control_box(control_frame, 10, 6, "deg", "Yaw Rotation", y_status_frame, 'y')
+p_control_frame = control_box(control_frame, 10, 9, "deg", "Pitch Rotation", p_status_frame, 'p')
 
 # Run Test Row
 test_frame = LabelFrame(window, text="Run Test", bg='white')
@@ -365,6 +456,7 @@ def readSerial():
         if c == '\n':
             serBuffer += "\n" # add the newline to the buffer
             #add the line to the TOP of the log
+            update_status(serBuffer)
             log_print(serBuffer)
             # log.insert(END, serBuffer)
             # log.insert('0.0', serBuffer)

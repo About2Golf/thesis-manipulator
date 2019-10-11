@@ -59,6 +59,10 @@ class Hub_Task:
         self.z_csn_pin = machine.Pin(z_csn_pin, mode = machine.Pin.OUT, pull = machine.Pin.PULL_UP)
         self.y_csn_pin = machine.Pin(y_csn_pin, mode = machine.Pin.OUT, pull = machine.Pin.PULL_UP)
         self.p_csn_pin = machine.Pin(p_csn_pin, mode = machine.Pin.OUT, pull = machine.Pin.PULL_UP)
+        self.x_csn_pin.value(1)
+        self.z_csn_pin.value(1)
+        self.y_csn_pin.value(1)
+        self.p_csn_pin.value(1)
         # DC Step Enable Pin
         self.dcen_pin = machine.Pin(dcen_pin, mode = machine.Pin.OUT, pull = machine.Pin.PULL_UP)
         # Internal State Machine Motor Status
@@ -98,7 +102,7 @@ class Hub_Task:
 
             ## STATE 1: IDLE
             if self.state == STATE_1:
-                # self.update_feedback()
+                self.update_feedback()
                 self.read_GUI()
                 yield()
                 if self.Y_POSITIONING and self.y_enable.get():
@@ -133,6 +137,10 @@ class Hub_Task:
                 self.read_GUI()
                 yield()
                 # wait for motor to say done or limit reached or motor disabled
+                # print('hub')
+                # print(self.p_status.get())
+                # print(self.p_limit.get())
+                # print(self.p_enable.get())
                 if (self.p_status.get()) or abs(self.p_limit.get()) or not self.p_enable.get():
                     self.state = STATE_1
 
@@ -153,7 +161,7 @@ class Hub_Task:
                 # wait for motor to say done or limit reached or motor disabled
                 if (self.x_status.get()) or (self.x_limit.get()) or not self.x_enable.get():
                     self.state = STATE_1
-            print(self.state)
+            # print(self.state)
             yield(self.state)
 
 
@@ -163,22 +171,35 @@ class Hub_Task:
         '''
         '''
         # spi_command1 = b'\xEC\x00\x01\x00\xC3'   # 256 microsteps
-        spi_command1 = b'\xEC\x07\x01\x00\xC3'     # 2 microsteps
+        spi_command1 = b'\xEC\x07\x01\x00\xC3'   # 2 microsteps
+        # spi_command1 = b'\xEC\x08\x01\x00\xC3'     # 0 microsteps
         spi_command2 = b'\x90\x00\x06\x1F\x0A'
         spi_command3 = b'\x91\x00\x00\x00\x0A'
         spi_command4 = b'\x80\x00\x00\x00\x04'
         spi_command5 = b'\x93\x00\x00\x01\xF4'
         csn_pin.value(0)
         self.spi2.send(spi_command1)
-        # utime.sleep_us(10)
+        utime.sleep_us(5)
+        csn_pin.value(1)
+        utime.sleep_us(5)
+        csn_pin.value(0)
         self.spi2.send(spi_command2)
-        # utime.sleep_us(10)
+        utime.sleep_us(5)
+        csn_pin.value(1)
+        utime.sleep_us(5)
+        csn_pin.value(0)
         self.spi2.send(spi_command3)
-        # utime.sleep_us(10)
+        utime.sleep_us(5)
+        csn_pin.value(1)
+        utime.sleep_us(5)
+        csn_pin.value(0)
         self.spi2.send(spi_command4)
-        # utime.sleep_us(10)
+        utime.sleep_us(5)
+        csn_pin.value(1)
+        utime.sleep_us(5)
+        csn_pin.value(0)
         self.spi2.send(spi_command5)
-        # utime.sleep_us(10)
+        utime.sleep_us(5)
         csn_pin.value(1)
         self.dcen_pin.value(0)
         # !!!!! put dcen pin high here to setup DC STEP on the steppers
@@ -274,6 +295,12 @@ class Hub_Task:
             init_speed = int(command[4])
             max_speed = int(command[5])
             accel_rate = int(command[6])
+            # print('hub params')
+            # print(steps)
+            # print(direction)
+            # print(init_speed)
+            # print(max_speed)
+            # print(accel_rate)
             if axis == "x":
                 self.X_POSITIONING = True
                 self.x_params.put(direction)

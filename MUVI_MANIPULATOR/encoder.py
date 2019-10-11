@@ -43,7 +43,7 @@ class Encoder:
         # Current absolute position of the encoder
         self.__encoder_val = 0
         self.name = name
-        string = self.name + 'Encoder Successfully Initialized\r\n'
+        string = self.name + 'Encoder Successfully Initialized'
         print (string.encode('UTF-8'))
 
     def read_encoder(self):

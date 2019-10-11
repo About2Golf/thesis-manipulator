@@ -41,7 +41,7 @@ class TMC2160Driver:
         self.enable.value(0)
         self.step.value(0)
         self.dir.value(0)
-        string = self.name + 'Stepper Successfully Initialized\r\n'
+        string = self.name + 'Stepper Successfully Initialized'
         print (string.encode('UTF-8'))
 
     def move_to(self, steps):
@@ -50,6 +50,8 @@ class TMC2160Driver:
         if steps == 0:
             return
         self.DONE = 0
+        # print('move_to')
+        # print(steps)
         self.total_steps = 2*steps
         accel1 = round(self.total_steps*0.20)
         accel2 = round(self.max_step_rate*self.init_speed/self.accel_rate)
@@ -125,23 +127,31 @@ class TMC2160Driver:
             self.dir.value(1)
         else:
             self.dir.value(0)
+        # print('dir')
+        # print(direction)
 
     def set_init_speed(self,init_speed):
         '''
         '''
         self.init_speed = init_speed
         self.set_step_freq(self.init_speed)
+        # print('init_s')
+        # print(init_speed)
 
     def set_max_speed(self,max_step_rate):
         '''
         '''
         self.max_step_rate = max_step_rate
+        # print('max_s')
+        # print(max_step_rate)
 
     def set_accel_rate(self,accel_rate):
         '''
         '''
         self.accel_rate = accel_rate
         self.accel_timer.freq(self.accel_rate)
+        # print('accel')
+        # print(accel_rate)
 
     def set_step_freq(self,step_rate):
         '''
@@ -151,11 +161,11 @@ class TMC2160Driver:
 
     def enable_motor (self):
         ''' This method turns on the motor.'''
-        self.enable.value(1)
+        self.enable.value(0)
 
     def disable_motor (self):
         ''' This method turns off the motor.'''
-        self.enable.value(0)
+        self.enable.value(1)
 
     def is_done (self):
         '''
