@@ -141,7 +141,7 @@ if __name__ == "__main__":
 
     # Hub Task
     task1 = cotask.Task (hub.hub_fun, name = 'Task_1', priority = 1,
-                            period = 200, profile = True, trace = False)
+                            period = 100, profile = True, trace = False)
 
     # Feedback Tasks
     task2 = cotask.Task (x_feedback.fb_fun, name = 'Task_2', priority = 5,
@@ -268,7 +268,7 @@ if __name__ == "__main__":
     ############################### RUN ################################
     ####################################################################
 
-    print(b'Running the MUVI Manipulator RTOS')
+    print('Running the MUVI Manipulator RTOS')
     # Run the scheduler with the chosen scheduling algorithm
     while True:
         cotask.task_list.pri_sched()

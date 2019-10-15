@@ -14,7 +14,7 @@ class Limit_Switch:
         self.pin_p = machine.Pin(pin_plus, machine.Pin.IN, machine.Pin.PULL_UP)
         self.name = name
         string = self.name + 'Limit Switch Successfully Initialized'
-        print (string.encode('UTF-8'))
+        print (string)
 
     def read_limit(self):
         '''

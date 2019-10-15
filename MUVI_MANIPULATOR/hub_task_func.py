@@ -129,6 +129,7 @@ class Hub_Task:
                 yield()
                 # wait for motor to say done or limit reached or motor disabled
                 if (self.y_status.get()) or abs(self.y_limit.get()) or not self.y_enable.get():
+                    print('s;y;done')
                     self.state = STATE_1
 
             ## STATE 3: MOVING PITCH
@@ -142,6 +143,7 @@ class Hub_Task:
                 # print(self.p_limit.get())
                 # print(self.p_enable.get())
                 if (self.p_status.get()) or abs(self.p_limit.get()) or not self.p_enable.get():
+                    print('s;p;done')
                     self.state = STATE_1
 
             ## STATE 4: MOVING Z TRANSLATION
@@ -151,6 +153,7 @@ class Hub_Task:
                 yield()
                 # wait for motor to say done or limit reached or motor disabled
                 if (self.z_status.get()) or abs(self.z_limit.get()) or not self.z_enable.get():
+                    print('s;z;done')
                     self.state = STATE_1
 
             ## STATE 5: MOVING X TRANSLATION
@@ -160,6 +163,7 @@ class Hub_Task:
                 yield()
                 # wait for motor to say done or limit reached or motor disabled
                 if (self.x_status.get()) or (self.x_limit.get()) or not self.x_enable.get():
+                    print('s;x;done')
                     self.state = STATE_1
             # print(self.state)
             yield(self.state)
@@ -204,6 +208,11 @@ class Hub_Task:
         self.dcen_pin.value(0)
         # !!!!! put dcen pin high here to setup DC STEP on the steppers
 
+    def send_TMC_cmd(self, command, csn_pin):
+        csn_pin.value(0)
+        self.spi2.send(command)
+        csn_pin.value(1)
+
 # --------------------------------------------------------------------------- #
 # --------------------------------------------------------------------------- #
     def update_feedback(self):
@@ -222,7 +231,8 @@ class Hub_Task:
         feedback_data = x_enc +";"+ z_enc +";"+ y_enc +";"+ p_enc +";"+ \
                             x_lim +";"+ z_lim +";"+ y_lim +";"+ p_lim
         # self.put_bytes(feedback_data.encode('UTF-8'))
-        print(feedback_data.encode('UTF-8'))
+        # print(feedback_data.encode('UTF-8'))
+        print(feedback_data)
 
 # --------------------------------------------------------------------------- #
 # --------------------------------------------------------------------------- #
@@ -260,33 +270,41 @@ class Hub_Task:
             self.y_enable.put(0)
             self.p_enable.put(0)
             # shares.print_task.put_bytes(b'a')
-            print(b'a')
+            print('a')
 
         # ENABLE MOTOR
         elif action == "e":
             if axis == "x":
                 self.x_enable.put(1)
+                print('e;x')
             elif axis == "z":
                 self.z_enable.put(1)
+                print('e;z')
             elif axis == "y":
                 self.y_enable.put(1)
+                print('e;y')
             elif axis == "p":
                 self.p_enable.put(1)
+                print('e;p')
             # shares.print_task.put_bytes(b'e')
-            print(b'e')
+            # print('e')
 
         # DISABLE MOTOR
         elif action == "d":
             if axis == "x":
                 self.x_enable.put(0)
+                print('d;x')
             elif axis == "z":
                 self.z_enable.put(0)
+                print('d;z')
             elif axis == "y":
                 self.y_enable.put(0)
+                print('d;y')
             elif axis == "p":
                 self.p_enable.put(0)
+                print('d;p')
             # shares.print_task.put_bytes(b'd')
-            print(b'd')
+            # print('d')
 
         # MOVE MOTOR
         elif action == "m":
@@ -295,12 +313,6 @@ class Hub_Task:
             init_speed = int(command[4])
             max_speed = int(command[5])
             accel_rate = int(command[6])
-            # print('hub params')
-            # print(steps)
-            # print(direction)
-            # print(init_speed)
-            # print(max_speed)
-            # print(accel_rate)
             if axis == "x":
                 self.X_POSITIONING = True
                 self.x_params.put(direction)
@@ -308,6 +320,7 @@ class Hub_Task:
                 self.x_params.put(max_speed)
                 self.x_params.put(accel_rate)
                 self.x_params.put(steps)
+                print('m;x')
             elif axis == "z":
                 self.Z_POSITIONING = True
                 self.z_params.put(direction)
@@ -315,6 +328,7 @@ class Hub_Task:
                 self.z_params.put(max_speed)
                 self.z_params.put(accel_rate)
                 self.z_params.put(steps)
+                print('m;z')
             elif axis == "y":
                 self.Y_POSITIONING = True
                 self.y_params.put(direction)
@@ -322,6 +336,7 @@ class Hub_Task:
                 self.y_params.put(max_speed)
                 self.y_params.put(accel_rate)
                 self.y_params.put(steps)
+                print('m;y')
             elif axis == "p":
                 self.P_POSITIONING = True
                 # print(type(input).encode('UTF-8'))
@@ -331,18 +346,42 @@ class Hub_Task:
                 self.p_params.put(max_speed)
                 self.p_params.put(accel_rate)
                 self.p_params.put(steps)
+                print('m;p')
             # shares.print_task.put_bytes(b'm')
-            print(b'm')
+            # print('m')
 
         # ZERO
         elif action == "z":
             if axis == "x":
                 self.x_zero.put(1)
+                print('z;x')
             elif axis == "z":
                 self.z_zero.put(1)
+                print('z;z')
             elif axis == "y":
                 self.y_zero.put(1)
+                print('z;y')
             elif axis == "p":
                 self.p_zero.put(1)
+                print('z;p')
             # shares.print_task.put_bytes(b'z')
-            print(b'z')
+            # print('z')
+
+        # SEND TMC COMMAND
+        elif action == "t":
+            if axis == "x":
+                self.send_TMC_cmd(command[2], self.x_csn_pin)
+                print('i;x')
+            elif axis == "z":
+                self.send_TMC_cmd(command[2], self.z_csn_pin)
+                print('i;z')
+            elif axis == "y":
+                self.send_TMC_cmd(command[2], self.y_csn_pin)
+                print('i;y')
+            elif axis == "p":
+                self.send_TMC_cmd(command[2], self.p_csn_pin)
+                print('i;p')
+
+        # RESET
+        elif action == "r":
+            pyb.hard_reset()

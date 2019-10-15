@@ -44,7 +44,7 @@ class Encoder:
         self.__encoder_val = 0
         self.name = name
         string = self.name + 'Encoder Successfully Initialized'
-        print (string.encode('UTF-8'))
+        print (string)
 
     def read_encoder(self):
         '''

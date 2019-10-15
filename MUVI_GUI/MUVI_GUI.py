@@ -177,6 +177,9 @@ class control_box():
         self.target.delete(0, END)
         self.target.insert(0, str(new_target))
 
+    def get_target(self):
+        return float(self.target.get())
+
 # -----------------------------------------------------------------------------#
 # -----------------------------------------------------------------------------#
 # ----------------------------- Methods ---------------------------------------#
@@ -184,14 +187,10 @@ class control_box():
 # -----------------------------------------------------------------------------#
 
 def stop_manipulator():
-    # code to stop manipulator
-    ser.write(bytes('d;x'.encode('utf-8')))
+    ser.write(bytes('a;a'.encode('utf-8')))
     x_control_frame.toggle_enable(force = 0, disable = 1)
-    ser.write(bytes('d;z'.encode('utf-8')))
     z_control_frame.toggle_enable(force = 0, disable = 1)
-    ser.write(bytes('d;y'.encode('utf-8')))
     y_control_frame.toggle_enable(force = 0, disable = 1)
-    ser.write(bytes('d;p'.encode('utf-8')))
     p_control_frame.toggle_enable(force = 0, disable = 1)
     messagebox.showinfo("Manipulator Status","Manipulator stopped by user.")
 
@@ -216,20 +215,52 @@ def SL_sweep():
     messagebox.showinfo("Run Test","Sweeping Stray Light")
 
 def move_stages():
-    messagebox.showinfo("Control","Moving stages")
+    global MOTOR_MASK, GUI_STATE, EXECUTING, MOVE_NUM
+    global x_pos, z_pos, y_pos, p_pos, x_target, z_target, y_target, p_target
+    if not EXECUTING:
+        x_target = x_control_frame.get_target()
+        z_target = z_control_frame.get_target()
+        y_target = y_control_frame.get_target()
+        p_target = p_control_frame.get_target()
+        if not x_pos == x_target:
+            MOTOR_MASK = setBit(MOTOR_MASK,3)
+        else:
+            MOTOR_MASK = clearBit(MOTOR_MASK,3)
+        if not z_pos == z_target:
+            MOTOR_MASK = setBit(MOTOR_MASK,2)
+        else:
+            MOTOR_MASK = clearBit(MOTOR_MASK,2)
+        if not y_pos == y_target:
+            MOTOR_MASK = setBit(MOTOR_MASK,1)
+        else:
+            MOTOR_MASK = clearBit(MOTOR_MASK,1)
+        if not p_pos == p_target:
+            MOTOR_MASK = setBit(MOTOR_MASK,0)
+        else:
+            MOTOR_MASK = clearBit(MOTOR_MASK,0)
+        MOVE_NUM = 1
+        GUI_STATE = 3
+        EXECUTING = True
+    else:
+        return
 
 def enable_all():
-    ser.write(bytes('e;x'.encode('utf-8')))
-    x_control_frame.toggle_enable(disable=0)
-    ser.write(bytes('e;z'.encode('utf-8')))
-    z_control_frame.toggle_enable(disable=0)
-    ser.write(bytes('e;y'.encode('utf-8')))
-    y_control_frame.toggle_enable(disable=0)
-    ser.write(bytes('e;p'.encode('utf-8')))
-    p_control_frame.toggle_enable(disable=0)
+    global MOTOR_MASK, GUI_STATE, EXECUTING
+    if not EXECUTING:
+        MOTOR_MASK = 0b1111
+        GUI_STATE = 2
+        EXECUTING = True
+    else:
+        return
 
 def zero_all():
-    messagebox.showinfo("Control","Zeroing stages")
+    global MOTOR_MASK, GUI_STATE, EXECUTING
+    if not EXECUTING:
+        MOTOR_MASK = 0b1111
+        GUI_STATE = 4
+        EXECUTING = True
+    else:
+        return
 
 def set_motion_params():
     param_window = Toplevel()
@@ -237,83 +268,227 @@ def set_motion_params():
 
 def send_cmd():
     print('sent')
-    # ser.write(cmd.get().encode())
-    # ser.write(b'1')
     ser.write(bytes(cmd.get().encode('utf-8')))
-    # messagebox.showinfo("Control","Sending command")
 
+def reset():
+    ser.write(b'r;a')
+
+x_pos = 0.0
+z_pos = 0.0
+y_pos = 0.0
+p_pos = 0.0
 prev_x_pos = 0.0
 prev_z_pos = 0.0
 prev_y_pos = 0.0
 prev_p_pos = 0.0
+x_speed = 0.0
+z_speed = 0.0
+y_speed = 0.0
+p_speed = 0.0
+x_lim = 0
+z_lim = 0
+y_lim = 0
+p_lim = 0
 
-def update_status(status_string):
-    global prev_x_pos, prev_z_pos, prev_y_pos, prev_p_pos
-    status = status_string[1::] # remove first character (b)
-    status = status[1::] # remove first character (')
-    status = status[:-1:] # remove last character (/n)
-    status = status[:-1:] # remove last character (')
-    status = status.split(';')
-    # print(status.split(';'))
-    # status = status_string.decode('utf-8').split(';')
-    # print(status[0])
-    # print(' ' in status[0])
-    # print(status[0].isalpha())
-    if not status[0].isalpha() and not (' ' in status[0]):
-        x_pos = float(status[0])*360/(4000*72)  # convert to deg
-        z_pos = float(status[1])*360/(4000*72)
-        y_pos = float(status[2])*360/(4000*72)
-        p_pos = float(status[3])*360/(4000*72)
-        x_lim = float(status[4])
-        z_lim = float(status[5])
-        y_lim = float(status[6])
-        p_lim = float(status[7])
-        x_speed = 1000*(x_pos - prev_x_pos)/(200)
-        z_speed = 1000*(z_pos - prev_z_pos)/(200)
-        y_speed = 1000*(y_pos - prev_y_pos)/(200)  # convert to deg/s
-        p_speed = 1000*(p_pos - prev_p_pos)/(200)
-        prev_x_pos = x_pos
-        prev_z_pos = z_pos
-        prev_y_pos = y_pos
-        prev_p_pos = p_pos
-        x_status_frame.update_position("{0:.4f}".format(x_pos)) # convert to deg
-        z_status_frame.update_position("{0:.4f}".format(z_pos))
-        y_status_frame.update_position("{0:.4f}".format(y_pos))
-        p_status_frame.update_position("{0:.4f}".format(p_pos))
-        x_status_frame.update_speed("{0:.2f}".format(x_speed))
-        z_status_frame.update_speed("{0:.2f}".format(z_speed))
-        y_status_frame.update_speed("{0:.2f}".format(y_speed))
-        p_status_frame.update_speed("{0:.2f}".format(p_speed))
-        if x_lim <0:
-            x_status_frame.limit_on('m')
-        elif x_lim >0:
-            x_status_frame.limit_on('p')
+x_target = 0.0
+z_target = 0.0
+y_target = 0.0
+p_target = 0.0
+
+GUI_STATE = 0
+# prev_GUI_STATE = 0
+MOTOR_MASK = 0b0000  # x;z;y;p
+ACK = None
+EXECUTING = False
+MOVE_NUM = 1
+
+def read_data():
+    global serBuffer, ACK
+    log_print(serBuffer)
+    # uC_resp = serBuffer[1::] # remove first character (b)
+    # uC_resp = uC_resp[1::] # remove first character (')
+    uC_resp = serBuffer[:-1:] # remove last character (/n)
+    # uC_resp = uC_resp[:-1:] # remove last character (')
+    uC_resp = uC_resp.split(';')
+    if not (' ' in uC_resp[0]):
+        if not uC_resp[0].isalpha():
+            return uC_resp
         else:
-            x_status_frame.limit_off('p')
-            x_status_frame.limit_off('m')
-        if z_lim <0:
-            z_status_frame.limit_on('m')
-        elif z_lim >0:
-            z_status_frame.limit_on('p')
+            ACK = uC_resp[0]
+            return None
+
+def GUI_state_machine():
+    # global GUI_STATE, prev_GUI_STATE, MOTOR_MASK, ACK, EXECUTING
+    global GUI_STATE, MOTOR_MASK, ACK, EXECUTING, MOVE_NUM
+    global x_target, z_target, y_target, p_target
+    parsed = read_data()
+    if parsed:
+        update_status(parsed)
+    # IDLE
+    if GUI_STATE == 0:
+        return
+    # WAIT FOR ACK
+    elif GUI_STATE == 1:
+        if ACK == 'e':
+            GUI_STATE = 2
+            # prev_GUI_STATE = 1
+            ACK = None
+        if ACK == 's':
+            MOVE_NUM += 1
+            GUI_STATE = 3
+            ACK = None
+
+    # SENDING ENABLE
+    elif GUI_STATE == 2:
+        if testBit(MOTOR_MASK,3):
+            x_control_frame.toggle_enable(disable=0)
+            MOTOR_MASK = clearBit(MOTOR_MASK,3)
+            # prev_GUI_STATE = 2
+            GUI_STATE = 1
+        elif testBit(MOTOR_MASK,2):
+            z_control_frame.toggle_enable(disable=0)
+            MOTOR_MASK = clearBit(MOTOR_MASK,2)
+            # prev_GUI_STATE = 2
+            GUI_STATE = 1
+        elif testBit(MOTOR_MASK,1):
+            y_control_frame.toggle_enable(disable=0)
+            MOTOR_MASK = clearBit(MOTOR_MASK,1)
+            # prev_GUI_STATE = 2
+            GUI_STATE = 1
+        elif testBit(MOTOR_MASK,0):
+            p_control_frame.toggle_enable(disable=0)
+            MOTOR_MASK = clearBit(MOTOR_MASK,0)
+            # prev_GUI_STATE = 2
+            GUI_STATE = 1
         else:
-            z_status_frame.limit_off('p')
-            z_status_frame.limit_off('m')
-        if y_lim <0:
-            y_status_frame.limit_on('m')
-        elif y_lim >0:
-            y_status_frame.limit_on('p')
+            # prev_GUI_STATE = 2
+            GUI_STATE = 0
+            EXECUTING = False
+
+    # MOVING STAGES
+    elif GUI_STATE == 3:
+        if testBit(MOTOR_MASK,3):
+            if MOVE_NUM == 1:
+                move('x', 1)
+                GUI_STATE = 1
+            elif MOVE_NUM == 2:
+                move('x', 2)
+                GUI_STATE = 1
+            else:
+                MOTOR_MASK = clearBit(MOTOR_MASK,3)
+                MOVE_NUM = 1
+        elif testBit(MOTOR_MASK,2):
+            if MOVE_NUM == 1:
+                move('z', 1)
+                GUI_STATE = 1
+            elif MOVE_NUM == 2:
+                move('z', 2)
+                GUI_STATE = 1
+            else:
+                MOTOR_MASK = clearBit(MOTOR_MASK,2)
+                MOVE_NUM = 1
+        elif testBit(MOTOR_MASK,1):
+            if MOVE_NUM == 1:
+                move('y', 1)
+                GUI_STATE = 1
+            elif MOVE_NUM == 2:
+                move('y', 2)
+                GUI_STATE = 1
+            else:
+                MOTOR_MASK = clearBit(MOTOR_MASK,1)
+                MOVE_NUM = 1
+        elif testBit(MOTOR_MASK,0):
+            if MOVE_NUM == 1:
+                move('p', 1)
+                GUI_STATE = 1
+            elif MOVE_NUM == 2:
+                move('p', 2)
+                GUI_STATE = 1
+            else:
+                MOTOR_MASK = clearBit(MOTOR_MASK,0)
+                MOVE_NUM = 1
         else:
-            y_status_frame.limit_off('p')
-            y_status_frame.limit_off('m')
-        if p_lim <0:
-            p_status_frame.limit_on('m')
-        elif p_lim >0:
-            p_status_frame.limit_on('p')
-        else:
-            p_status_frame.limit_off('p')
-            p_status_frame.limit_off('m')
+            prev_GUI_STATE = 2
+            GUI_STATE = 0
+            EXECUTING = False
 
 
+# Credit to: https://wiki.python.org/moin/BitManipulation
+def testBit(int_type, offset):
+    mask = 1 << offset
+    return(int_type & mask)
+
+# Credit to: https://wiki.python.org/moin/BitManipulation
+def setBit(int_type, offset):
+    mask = 1 << offset
+    return(int_type | mask)
+
+# Credit to: https://wiki.python.org/moin/BitManipulation
+def clearBit(int_type, offset):
+    mask = ~(1 << offset)
+    return(int_type & mask)
+
+lin_Pitch = 1.5875
+lin_enc_CPR = 4000
+rot_gear_ratio = 72
+rot_enc_CPR = 4000
+
+def update_status(status):
+    global x_pos, z_pos, y_pos, p_pos, prev_x_pos, prev_z_pos, prev_y_pos, prev_p_pos
+    global x_lim, z_lim, y_lim, p_lim, x_speed, z_speed, y_speed, p_speed
+    global lin_Pitch, lin_enc_CPR, rot_gear_ratio, rot_enc_CPR
+    x_pos = float(status[0])*lin_Pitch/lin_enc_CPR  # convert to deg
+    z_pos = float(status[1])*lin_Pitch/lin_enc_CPR
+    y_pos = float(status[2])*360/(rot_enc_CPR*rot_gear_ratio)
+    p_pos = float(status[3])*360/(rot_enc_CPR*rot_gear_ratio)
+    x_lim = float(status[4])
+    z_lim = float(status[5])
+    y_lim = float(status[6])
+    p_lim = float(status[7])
+    x_speed = 1000*(x_pos - prev_x_pos)/(200)
+    z_speed = 1000*(z_pos - prev_z_pos)/(200)
+    y_speed = 1000*(y_pos - prev_y_pos)/(200)  # convert to deg/s
+    p_speed = 1000*(p_pos - prev_p_pos)/(200)
+    prev_x_pos = x_pos
+    prev_z_pos = z_pos
+    prev_y_pos = y_pos
+    prev_p_pos = p_pos
+    x_status_frame.update_position("{0:.4f}".format(x_pos)) # convert to deg
+    z_status_frame.update_position("{0:.4f}".format(z_pos))
+    y_status_frame.update_position("{0:.4f}".format(y_pos))
+    p_status_frame.update_position("{0:.4f}".format(p_pos))
+    x_status_frame.update_speed("{0:.2f}".format(x_speed))
+    z_status_frame.update_speed("{0:.2f}".format(z_speed))
+    y_status_frame.update_speed("{0:.2f}".format(y_speed))
+    p_status_frame.update_speed("{0:.2f}".format(p_speed))
+    if x_lim <0:
+        x_status_frame.limit_on('m')
+    elif x_lim >0:
+        x_status_frame.limit_on('p')
+    else:
+        x_status_frame.limit_off('p')
+        x_status_frame.limit_off('m')
+    if z_lim <0:
+        z_status_frame.limit_on('m')
+    elif z_lim >0:
+        z_status_frame.limit_on('p')
+    else:
+        z_status_frame.limit_off('p')
+        z_status_frame.limit_off('m')
+    if y_lim <0:
+        y_status_frame.limit_on('m')
+    elif y_lim >0:
+        y_status_frame.limit_on('p')
+    else:
+        y_status_frame.limit_off('p')
+        y_status_frame.limit_off('m')
+    if p_lim <0:
+        p_status_frame.limit_on('m')
+    elif p_lim >0:
+        p_status_frame.limit_on('p')
+    else:
+        p_status_frame.limit_off('p')
+        p_status_frame.limit_off('m')
 
 prev_string = ''
 def log_print(to_print):
@@ -322,6 +497,8 @@ def log_print(to_print):
         log.insert(END, to_print)
         # update_status(to_print)
     prev_string = to_print
+
+
 
 # -----------------------------------------------------------------------------#
 # -----------------------------------------------------------------------------#
@@ -382,6 +559,8 @@ cmd.insert(0,'m;p;1000;1;50;6000;50')
 
 Button(control_frame, text ="Send", command = send_cmd, height=2, width=20).grid(row=1,column=9, sticky='W')
 
+Button(control_frame, text ="Reset", command = reset, height=2, width=10).grid(row=1,column=10, sticky='W')
+
 Button(control_frame, text= "Move Stages", height=2, width=20, command=move_stages).grid(row=9, column=0, sticky=W)
 
 Button(control_frame, text= "Enable All", height=2, width=20, command=enable_all).grid(row=9, column=3, sticky=W)
@@ -394,6 +573,11 @@ x_control_frame = control_box(control_frame, 10, 0, "mm", "X Translation", x_sta
 z_control_frame = control_box(control_frame, 10, 3, "mm", "Z Translation", z_status_frame, 'z')
 y_control_frame = control_box(control_frame, 10, 6, "deg", "Yaw Rotation", y_status_frame, 'y')
 p_control_frame = control_box(control_frame, 10, 9, "deg", "Pitch Rotation", p_status_frame, 'p')
+
+x_control_frame.update_target('0.0000')
+z_control_frame.update_target('0.0000')
+y_control_frame.update_target('0.0000')
+p_control_frame.update_target('0.0000')
 
 # Run Test Row
 test_frame = LabelFrame(window, text="Run Test", bg='white')
@@ -413,7 +597,7 @@ Button(test_frame, text= "Boresight", width=20, command=boresight).grid(row=27, 
 
 Button(test_frame, text= "Stray Light Sweep", width=20, command=SL_sweep).grid(row=27, column=5, sticky=W)
 
-Label(window, text="Created by: Jason Grillo \n Cal Poly Mechanical Engineering \n In Collaboration with UCB Space Sciences Laboratories \n \u00A9 2019", bg='white',font=(None, 10)).grid(row=28,column=3)
+Label(window, text="Created by: Jason Grillo \n Cal Poly Mechanical Engineering \n In Collaboration with UCB Space Sciences Laboratories \n \u00A9 2019, All Rights Reserved", bg='white',font=(None, 10)).grid(row=28,column=3)
 
 
 # -----------------------------------------------------------------------------#
@@ -433,7 +617,8 @@ baudRate = 115200
 try:
     ser = serial.Serial(serialPort , baudRate, timeout=0, writeTimeout=0,dsrdtr=True) #ensure non-blocking
     ser.setDTR(True)
-    # ser.flush()
+    ser.flush()
+    ser.write(b'r;r') #takes and puts value in byte format
     # ser.write(b'\x03') #takes and puts value in byte format
     # ser.write(b'\x04')
     # ser.write(b'hello')
@@ -456,8 +641,9 @@ def readSerial():
         if c == '\n':
             serBuffer += "\n" # add the newline to the buffer
             #add the line to the TOP of the log
-            update_status(serBuffer)
-            log_print(serBuffer)
+            GUI_state_machine()
+            # update_status(serBuffer)
+            # log_print(serBuffer)
             # log.insert(END, serBuffer)
             # log.insert('0.0', serBuffer)
             serBuffer = "" # empty the buffer

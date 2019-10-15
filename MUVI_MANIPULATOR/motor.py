@@ -42,7 +42,7 @@ class TMC2160Driver:
         self.step.value(0)
         self.dir.value(0)
         string = self.name + 'Stepper Successfully Initialized'
-        print (string.encode('UTF-8'))
+        print (string)
 
     def move_to(self, steps):
         '''
