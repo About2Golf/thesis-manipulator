@@ -231,19 +231,19 @@ def move_stages():
         z_target = z_control_frame.get_target()
         y_target = y_control_frame.get_target()
         p_target = p_control_frame.get_target()
-        if not x_pos == x_target:
+        if not x_pos == x_target and x_control_frame.get_enable():
             MOTOR_MASK = setBit(MOTOR_MASK,3)
         else:
             MOTOR_MASK = clearBit(MOTOR_MASK,3)
-        if not z_pos == z_target:
+        if not z_pos == z_target and z_control_frame.get_enable():
             MOTOR_MASK = setBit(MOTOR_MASK,2)
         else:
             MOTOR_MASK = clearBit(MOTOR_MASK,2)
-        if not y_pos == y_target:
+        if not y_pos == y_target and y_control_frame.get_enable():
             MOTOR_MASK = setBit(MOTOR_MASK,1)
         else:
             MOTOR_MASK = clearBit(MOTOR_MASK,1)
-        if not p_pos == p_target:
+        if not p_pos == p_target and p_control_frame.get_enable():
             MOTOR_MASK = setBit(MOTOR_MASK,0)
         else:
             MOTOR_MASK = clearBit(MOTOR_MASK,0)
@@ -263,24 +263,33 @@ def enable_all():
         return
 
 def zero_all():
-    global MOTOR_MASK, GUI_STATE, EXECUTING, SET_MICROSTEP, ZEROING, DISABLED, ZERO_SENT, SET_ENABLE, MOVE_TO_DATUM
+    global MOTOR_MASK, GUI_STATE, EXECUTING, ZERO_SEQ, SET_MICROSTEP, ZEROING, DISABLED, ZERO_SENT, SET_ENABLE, MOVE_TO_DATUM
     if not EXECUTING:
         if x_control_frame.get_enable():
             MOTOR_MASK = setBit(MOTOR_MASK,3)
+        else:
+            MOTOR_MASK = clearBit(MOTOR_MASK,3)
         if z_control_frame.get_enable():
             MOTOR_MASK = setBit(MOTOR_MASK,2)
+        else:
+            MOTOR_MASK = clearBit(MOTOR_MASK,2)
         if y_control_frame.get_enable():
             MOTOR_MASK = setBit(MOTOR_MASK,1)
+        else:
+            MOTOR_MASK = clearBit(MOTOR_MASK,1)
         if p_control_frame.get_enable():
             MOTOR_MASK = setBit(MOTOR_MASK,0)
+        else:
+            MOTOR_MASK = clearBit(MOTOR_MASK,0)
         GUI_STATE = 4
         EXECUTING = True
+        ZERO_SEQ = 1
         SET_MICROSTEP = True
-        ZEROING = False
-        DISABLED = False
-        ZERO_SENT = False
-        SET_ENABLE = True
-        MOVE_TO_DATUM = False
+        # ZEROING = False
+        # DISABLED = False
+        # ZERO_SENT = False
+        # SET_ENABLE = True
+        # MOVE_TO_DATUM = False
     else:
         return
 
@@ -367,12 +376,15 @@ z_target = 0.0
 y_target = 0.0
 p_target = 0.0
 
+X_STOPPED = True
+
 GUI_STATE = 0
 prev_GUI_STATE = 0
 MOTOR_MASK = 0b0000  # x;z;y;p
 ACK = None
 EXECUTING = False
 MOVE_NUM = 1
+ZERO_SEQ = 1
 SET_MICROSTEP = True
 ZEROING = False
 DISABLED = False
@@ -386,6 +398,7 @@ def read_data():
     global lin_Pitch, lin_motor_steps, rot_gear_ratio, rot_motor_steps
     global move1_microsteps, move2_microsteps
     global x_pos_true, z_pos_true, y_pos_true, p_pos_true
+    global lin_direction_param, rot_direction_param
     log_print(serBuffer)
     # uC_resp = serBuffer[1::] # remove first character (b)
     # uC_resp = uC_resp[1::] # remove first character (')
@@ -400,35 +413,36 @@ def read_data():
             if ACK == 's':
                 if uC_resp[1] == 'x':
                     if MOVE_NUM == 1:
-                        x_pos_true += x_dir*float(uC_resp[2])*lin_Pitch/(move1_microsteps*lin_motor_steps)
+                        x_pos_true += lin_direction_param*x_dir*float(uC_resp[2])*lin_Pitch/(move1_microsteps*lin_motor_steps)
                     elif MOVE_NUM == 2:
-                        x_pos_true += x_dir*float(uC_resp[2])*lin_Pitch/(move2_microsteps*lin_motor_steps)
+                        x_pos_true += lin_direction_param*x_dir*float(uC_resp[2])*lin_Pitch/(move2_microsteps*lin_motor_steps)
                 elif uC_resp[1] == 'z':
                     if MOVE_NUM == 1:
-                        z_pos_true += z_dir*float(uC_resp[2])*lin_Pitch/(move1_microsteps*lin_motor_steps)
+                        z_pos_true += lin_direction_param*z_dir*float(uC_resp[2])*lin_Pitch/(move1_microsteps*lin_motor_steps)
                     elif MOVE_NUM == 2:
-                        z_pos_true += z_dir*float(uC_resp[2])*lin_Pitch/(move2_microsteps*lin_motor_steps)
+                        z_pos_true += lin_direction_param*z_dir*float(uC_resp[2])*lin_Pitch/(move2_microsteps*lin_motor_steps)
                 elif uC_resp[1] == 'y':
                     if MOVE_NUM == 1:
-                        y_pos_true += y_dir*float(uC_resp[2])*360/(rot_gear_ratio*move1_microsteps*rot_motor_steps)
+                        y_pos_true += rot_direction_param*y_dir*float(uC_resp[2])*360/(rot_gear_ratio*move1_microsteps*rot_motor_steps)
                     elif MOVE_NUM == 2:
-                        y_pos_true += y_dir*float(uC_resp[2])*360/(rot_gear_ratio*move2_microsteps*rot_motor_steps)
+                        y_pos_true += rot_direction_param*y_dir*float(uC_resp[2])*360/(rot_gear_ratio*move2_microsteps*rot_motor_steps)
                 elif uC_resp[1] == 'p':
                     if MOVE_NUM == 1:
-                        p_pos_true += p_dir*float(uC_resp[2])*360/(rot_gear_ratio*move1_microsteps*rot_motor_steps)
+                        p_pos_true += rot_direction_param*p_dir*float(uC_resp[2])*360/(rot_gear_ratio*move1_microsteps*rot_motor_steps)
                     elif MOVE_NUM == 2:
-                        p_pos_true += p_dir*float(uC_resp[2])*360/(rot_gear_ratio*move2_microsteps*rot_motor_steps)
+                        p_pos_true += rot_direction_param*p_dir*float(uC_resp[2])*360/(rot_gear_ratio*move2_microsteps*rot_motor_steps)
                 print(y_pos_true)
             return None
 
 def GUI_state_machine():
     # global GUI_STATE, prev_GUI_STATE, MOTOR_MASK, ACK, EXECUTING
-    global GUI_STATE, prev_GUI_STATE, MOTOR_MASK, ACK, EXECUTING, MOVE_NUM
+    global GUI_STATE, prev_GUI_STATE, MOTOR_MASK, ACK, EXECUTING, MOVE_NUM, ZERO_SEQ
     global SET_MICROSTEP, ZEROING, DISABLED, ZERO_SENT, SET_ENABLE, MOVE_TO_DATUM
     global X_MICROSTEP_SET
     global x_target, z_target, y_target, p_target
     global x_datum_offset, z_datum_offset, y_datum_offset, p_datum_offset
     global x_lim, z_lim, y_lim, p_lim
+    global X_STOPPED
 
     parsed = read_data()
     if parsed:
@@ -493,95 +507,95 @@ def GUI_state_machine():
     # MOVING STAGES
     elif GUI_STATE == 3:
         if testBit(MOTOR_MASK,3):
-            if x_control_frame.get_enable():
-                if MOVE_NUM == 1:
-                    if SET_MICROSTEP:
-                        set_microstep('x', move1_microsteps)
-                        X_MICROSTEP_SET = False
-                        GUI_STATE = 1
-                    else:
-                        move('x', 1)
-                        GUI_STATE = 1
-                elif MOVE_NUM == 2:
-                    if SET_MICROSTEP:
-                        set_microstep('x', move2_microsteps)
-                        X_MICROSTEP_SET = True
-                        GUI_STATE = 1
-                    else:
-                        move('x', 2)
-                        GUI_STATE = 1
-                elif MOVE_NUM == 3:
-                    MOTOR_MASK = clearBit(MOTOR_MASK,3)
-                    MOVE_NUM = 1
-            else:
+            # if x_control_frame.get_enable():
+            if MOVE_NUM == 1:
+                if SET_MICROSTEP:
+                    set_microstep('x', move1_microsteps)
+                    X_MICROSTEP_SET = False
+                    GUI_STATE = 1
+                else:
+                    move('x', 1)
+                    GUI_STATE = 1
+            elif MOVE_NUM == 2:
+                if SET_MICROSTEP:
+                    set_microstep('x', move2_microsteps)
+                    X_MICROSTEP_SET = True
+                    GUI_STATE = 1
+                else:
+                    move('x', 2)
+                    GUI_STATE = 1
+            elif MOVE_NUM == 3:
                 MOTOR_MASK = clearBit(MOTOR_MASK,3)
-                log_print('X Stepper is disabled. Click Enable and try again.\n')
+                MOVE_NUM = 1
+            # else:
+            #     MOTOR_MASK = clearBit(MOTOR_MASK,3)
+            #     log_print('X Stepper is disabled. Click Enable and try again.\n')
         elif testBit(MOTOR_MASK,2):
-            if z_control_frame.get_enable():
-                if MOVE_NUM == 1:
-                    if SET_MICROSTEP:
-                        set_microstep('z', move1_microsteps)
-                        GUI_STATE = 1
-                    else:
-                        move('z', 1)
-                        GUI_STATE = 1
-                elif MOVE_NUM == 2:
-                    if SET_MICROSTEP:
-                        set_microstep('z', move2_microsteps)
-                        GUI_STATE = 1
-                    else:
-                        move('z', 2)
-                        GUI_STATE = 1
-                elif MOVE_NUM == 3:
-                    MOTOR_MASK = clearBit(MOTOR_MASK,2)
-                    MOVE_NUM = 1
-            else:
+            # if z_control_frame.get_enable():
+            if MOVE_NUM == 1:
+                if SET_MICROSTEP:
+                    set_microstep('z', move1_microsteps)
+                    GUI_STATE = 1
+                else:
+                    move('z', 1)
+                    GUI_STATE = 1
+            elif MOVE_NUM == 2:
+                if SET_MICROSTEP:
+                    set_microstep('z', move2_microsteps)
+                    GUI_STATE = 1
+                else:
+                    move('z', 2)
+                    GUI_STATE = 1
+            elif MOVE_NUM == 3:
                 MOTOR_MASK = clearBit(MOTOR_MASK,2)
-                log_print('Z Stepper is disabled. Click Enable and try again.\n')
+                MOVE_NUM = 1
+            # else:
+            #     MOTOR_MASK = clearBit(MOTOR_MASK,2)
+            #     log_print('Z Stepper is disabled. Click Enable and try again.\n')
         elif testBit(MOTOR_MASK,1):
-            if y_control_frame.get_enable():
-                if MOVE_NUM == 1:
-                    if SET_MICROSTEP:
-                        set_microstep('y', move1_microsteps)
-                        GUI_STATE = 1
-                    else:
-                        move('y', 1)
-                        GUI_STATE = 1
-                elif MOVE_NUM == 2:
-                    if SET_MICROSTEP:
-                        set_microstep('y', move2_microsteps)
-                        GUI_STATE = 1
-                    else:
-                        move('y', 2)
-                        GUI_STATE = 1
-                elif MOVE_NUM == 3:
-                    MOTOR_MASK = clearBit(MOTOR_MASK,1)
-                    MOVE_NUM = 1
-            else:
+            # if y_control_frame.get_enable():
+            if MOVE_NUM == 1:
+                if SET_MICROSTEP:
+                    set_microstep('y', move1_microsteps)
+                    GUI_STATE = 1
+                else:
+                    move('y', 1)
+                    GUI_STATE = 1
+            elif MOVE_NUM == 2:
+                if SET_MICROSTEP:
+                    set_microstep('y', move2_microsteps)
+                    GUI_STATE = 1
+                else:
+                    move('y', 2)
+                    GUI_STATE = 1
+            elif MOVE_NUM == 3:
                 MOTOR_MASK = clearBit(MOTOR_MASK,1)
-                log_print('Y Stepper is disabled. Click Enable and try again.\n')
+                MOVE_NUM = 1
+            # else:
+            #     MOTOR_MASK = clearBit(MOTOR_MASK,1)
+            #     log_print('Y Stepper is disabled. Click Enable and try again.\n')
         elif testBit(MOTOR_MASK,0):
-            if p_control_frame.get_enable():
-                if MOVE_NUM == 1:
-                    if SET_MICROSTEP:
-                        set_microstep('p', move1_microsteps)
-                        GUI_STATE = 1
-                    else:
-                        move('p', 1)
-                        GUI_STATE = 1
-                elif MOVE_NUM == 2:
-                    if SET_MICROSTEP:
-                        set_microstep('p', move2_microsteps)
-                        GUI_STATE = 1
-                    else:
-                        move('p', 2)
-                        GUI_STATE = 1
-                elif MOVE_NUM == 3:
-                    MOTOR_MASK = clearBit(MOTOR_MASK,0)
-                    MOVE_NUM = 1
-            else:
+            # if p_control_frame.get_enable():
+            if MOVE_NUM == 1:
+                if SET_MICROSTEP:
+                    set_microstep('p', move1_microsteps)
+                    GUI_STATE = 1
+                else:
+                    move('p', 1)
+                    GUI_STATE = 1
+            elif MOVE_NUM == 2:
+                if SET_MICROSTEP:
+                    set_microstep('p', move2_microsteps)
+                    GUI_STATE = 1
+                else:
+                    move('p', 2)
+                    GUI_STATE = 1
+            elif MOVE_NUM == 3:
                 MOTOR_MASK = clearBit(MOTOR_MASK,0)
-                log_print('P Stepper is disabled. Click Enable and try again.\n')
+                MOVE_NUM = 1
+            # else:
+            #     MOTOR_MASK = clearBit(MOTOR_MASK,0)
+            #     log_print('P Stepper is disabled. Click Enable and try again.\n')
         else:
             # prev_GUI_STATE = 2
             GUI_STATE = 0
@@ -591,62 +605,135 @@ def GUI_state_machine():
     # ZEROING STAGES
     elif GUI_STATE == 4:
         if testBit(MOTOR_MASK,3):
-            if X_MICROSTEP_SET and SET_MICROSTEP:
-                print('setting move1 uS')
-                set_microstep('x', move1_microsteps)
-                X_MICROSTEP_SET = False
-                GUI_STATE = 1
-            if not ZEROING:
-                # move('x', 1)
+            if ZERO_SEQ == 1:
+                if X_MICROSTEP_SET:
+                # if X_MICROSTEP_SET and SET_MICROSTEP:
+                    print('setting move1 uS')
+                    set_microstep('x', move1_microsteps)
+                    X_MICROSTEP_SET = False
+                    ZERO_SEQ += 1
+                    GUI_STATE = 1
+                else:
+                    ZERO_SEQ += 1
+            elif ZERO_SEQ == 2:
+                # if not ZEROING:
+                    # move('x', 1)
                 print('zeroing')
                 move('x', 1, zero = True)
-                ZEROING = True
+                # ZEROING = True
+                ZERO_SEQ += 1
                 SET_MICROSTEP = True # set this for when it needs to move to Datum
-                # GUI_STATE = 1
-            else:
-                if abs(x_lim) and not MOVE_TO_DATUM:
-                    if not DISABLED:
-                        print('disabling motor')
-                        x_control_frame.toggle_enable(force = 0, disable = 1)
-                        DISABLED = True
+                    # GUI_STATE = 1
+            elif ZERO_SEQ == 3:
+                # if abs(x_lim) and X_STOPPED:
+                if abs(x_lim):
+                    # if not DISABLED:
+                    # time.sleep(1.5)
+                    x_control_frame.toggle_enable(force = 0, disable = 1)
+                    print('disabling motor')
+                    DISABLED = True
+                    ZERO_SEQ += 1
+                    GUI_STATE = 1
+            elif ZERO_SEQ == 4:
+                # if not ZERO_SENT:
+                print('zeroing encoder')
+                ser.write(bytes('z;x'.encode('utf-8')))
+                x_pos_true = lin_direction_param*x_datum_offset
+                # ZERO_SENT = True
+                ZERO_SEQ += 1
+                GUI_STATE = 1
+            elif ZERO_SEQ == 5:
+                # if DISABLED and SET_ENABLE:
+                print('enabling motor')
+                # ACK = None
+                x_control_frame.toggle_enable(disable=0)
+                # SET_ENABLE = False
+                # MOVE_TO_DATUM = True
+                MOVE_NUM = 1
+                ZERO_SEQ += 1
+                GUI_STATE = 1
+            elif ZERO_SEQ == 6:
+                if MOVE_NUM == 1:
+                    ACK = None
+                    print('moving to datum 1')
+                    move('x', 1, to_datum = True)
+                    GUI_STATE = 1
+                elif MOVE_NUM == 2:
+                    if SET_MICROSTEP:
+                        print('setting move2 uS')
+                        set_microstep('x', move2_microsteps)
+                        X_MICROSTEP_SET = True
                         GUI_STATE = 1
                     else:
-                        if not ZERO_SENT:
-                            print('zeroing encoder')
-                            ser.write(bytes('z;x'.encode('utf-8')))
-                            ZERO_SENT = True
-                            GUI_STATE = 1
-                        elif DISABLED and SET_ENABLE:
-                            print('enabling motor')
-                            x_control_frame.toggle_enable(disable=0)
-                            SET_ENABLE = False
-                            MOVE_TO_DATUM = True
-                            MOVE_NUM = 1
-                            GUI_STATE = 1
-                if MOVE_TO_DATUM:
-                    if MOVE_NUM == 1:
-                        print('moving to datum 1')
-                        move('x', 1, to_datum = True)
+                        print('moving to datum 2')
+                        move('x', 2, to_datum = True)
                         GUI_STATE = 1
-                    elif MOVE_NUM == 2:
-                        if SET_MICROSTEP:
-                            print('setting move2 uS')
-                            set_microstep('x', move2_microsteps)
-                            X_MICROSTEP_SET = True
-                            GUI_STATE = 1
-                        else:
-                            print('moving to datum 2')
-                            move('x', 2, to_datum = True)
-                            GUI_STATE = 1
-                    elif MOVE_NUM == 3:
-                        print('resetting params for next zero')
-                        MOTOR_MASK = clearBit(MOTOR_MASK,3)
-                        MOVE_NUM = 1
-                        SET_MICROSTEP = True
-                        ZEROING = False
-                        DISABLED = False
-                        ZERO_SENT = False
-                        MOVE_TO_DATUM = False
+                elif MOVE_NUM == 3:
+                    print('resetting params for next zero')
+                    MOTOR_MASK = clearBit(MOTOR_MASK,3)
+                    MOVE_NUM = 1
+                    ZERO_SEQ = 1
+                    SET_MICROSTEP = True
+                    # ZEROING = False
+                    # DISABLED = False
+                    # ZERO_SENT = False
+                    # MOVE_TO_DATUM = False
+            # if X_MICROSTEP_SET and SET_MICROSTEP:
+            #     print('setting move1 uS')
+            #     set_microstep('x', move1_microsteps)
+            #     X_MICROSTEP_SET = False
+            #     GUI_STATE = 1
+            # if not ZEROING:
+            #     # move('x', 1)
+            #     print('zeroing')
+            #     move('x', 1, zero = True)
+            #     ZEROING = True
+            #     SET_MICROSTEP = True # set this for when it needs to move to Datum
+            #     # GUI_STATE = 1
+            # else:
+            #     if abs(x_lim) and not MOVE_TO_DATUM:
+            #         if not DISABLED:
+            #             print('disabling motor')
+            #             x_control_frame.toggle_enable(force = 0, disable = 1)
+            #             DISABLED = True
+            #             GUI_STATE = 1
+            #         else:
+            #             if not ZERO_SENT:
+            #                 print('zeroing encoder')
+            #                 ser.write(bytes('z;x'.encode('utf-8')))
+            #                 ZERO_SENT = True
+            #                 GUI_STATE = 1
+            #             elif DISABLED and SET_ENABLE:
+            #                 print('enabling motor')
+            #                 x_control_frame.toggle_enable(disable=0)
+            #                 SET_ENABLE = False
+            #                 MOVE_TO_DATUM = True
+            #                 MOVE_NUM = 1
+            #                 GUI_STATE = 1
+            #     if MOVE_TO_DATUM:
+            #         if MOVE_NUM == 1:
+            #             print('moving to datum 1')
+            #             move('x', 1, to_datum = True)
+            #             GUI_STATE = 1
+            #         elif MOVE_NUM == 2:
+            #             if SET_MICROSTEP:
+            #                 print('setting move2 uS')
+            #                 set_microstep('x', move2_microsteps)
+            #                 X_MICROSTEP_SET = True
+            #                 GUI_STATE = 1
+            #             else:
+            #                 print('moving to datum 2')
+            #                 move('x', 2, to_datum = True)
+            #                 GUI_STATE = 1
+            #         elif MOVE_NUM == 3:
+            #             print('resetting params for next zero')
+            #             MOTOR_MASK = clearBit(MOTOR_MASK,3)
+            #             MOVE_NUM = 1
+            #             SET_MICROSTEP = True
+            #             ZEROING = False
+            #             DISABLED = False
+            #             ZERO_SENT = False
+            #             MOVE_TO_DATUM = False
                     # else:
                     #     MOTOR_MASK = clearBit(MOTOR_MASK,3)
                     #     MOVE_NUM = 1
@@ -655,8 +742,218 @@ def GUI_state_machine():
                     #     DISABLED = False
                     #     ZERO_SENT = False
         # elif testBit(MOTOR_MASK,2):
+        elif testBit(MOTOR_MASK,2):
+            if ZERO_SEQ == 1:
+                if Z_MICROSTEP_SET:
+                # if X_MICROSTEP_SET and SET_MICROSTEP:
+                    print('setting move1 uS')
+                    set_microstep('z', move1_microsteps)
+                    Z_MICROSTEP_SET = False
+                    ZERO_SEQ += 1
+                    GUI_STATE = 1
+                else:
+                    ZERO_SEQ += 1
+            elif ZERO_SEQ == 2:
+                # if not ZEROING:
+                    # move('x', 1)
+                print('zeroing')
+                move('z', 1, zero = True)
+                # ZEROING = True
+                ZERO_SEQ += 1
+                SET_MICROSTEP = True # set this for when it needs to move to Datum
+                    # GUI_STATE = 1
+            elif ZERO_SEQ == 3:
+                # if abs(x_lim) and X_STOPPED:
+                if abs(z_lim):
+                    # if not DISABLED:
+                    # time.sleep(1.5)
+                    z_control_frame.toggle_enable(force = 0, disable = 1)
+                    print('disabling motor')
+                    DISABLED = True
+                    ZERO_SEQ += 1
+                    GUI_STATE = 1
+            elif ZERO_SEQ == 4:
+                # if not ZERO_SENT:
+                print('zeroing encoder')
+                ser.write(bytes('z;z'.encode('utf-8')))
+                z_pos_true = lin_direction_param*z_datum_offset
+                # ZERO_SENT = True
+                ZERO_SEQ += 1
+                GUI_STATE = 1
+            elif ZERO_SEQ == 5:
+                # if DISABLED and SET_ENABLE:
+                print('enabling motor')
+                # ACK = None
+                z_control_frame.toggle_enable(disable=0)
+                # SET_ENABLE = False
+                # MOVE_TO_DATUM = True
+                MOVE_NUM = 1
+                ZERO_SEQ += 1
+                GUI_STATE = 1
+            elif ZERO_SEQ == 6:
+                if MOVE_NUM == 1:
+                    ACK = None
+                    print('moving to datum 1')
+                    move('z', 1, to_datum = True)
+                    GUI_STATE = 1
+                elif MOVE_NUM == 2:
+                    if SET_MICROSTEP:
+                        print('setting move2 uS')
+                        set_microstep('z', move2_microsteps)
+                        Z_MICROSTEP_SET = True
+                        GUI_STATE = 1
+                    else:
+                        print('moving to datum 2')
+                        move('z', 2, to_datum = True)
+                        GUI_STATE = 1
+                elif MOVE_NUM == 3:
+                    print('resetting params for next zero')
+                    MOTOR_MASK = clearBit(MOTOR_MASK,2)
+                    MOVE_NUM = 1
+                    ZERO_SEQ = 1
+                    SET_MICROSTEP = True
         # elif testBit(MOTOR_MASK,1):
+        elif testBit(MOTOR_MASK,1):
+            if ZERO_SEQ == 1:
+                if Y_MICROSTEP_SET:
+                # if X_MICROSTEP_SET and SET_MICROSTEP:
+                    print('setting move1 uS')
+                    set_microstep('y', move1_microsteps)
+                    Y_MICROSTEP_SET = False
+                    ZERO_SEQ += 1
+                    GUI_STATE = 1
+                else:
+                    ZERO_SEQ += 1
+            elif ZERO_SEQ == 2:
+                # if not ZEROING:
+                    # move('x', 1)
+                print('zeroing')
+                move('y', 1, zero = True)
+                # ZEROING = True
+                ZERO_SEQ += 1
+                SET_MICROSTEP = True # set this for when it needs to move to Datum
+                    # GUI_STATE = 1
+            elif ZERO_SEQ == 3:
+                # if abs(x_lim) and X_STOPPED:
+                if abs(y_lim):
+                    # if not DISABLED:
+                    # time.sleep(1.5)
+                    y_control_frame.toggle_enable(force = 0, disable = 1)
+                    print('disabling motor')
+                    DISABLED = True
+                    ZERO_SEQ += 1
+                    GUI_STATE = 1
+            elif ZERO_SEQ == 4:
+                # if not ZERO_SENT:
+                print('zeroing encoder')
+                ser.write(bytes('z;y'.encode('utf-8')))
+                y_pos_true = rot_direction_param*y_datum_offset
+                # ZERO_SENT = True
+                ZERO_SEQ += 1
+                GUI_STATE = 1
+            elif ZERO_SEQ == 5:
+                # if DISABLED and SET_ENABLE:
+                print('enabling motor')
+                # ACK = None
+                y_control_frame.toggle_enable(disable=0)
+                # SET_ENABLE = False
+                # MOVE_TO_DATUM = True
+                MOVE_NUM = 1
+                ZERO_SEQ += 1
+                GUI_STATE = 1
+            elif ZERO_SEQ == 6:
+                if MOVE_NUM == 1:
+                    ACK = None
+                    print('moving to datum 1')
+                    move('y', 1, to_datum = True)
+                    GUI_STATE = 1
+                elif MOVE_NUM == 2:
+                    if SET_MICROSTEP:
+                        print('setting move2 uS')
+                        set_microstep('y', move2_microsteps)
+                        X_MICROSTEP_SET = True
+                        GUI_STATE = 1
+                    else:
+                        print('moving to datum 2')
+                        move('y', 2, to_datum = True)
+                        GUI_STATE = 1
+                elif MOVE_NUM == 3:
+                    print('resetting params for next zero')
+                    MOTOR_MASK = clearBit(MOTOR_MASK,1)
+                    MOVE_NUM = 1
+                    ZERO_SEQ = 1
+                    SET_MICROSTEP = True
         # elif testBit(MOTOR_MASK,0):
+        if testBit(MOTOR_MASK,0):
+            if ZERO_SEQ == 1:
+                if P_MICROSTEP_SET:
+                # if X_MICROSTEP_SET and SET_MICROSTEP:
+                    print('setting move1 uS')
+                    set_microstep('p', move1_microsteps)
+                    P_MICROSTEP_SET = False
+                    ZERO_SEQ += 1
+                    GUI_STATE = 1
+                else:
+                    ZERO_SEQ += 1
+            elif ZERO_SEQ == 2:
+                # if not ZEROING:
+                    # move('x', 1)
+                print('zeroing')
+                move('p', 1, zero = True)
+                # ZEROING = True
+                ZERO_SEQ += 1
+                SET_MICROSTEP = True # set this for when it needs to move to Datum
+                    # GUI_STATE = 1
+            elif ZERO_SEQ == 3:
+                # if abs(x_lim) and X_STOPPED:
+                if abs(p_lim):
+                    # if not DISABLED:
+                    # time.sleep(1.5)
+                    p_control_frame.toggle_enable(force = 0, disable = 1)
+                    print('disabling motor')
+                    DISABLED = True
+                    ZERO_SEQ += 1
+                    GUI_STATE = 1
+            elif ZERO_SEQ == 4:
+                # if not ZERO_SENT:
+                print('zeroing encoder')
+                ser.write(bytes('z;p'.encode('utf-8')))
+                p_pos_true = rot_direction_param*p_datum_offset
+                # ZERO_SENT = True
+                ZERO_SEQ += 1
+                GUI_STATE = 1
+            elif ZERO_SEQ == 5:
+                # if DISABLED and SET_ENABLE:
+                print('enabling motor')
+                # ACK = None
+                p_control_frame.toggle_enable(disable=0)
+                # SET_ENABLE = False
+                # MOVE_TO_DATUM = True
+                MOVE_NUM = 1
+                ZERO_SEQ += 1
+                GUI_STATE = 1
+            elif ZERO_SEQ == 6:
+                if MOVE_NUM == 1:
+                    ACK = None
+                    print('moving to datum 1')
+                    move('p', 1, to_datum = True)
+                    GUI_STATE = 1
+                elif MOVE_NUM == 2:
+                    if SET_MICROSTEP:
+                        print('setting move2 uS')
+                        set_microstep('p', move2_microsteps)
+                        X_MICROSTEP_SET = True
+                        GUI_STATE = 1
+                    else:
+                        print('moving to datum 2')
+                        move('p', 2, to_datum = True)
+                        GUI_STATE = 1
+                elif MOVE_NUM == 3:
+                    print('resetting params for next zero')
+                    MOTOR_MASK = clearBit(MOTOR_MASK,0)
+                    MOVE_NUM = 1
+                    ZERO_SEQ = 1
+                    SET_MICROSTEP = True
         else:
             GUI_STATE = 0
             EXECUTING = False
@@ -667,9 +964,9 @@ def GUI_state_machine():
         prev_GUI_STATE = 4
 
 # Motion Parameters
-lin_direction_param = 1 # 1 or -1 for direction sign change
+lin_direction_param = -1 # 1 or -1 for direction sign change
 lin_init_speed_param = 50 # Hz
-lin_max_speed_param = 3000 # Hz
+lin_max_speed_param = 1500 # Hz
 lin_accel_param = 50 # Hz/s
 lin_motor_steps = 360/1.8 # 200 full steps per revolution
 rot_direction_param = 1
@@ -685,9 +982,10 @@ rot_enc_CPR = 4000
 
 move1_microsteps = 2
 move2_microsteps = 256
-overshoot = 1 # steps
+lin_overshoot = 5 # steps
+rot_overshoot = 1
 
-x_datum_offset = 50 # mm
+x_datum_offset = 5 # mm
 z_datum_offset = 50 # mm
 y_datum_offset = 30 # deg
 p_datum_offset = 30 # deg
@@ -712,95 +1010,109 @@ def move(stage, move, zero = False, to_datum = False):
     global x_dir, z_dir, y_dir, p_dir
     global lin_direction_param, lin_init_speed_param, lin_max_speed_param, lin_accel_param, lin_motor_steps, lin_Pitch
     global rot_direction_param, rot_init_speed_param, rot_max_speed_param, rot_accel_param, rot_motor_steps, rot_gear_ratio
-    global move1_microsteps, move2_microsteps, overshoot
+    global move1_microsteps, move2_microsteps, lin_overshoot, rot_overshoot
     global lin_travel_range, rot_travel_range
     if move == 1:
         if stage == 'x':
             if zero:
                 x_dir = -lin_direction_param
-                steps = round(move1_microsteps*lin_travel_range*lin_motor_steps/lin_Pitch) + 20*overshoot
+                steps = round(move1_microsteps*lin_travel_range*lin_motor_steps/lin_Pitch) + 20*lin_overshoot
                 move_string = 'm;x;'+ str(steps)+';'+str(x_dir)+';'+str(lin_init_speed_param)+';'+str(lin_max_speed_param)+';'+str(lin_accel_param)
             elif to_datum:
                 x_dir = lin_direction_param
-                steps = round(move1_microsteps*x_datum_offset*lin_motor_steps/lin_Pitch) + overshoot
+                steps = round(move1_microsteps*abs(0-x_pos_true)*lin_motor_steps/lin_Pitch) + lin_overshoot
                 move_string = 'm;x;'+ str(steps)+';'+str(x_dir)+';'+str(lin_init_speed_param)+';'+str(lin_max_speed_param)+';'+str(lin_accel_param)
             else:
-                if (lin_direction_param*x_target > x_pos_true):
-                    x_dir = 1
-                    steps = round(move1_microsteps*abs(x_target-x_pos_true)*lin_motor_steps/lin_Pitch) + overshoot
+                # print('move1')
+                # print(x_target)
+                # print(x_pos_true)
+                if (x_target > x_pos_true):
+                    x_dir = lin_direction_param
+                    steps = round(move1_microsteps*abs(x_target-x_pos_true)*lin_motor_steps/lin_Pitch) + lin_overshoot
                     move_string = 'm;x;'+ str(steps)+';'+str(x_dir)+';'+str(lin_init_speed_param)+';'+str(lin_max_speed_param)+';'+str(lin_accel_param)
                 else:
-                    x_dir = -1
-                    steps = round(move1_microsteps*abs(x_target-x_pos_true)*lin_motor_steps/lin_Pitch) - overshoot
+                    x_dir = -lin_direction_param
+                    steps = round(move1_microsteps*abs(x_target-x_pos_true)*lin_motor_steps/lin_Pitch) - lin_overshoot
                     move_string = 'm;x;'+ str(steps)+';'+str(x_dir)+';'+str(lin_init_speed_param)+';'+str(lin_max_speed_param)+';'+str(lin_accel_param)
         if stage == 'z':
-            if (lin_direction_param*z_target > z_pos_true):
-                z_dir = 1
-                steps = round(move1_microsteps*abs(z_target-z_pos_true)*lin_motor_steps/lin_Pitch) + overshoot
+            if (z_target > z_pos_true):
+                z_dir = lin_direction_param
+                steps = round(move1_microsteps*abs(z_target-z_pos_true)*lin_motor_steps/lin_Pitch) + lin_overshoot
                 move_string = 'm;z;'+ str(steps)+';'+str(z_dir)+';'+str(lin_init_speed_param)+';'+str(lin_max_speed_param)+';'+str(lin_accel_param)
             else:
-                z_dir = -1
-                steps = round(move1_microsteps*abs(z_target-z_pos_true)*lin_motor_steps/lin_Pitch) - overshoot
+                z_dir = -lin_direction_param
+                steps = round(move1_microsteps*abs(z_target-z_pos_true)*lin_motor_steps/lin_Pitch) - lin_overshoot
                 move_string = 'm;z;'+ str(steps)+';'+str(z_dir)+';'+str(lin_init_speed_param)+';'+str(lin_max_speed_param)+';'+str(lin_accel_param)
         if stage == 'y':
-            print('move1')
-            print(y_target)
-            print(y_pos_true)
-            if (rot_direction_param*y_target > y_pos_true):
-                y_dir = 1
-                steps = round(move1_microsteps*abs(y_target-y_pos_true)*rot_motor_steps*rot_gear_ratio/360) + overshoot
+            # print('move1')
+            # print(y_target)
+            # print(y_pos_true)
+            if (y_target > y_pos_true):
+                y_dir = rot_direction_param
+                steps = round(move1_microsteps*abs(y_target-y_pos_true)*rot_motor_steps*rot_gear_ratio/360) + rot_overshoot
                 move_string = 'm;y;'+ str(steps)+';'+str(y_dir)+';'+str(rot_init_speed_param)+';'+str(rot_max_speed_param)+';'+str(rot_accel_param)
             else:
-                y_dir = -1
-                steps = round(move1_microsteps*abs(y_target-y_pos_true)*rot_motor_steps*rot_gear_ratio/360) - overshoot
+                y_dir = -rot_direction_param
+                steps = round(move1_microsteps*abs(y_target-y_pos_true)*rot_motor_steps*rot_gear_ratio/360) - rot_overshoot
                 move_string = 'm;y;'+ str(steps)+';'+str(y_dir)+';'+str(rot_init_speed_param)+';'+str(rot_max_speed_param)+';'+str(rot_accel_param)
         if stage == 'p':
-            if (rot_direction_param*p_target > p_pos_true):
-                p_dir = 1
-                steps = round(move1_microsteps*abs(p_target-p_pos_true)*rot_motor_steps*rot_gear_ratio/360) + overshoot
+            if (p_target > p_pos_true):
+                p_dir = rot_direction_param
+                steps = round(move1_microsteps*abs(p_target-p_pos_true)*rot_motor_steps*rot_gear_ratio/360) + rot_overshoot
                 move_string = 'm;p;'+ str(steps)+';'+str(p_dir)+';'+str(rot_init_speed_param)+';'+str(rot_max_speed_param)+';'+str(rot_accel_param)
             else:
-                p_dir = -1
-                steps = round(move1_microsteps*abs(p_target-p_pos_true)*rot_motor_steps*rot_gear_ratio/360) - overshoot
+                p_dir = -rot_direction_param
+                steps = round(move1_microsteps*abs(p_target-p_pos_true)*rot_motor_steps*rot_gear_ratio/360) - rot_overshoot
                 move_string = 'm;p;'+ str(steps)+';'+str(p_dir)+';'+str(rot_init_speed_param)+';'+str(rot_max_speed_param)+';'+str(rot_accel_param)
     elif move == 2:
         if stage == 'x':
-            if (lin_direction_param*x_target > x_pos_true):
-                x_dir = 1
-                steps = round(move2_microsteps*abs(x_target-x_pos_true)*lin_motor_steps/lin_Pitch)
+            if to_datum:
+                print('datum2')
+                # print(0)
+                print(x_pos_true)
+                x_dir = -lin_direction_param
+                steps = round(move2_microsteps*abs(0-x_pos_true)*lin_motor_steps/lin_Pitch)
                 move_string = 'm;x;'+ str(steps)+';'+str(x_dir)+';'+str(lin_init_speed_param)+';'+str(lin_max_speed_param)+';'+str(lin_accel_param)
             else:
-                x_dir = -1
-                steps = round(move2_microsteps*abs(x_target-x_pos_true)*lin_motor_steps/lin_Pitch)
-                move_string = 'm;x;'+ str(steps)+';'+str(x_dir)+';'+str(lin_init_speed_param)+';'+str(lin_max_speed_param)+';'+str(lin_accel_param)
+                # print('move2')
+                # print(x_target)
+                # print(x_pos_true)
+                if (x_target > x_pos_true):
+                    x_dir = lin_direction_param
+                    steps = round(move2_microsteps*abs(x_target-x_pos_true)*lin_motor_steps/lin_Pitch)
+                    move_string = 'm;x;'+ str(steps)+';'+str(x_dir)+';'+str(lin_init_speed_param)+';'+str(lin_max_speed_param)+';'+str(lin_accel_param)
+                else:
+                    x_dir = -lin_direction_param
+                    steps = round(move2_microsteps*abs(x_target-x_pos_true)*lin_motor_steps/lin_Pitch)
+                    move_string = 'm;x;'+ str(steps)+';'+str(x_dir)+';'+str(lin_init_speed_param)+';'+str(lin_max_speed_param)+';'+str(lin_accel_param)
         if stage == 'z':
-            if (lin_direction_param*z_target > z_pos_true):
-                z_dir = 1
+            if (z_target > z_pos_true):
+                z_dir = lin_direction_param
                 steps = round(move2_microsteps*abs(z_target-z_pos_true)*lin_motor_steps/lin_Pitch)
                 move_string = 'm;z;'+ str(steps)+';'+str(z_dir)+';'+str(lin_init_speed_param)+';'+str(lin_max_speed_param)+';'+str(lin_accel_param)
             else:
-                z_dir = -1
+                z_dir = -lin_direction_param
                 steps = round(move2_microsteps*abs(z_target-z_pos_true)*lin_motor_steps/lin_Pitch)
                 move_string = 'm;z;'+ str(steps)+';'+str(z_dir)+';'+str(lin_init_speed_param)+';'+str(lin_max_speed_param)+';'+str(lin_accel_param)
         if stage == 'y':
-            print('move2')
-            print(y_target)
-            print(y_pos_true)
-            if (rot_direction_param*y_target > y_pos_true):
-                y_dir = 1
+            # print('move2')
+            # print(y_target)
+            # print(y_pos_true)
+            if (y_target > y_pos_true):
+                y_dir = rot_direction_param
                 steps = round(move2_microsteps*abs(y_target-y_pos_true)*rot_motor_steps*rot_gear_ratio/360)
                 move_string = 'm;y;'+ str(steps)+';'+str(y_dir)+';'+str(rot_init_speed_param)+';'+str(rot_max_speed_param)+';'+str(rot_accel_param)
             else:
-                y_dir = -1
+                y_dir = -rot_direction_param
                 steps = round(move2_microsteps*abs(y_target-y_pos_true)*rot_motor_steps*rot_gear_ratio/360)
                 move_string = 'm;y;'+ str(steps)+';'+str(y_dir)+';'+str(rot_init_speed_param)+';'+str(rot_max_speed_param)+';'+str(rot_accel_param)
         if stage == 'p':
-            if (rot_direction_param*p_target > p_pos_true):
-                p_dir = 1
+            if (p_target > p_pos_true):
+                p_dir = rot_direction_param
                 steps = round(move2_microsteps*abs(p_target-p_pos_true)*rot_motor_steps*rot_gear_ratio/360)
                 move_string = 'm;p;'+ str(steps)+';'+str(p_dir)+';'+str(rot_init_speed_param)+';'+str(rot_max_speed_param)+';'+str(rot_accel_param)
             else:
-                p_dir = -1
+                p_dir = -rot_direction_param
                 steps = round(move2_microsteps*abs(p_target-p_pos_true)*rot_motor_steps*rot_gear_ratio/360)
                 move_string = 'm;p;'+ str(steps)+';'+str(p_dir)+';'+str(rot_init_speed_param)+';'+str(rot_max_speed_param)+';'+str(rot_accel_param)
     else:
@@ -827,19 +1139,25 @@ def clearBit(int_type, offset):
 def update_status(status):
     global x_pos, z_pos, y_pos, p_pos, prev_x_pos, prev_z_pos, prev_y_pos, prev_p_pos
     global x_lim, z_lim, y_lim, p_lim, x_speed, z_speed, y_speed, p_speed
+    global X_STOPPED
     global lin_Pitch, lin_enc_CPR, rot_gear_ratio, rot_enc_CPR
-    x_pos = float(status[0])*lin_Pitch/lin_enc_CPR  # convert to deg
-    z_pos = float(status[1])*lin_Pitch/lin_enc_CPR
-    y_pos = float(status[2])*360/(rot_enc_CPR*rot_gear_ratio)
-    p_pos = float(status[3])*360/(rot_enc_CPR*rot_gear_ratio)
+    global lin_direction_param, rot_direction_param
+    x_pos = lin_direction_param*float(status[0])*lin_Pitch/lin_enc_CPR  # convert to deg
+    z_pos = lin_direction_param*float(status[1])*lin_Pitch/lin_enc_CPR
+    y_pos = rot_direction_param*float(status[2])*360/(rot_enc_CPR*rot_gear_ratio)
+    p_pos = rot_direction_param*float(status[3])*360/(rot_enc_CPR*rot_gear_ratio)
+    if abs(x_pos-prev_x_pos) <= 0.02:
+        X_STOPPED = True
+    else:
+        X_STOPPED = False
     x_lim = float(status[4])
     z_lim = float(status[5])
     y_lim = float(status[6])
     p_lim = float(status[7])
-    x_speed = 1000*(x_pos - prev_x_pos)/(100)
-    z_speed = 1000*(z_pos - prev_z_pos)/(100)
-    y_speed = 1000*(y_pos - prev_y_pos)/(100)  # convert to deg/s where 100 is hub task period in ms
-    p_speed = 1000*(p_pos - prev_p_pos)/(100)
+    x_speed = 1000*(x_pos - prev_x_pos)/(50)
+    z_speed = 1000*(z_pos - prev_z_pos)/(50)
+    y_speed = 1000*(y_pos - prev_y_pos)/(50)  # convert to deg/s where 100 is hub task period in ms
+    p_speed = 1000*(p_pos - prev_p_pos)/(50)
     prev_x_pos = x_pos
     prev_z_pos = z_pos
     prev_y_pos = y_pos

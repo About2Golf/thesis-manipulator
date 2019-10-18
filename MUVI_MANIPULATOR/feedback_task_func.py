@@ -88,6 +88,7 @@ class Feedback_Task:
             ## STATE 2: Zero Encoder
             elif self.state == STATE_2:
                 self.Encoder.zero_encoder()
+                self.zero.put(0)
                 self.state = STATE_1
 
             yield(self.state)
