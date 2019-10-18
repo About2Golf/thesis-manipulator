@@ -78,10 +78,3 @@ class Encoder:
         self.__delta_count = 0
         self.__encoder_val = 0
         return self.__encoder_val
-
-    def restore_encoder(self, restore_val):
-        # self.restore_val = self.__encoder_val - self.__delta_count
-        self.__encoder_val = restore_val
-        self.__last_count = restore_val
-        self.timer_val.counter(restore_val)
-        return self.__encoder_val

@@ -78,7 +78,7 @@ class TMC2160Driver:
         # print('self.total_steps')
         self.step_rate = self.init_speed
         # print('self.step_rate')
-        self.step_timer.freq(self.step_rate)
+        # self.step_timer.freq(self.step_rate)
         # print('timer freq')
         self.DONE = 1
         # print('done')
@@ -108,16 +108,16 @@ class TMC2160Driver:
                 # else:
                 #     self.paused = 1
             else:
-                self.stop()
+                # self.stop()
                 # print('spd')
-                # self.steps_moved = self.step_count
-                # self.stepping = 0
-                # self.accelerating = 0
-                # self.step_count = 0
-                # self.total_steps = 0
-                # self.step_rate = self.init_speed
-                # self.step_timer.freq(self.step_rate)
-                # self.DONE = 1
+                self.steps_moved = self.step_count
+                self.stepping = 0
+                self.accelerating = 0
+                self.step_count = 0
+                self.total_steps = 0
+                self.step_rate = self.init_speed
+                self.step_timer.freq(self.step_rate)
+                self.DONE = 1
         else:
             self.step.value(0)
 

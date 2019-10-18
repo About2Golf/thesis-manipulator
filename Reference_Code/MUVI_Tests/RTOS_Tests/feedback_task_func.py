@@ -35,53 +35,26 @@ class Feedback_Task:
             @param pin1 The Encoder's first pin, Pin A
             @param pin2 The Encoder's second pin, Pin B
         '''
-        self.encoder_share = encoder_share
-        self.limit_share = limit_share
+        self.encoder = encoder_share
+        self.limit = limit_share
         self.zero = zero_share
         self.Encoder = encoder.Encoder(timer, enc_A, enc_B, name)
         self.Limit = limit_switch.Limit_Switch(ls_pin_m, ls_pin_p, name)
-        self.limit_val = 0
-        self.prev_limit_val = 0
-        self.encoder_val = 0
-        self.prev_encoder_val = 0
-        self.name = name
 
     def fb_fun(self):
         '''
         Defines the task function method for a Motor object.
         '''
-        STATE_0 = micropython.const (0)
         STATE_1 = micropython.const (1)
         STATE_2 = micropython.const (2)
 
-        self.state = STATE_0
+        self.state = STATE_1
 
         while True:
-            ## STATE 0: Initialize Limit Variables
-            if self.state == STATE_0:
-                self.limit_val = self.Limit.read_limit()
-                self.prev_limit_val = self.limit_val
-                self.state = STATE_1
-
-            # ## STATE 1: Send Feedback
-            # if self.state == STATE_1:
-            #     self.limit_val = self.Limit.read_limit()
-            #     self.encoder_val = self.Encoder.read_encoder()
-            #     if (self.name == 'X ' or self.name == 'Z ') and self.limit_toggled():
-            #         self.encoder_val = self.Encoder.restore_encoder(self.prev_encoder_val)
-            #     self.limit_share.put(self.limit_val)
-            #     self.encoder_share.put(self.encoder_val)
-            #     if self.zero.get():
-            #         self.state = STATE_2
-            #     self.prev_limit_val = self.limit_val
-            #     self.prev_encoder_val = self.encoder_val
-
             ## STATE 1: Send Feedback
             if self.state == STATE_1:
-                self.limit_val = self.Limit.read_limit()
-                self.encoder_val = self.Encoder.read_encoder()
-                self.limit_share.put(self.limit_val)
-                self.encoder_share.put(self.encoder_val)
+                self.limit.put(self.Limit.read_limit())
+                self.encoder.put(self.Encoder.read_encoder())
                 if self.zero.get():
                     self.state = STATE_2
 
@@ -91,9 +64,3 @@ class Feedback_Task:
                 self.state = STATE_1
 
             yield(self.state)
-
-    def limit_toggled(self):
-        if self.prev_limit_val == self.limit_val:
-            return False
-        else:
-            return True

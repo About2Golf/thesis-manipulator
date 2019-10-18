@@ -13,14 +13,23 @@ import print_task
 class Hub_Task:
     '''
     '''
-    def __init__(self, x_params, z_params, y_params, p_params,
-                x_steps, z_steps, y_steps, p_steps,
-                    x_status, z_status, y_status, p_status,
-                        x_enable, z_enable, y_enable, p_enable,
-                            x_encoder, z_encoder, y_encoder, p_encoder,
-                                x_zero, z_zero, y_zero, p_zero,
-                                    x_limit, z_limit, y_limit, p_limit,
-                                        x_csn_pin, z_csn_pin, y_csn_pin, p_csn_pin,
+    # def __init__(self, x_params, z_params, y_params, p_params,
+    #             x_steps, z_steps, y_steps, p_steps,
+    #                 x_status, z_status, y_status, p_status,
+    #                     x_enable, z_enable, y_enable, p_enable,
+    #                         x_encoder, z_encoder, y_encoder, p_encoder,
+    #                             x_zero, z_zero, y_zero, p_zero,
+    #                                 x_limit, z_limit, y_limit, p_limit,
+    #                                     x_csn_pin, z_csn_pin, y_csn_pin, p_csn_pin,
+    #                                         dcen_pin):
+    def __init__(self, x_params,
+                x_steps,
+                    x_status,
+                        x_enable,
+                            x_encoder,
+                                x_zero,
+                                    x_limit,
+                                        x_csn_pin,
                                             dcen_pin):
         '''
         '''
@@ -123,7 +132,7 @@ class Hub_Task:
             ## STATE 1: IDLE
             if self.state == STATE_1:
                 self.update_feedback()
-                yield()
+                # yield()
                 self.read_GUI()
                 yield()
                 if self.Y_POSITIONING and self.y_enable.get():
@@ -178,7 +187,7 @@ class Hub_Task:
                     self.state = STATE_1
 
             ## STATE 4: MOVING Z TRANSLATION
-            elif self.state == STATE_4:
+            elif self.state == STATE_3:
                 self.update_feedback()
                 # yield()
                 self.read_GUI()
@@ -192,7 +201,7 @@ class Hub_Task:
                     self.state = STATE_1
 
             ## STATE 5: MOVING X TRANSLATION
-            elif self.state == STATE_5:
+            elif self.state == STATE_3:
                 self.update_feedback()
                 # yield()
                 self.read_GUI()

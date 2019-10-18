@@ -22,9 +22,9 @@ class Limit_Switch:
         @return pin_m The status of the limit minus Pin
         @return pin_p The status of the limit plus Pin
         '''
-        if not self.pin_m.value():
+        if self.pin_m.value():
             return -1
-        elif not self.pin_p.value():
+        elif self.pin_p.value():
             return 1
         else:
             return 0

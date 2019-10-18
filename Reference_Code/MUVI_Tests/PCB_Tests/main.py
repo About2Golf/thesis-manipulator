@@ -135,6 +135,8 @@ if __name__ == "__main__":
     send_spi_data(enn_csn_y)
     utime.sleep_us(20)
     send_spi_data(enn_csn_z)
+    utime.sleep_us(20)
+    send_spi_data(enn_csn_x)
 
     # send_spi_data(spi_command1, enn_csn_p)
     # utime.sleep_us(20)
