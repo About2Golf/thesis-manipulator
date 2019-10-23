@@ -27,37 +27,37 @@ class status_box():
         self.status_frame = LabelFrame(frame, text=self.name, bg='white')
         self.status_frame.grid(row=self.row, column=self.column, rowspan=3, columnspan=3, sticky='WE', ipadx=5, ipady=5)
 
-        self.pos_label = Label(self.status_frame, text="Position:", bg='white').grid(row=self.row,column=self.column, sticky=W)
+        self.pos_label = Label(self.status_frame, text="Position:", bg='white').grid(row=self.row,column=self.column, sticky=W, padx=5, pady=1)
         self.position = Entry(self.status_frame, width = 10, bg='gray80', justify='right')
         # self.position.insert(0, "0123")
         self.position.grid(row=self.row, column=self.column+1, sticky=E)
         self.pos_units = Label(self.status_frame, text=self.units, bg='white').grid(row=self.row,column=self.column+2, sticky=W)
 
-        self.speed_label = Label(self.status_frame, text="Speed:", bg='white').grid(row=(self.row+1),column=self.column, sticky=W)
+        self.speed_label = Label(self.status_frame, text="Speed:", bg='white').grid(row=(self.row+1),column=self.column, sticky=W, padx=5, pady=1)
         self.speed = Entry(self.status_frame, width = 10, bg='gray80', justify='right')
         # self.speed.insert(0, "0123")
         self.speed.grid(row=(self.row+1), column=self.column+1, sticky=E)
         self.speed_units = Label(self.status_frame, text=(self.units+"/s"), bg='white').grid(row=(self.row+1),column=self.column+2, sticky=W)
 
-        self.mark_label = Label(self.status_frame, text="Mark:", bg='white').grid(row=(self.row+2),column=self.column, sticky=W)
+        self.mark_label = Label(self.status_frame, text="Mark:", bg='white').grid(row=(self.row+2),column=self.column, sticky=W, padx=5, pady=1)
         self.mark = Entry(self.status_frame, width = 10, bg='gray80',  justify='right')
         # self.mark.insert(0, "0123")
         self.mark.grid(row=(self.row+2), column=self.column+1, sticky=E)
         self.pos_units = Label(self.status_frame, text=self.units, bg='white').grid(row=(self.row+2),column=self.column+2, sticky=W)
 
-        self.m_lim_label = Label(self.status_frame, text="-Limit", bg='white').grid(row=(self.row+3),column=self.column, sticky=W)
-        self.p_lim_label = Label(self.status_frame, text="+Limit", bg='white').grid(row=(self.row+3),column=self.column+1, sticky=E)
+        self.m_lim_label = Label(self.status_frame, text="-Limit", bg='white').grid(row=(self.row+3),column=self.column, sticky=W, padx=5, pady=1)
+        self.p_lim_label = Label(self.status_frame, text="+Limit", bg='white').grid(row=(self.row+3),column=self.column+1, sticky=E, padx=5, pady=1)
 
         self.m_limit_button = Canvas(self.status_frame, bg ='white', height = 30, width = 30,bd=0,highlightthickness=0)
-        self.m_limit_button.grid(row=(self.row+4),column=self.column)
+        self.m_limit_button.grid(row=(self.row+4),column=self.column, padx=10)
         self.m_lim = self.m_limit_button.create_oval(5,5,25,25, fill ='gray80')
 
         self.p_limit_button = Canvas(self.status_frame, bg ='white', height = 30, width = 30,bd=0,highlightthickness=0)
-        self.p_limit_button.grid(row=(self.row+4),column=self.column+1, sticky=E)
+        self.p_limit_button.grid(row=(self.row+4),column=self.column+1, sticky=E, padx=10)
         self.p_lim = self.p_limit_button.create_oval(5,5,25,25, fill ='gray80')
 
         self.mark_mark = Button(self.status_frame, text="Mark Position", width=15, command=self.mark_mark)
-        self.mark_mark.grid(row=self.row+5, column=self.column,columnspan=4, sticky=W)
+        self.mark_mark.grid(row=self.row+5, column=self.column,columnspan=4, sticky=W, padx=25, pady=1)
 
     def limit_on(self, identifier):
         if identifier == 'p':
@@ -104,33 +104,36 @@ class control_box():
         self.control_frame = LabelFrame(frame, text=self.name, bg='white')
         self.control_frame.grid(row=self.row, column=self.column, rowspan=3, columnspan=3, sticky='WE', ipadx=5, ipady=5)
 
-        self.enable_label = Label(self.control_frame, text="Enable:", bg='white').grid(row=(self.row),column=self.column, sticky=W)
+        self.enable_label = Label(self.control_frame, text="Enable:", bg='white').grid(row=(self.row),column=self.column, sticky=W, padx=5, pady=1)
         self.enable_mot = Button(self.control_frame, text="OFF", width=8, command=self.toggle_enable)
-        self.enable_mot.grid(row=self.row, column=self.column+1, sticky=E)
+        self.enable_mot.grid(row=self.row, column=self.column+1, sticky=E, pady=2)
 
-        self.targ_label = Label(self.control_frame, text="Target:", bg='white').grid(row=self.row+1,column=self.column, sticky=W)
+        self.targ_label = Label(self.control_frame, text="Target:", bg='white').grid(row=self.row+1,column=self.column, sticky=W, padx=5, pady=1)
         self.target = Entry(self.control_frame, width = 10, bg="white", justify='right')
         # self.position.insert(0, "0123")
         self.target.grid(row=self.row+1, column=self.column+1, sticky=E)
         self.targ_units = Label(self.control_frame, text=self.units, bg='white').grid(row=self.row+1,column=self.column+2,columnspan=2, sticky=W)
 
-        self.jog_label = Label(self.control_frame, text="Jog Size:", bg='white').grid(row=(self.row+2),column=self.column, sticky=W)
+        self.jog_label = Label(self.control_frame, text="Jog Size:", bg='white').grid(row=(self.row+2),column=self.column, sticky=W, padx=5, pady=1)
         self.jog_size = Entry(self.control_frame, width = 10, bg="white", justify='right')
         # self.speed.insert(0, "0123")
         self.jog_size.grid(row=(self.row+2), column=self.column+1, sticky=E)
         self.jog_units = Label(self.control_frame, text=(self.units), bg='white').grid(row=(self.row+2),column=self.column+2,columnspan=2,  sticky=W)
 
+        self.move_stage = Button(self.control_frame, text="Move Stage", width=15, command=self.move_stage)
+        self.move_stage.grid(row=self.row+3, column=self.column,columnspan=4, sticky=W, padx=20, pady=3)
+
         self.jog_m = Button(self.control_frame, text="Jog -", width=5, command=self.jog_m)
-        self.jog_m.grid(row=self.row+3, column=self.column, sticky=W)
+        self.jog_m.grid(row=self.row+4, column=self.column, sticky=W, padx=(20,0), pady=3)
 
         self.jog_p = Button(self.control_frame, text="Jog +", width=5, command=self.jog_p)
-        self.jog_p.grid(row=self.row+3, column=self.column+1, sticky=E)
+        self.jog_p.grid(row=self.row+4, column=self.column+1, sticky=W, padx=(25,0), pady=3)
 
-        self.set_mark_to_targ = Button(self.control_frame, text="Set Mark to Target", width=15, command=self.set_mark_to_targ)
-        self.set_mark_to_targ.grid(row=self.row+4, column=self.column,columnspan=4, sticky=W)
+        self.set_mark_to_targ = Button(self.control_frame, text="Put Mark to Target", width=15, command=self.set_mark_to_targ)
+        self.set_mark_to_targ.grid(row=self.row+5, column=self.column,columnspan=4, sticky=W, padx=20, pady=3)
 
         self.set_zero = Button(self.control_frame, text= "Set Zero", width=15, command=self.set_zero)
-        self.set_zero.grid(row=self.row+5, column=self.column,columnspan=4, sticky=W)
+        self.set_zero.grid(row=self.row+6, column=self.column,columnspan=4, sticky=W, padx=20, pady=3)
 
     def toggle_enable(self, force = 1, disable = 1):
         '''
@@ -148,6 +151,9 @@ class control_box():
             ser.write(bytes(toggle_string.encode('utf-8')))
             self.enable_mot.config(text='ON')
             self.ENABLED = 1
+
+    def move_stage(self):
+        print('moving stage')
 
     def jog_m(self):
         try:
@@ -179,6 +185,10 @@ class control_box():
 
     def get_target(self):
         return float(self.target.get())
+
+    def set_jogsize(self, new_jogsize):
+        self.jog_size.delete(0, END)
+        self.jog_size.insert(0, str(new_jogsize))
 
     def get_enable(self):
         return self.ENABLED
@@ -293,8 +303,32 @@ def zero_all():
     else:
         return
 
+
+import csv
+
+class CSV_Read():
+    def __init__(self, filename):
+        with open(filename, "r") as f_input:
+            csv_input = csv.reader(f_input)
+            self.details = list(csv_input)
+
+    def get_col_row(self, col, row):
+        return self.details[row-1][col-1]
+
+# data = ContactDetails("input.csv")
+#
+# phone_number = data.get_col_row(5, 4)
+# name = data.get_col_row(2,4)
+# last_name = data.get_col_row(3,4)
+#
+# print "%s %s: %s" % (name, last_name, phone_number)
+
+
 def set_motion_params():
-    param_window = Toplevel()
+    global motion_params
+    motion_filename = filedialog.askopenfilename(initialdir = "/",title = "Select file",filetypes = (("csv files","*.csv"),("all files","*.*")))
+    motion_params = CSV_Read(motion_filename)
+    # param_window = Toplevel()
     # messagebox.showinfo("Control","Set params")
 
 def send_cmd():
@@ -376,6 +410,11 @@ z_target = 0.0
 y_target = 0.0
 p_target = 0.0
 
+x_jog = 0.0
+z_jog = 0.0
+y_jog = 0.0
+p_jog = 0.0
+
 X_STOPPED = True
 
 GUI_STATE = 0
@@ -398,7 +437,7 @@ def read_data():
     global lin_Pitch, lin_motor_steps, rot_gear_ratio, rot_motor_steps
     global move1_microsteps, move2_microsteps
     global x_pos_true, z_pos_true, y_pos_true, p_pos_true
-    global lin_direction_param, rot_direction_param
+    global x_direction_param, z_direction_param, y_direction_param, p_direction_param
     log_print(serBuffer)
     # uC_resp = serBuffer[1::] # remove first character (b)
     # uC_resp = uC_resp[1::] # remove first character (')
@@ -413,24 +452,24 @@ def read_data():
             if ACK == 's':
                 if uC_resp[1] == 'x':
                     if MOVE_NUM == 1:
-                        x_pos_true += lin_direction_param*x_dir*float(uC_resp[2])*lin_Pitch/(move1_microsteps*lin_motor_steps)
+                        x_pos_true += x_direction_param*x_dir*float(uC_resp[2])*lin_Pitch/(move1_microsteps*lin_motor_steps)
                     elif MOVE_NUM == 2:
-                        x_pos_true += lin_direction_param*x_dir*float(uC_resp[2])*lin_Pitch/(move2_microsteps*lin_motor_steps)
+                        x_pos_true += x_direction_param*x_dir*float(uC_resp[2])*lin_Pitch/(move2_microsteps*lin_motor_steps)
                 elif uC_resp[1] == 'z':
                     if MOVE_NUM == 1:
-                        z_pos_true += lin_direction_param*z_dir*float(uC_resp[2])*lin_Pitch/(move1_microsteps*lin_motor_steps)
+                        z_pos_true += z_direction_param*z_dir*float(uC_resp[2])*lin_Pitch/(move1_microsteps*lin_motor_steps)
                     elif MOVE_NUM == 2:
-                        z_pos_true += lin_direction_param*z_dir*float(uC_resp[2])*lin_Pitch/(move2_microsteps*lin_motor_steps)
+                        z_pos_true += z_direction_param*z_dir*float(uC_resp[2])*lin_Pitch/(move2_microsteps*lin_motor_steps)
                 elif uC_resp[1] == 'y':
                     if MOVE_NUM == 1:
-                        y_pos_true += rot_direction_param*y_dir*float(uC_resp[2])*360/(rot_gear_ratio*move1_microsteps*rot_motor_steps)
+                        y_pos_true += y_direction_param*y_dir*float(uC_resp[2])*360/(rot_gear_ratio*move1_microsteps*rot_motor_steps)
                     elif MOVE_NUM == 2:
-                        y_pos_true += rot_direction_param*y_dir*float(uC_resp[2])*360/(rot_gear_ratio*move2_microsteps*rot_motor_steps)
+                        y_pos_true += y_direction_param*y_dir*float(uC_resp[2])*360/(rot_gear_ratio*move2_microsteps*rot_motor_steps)
                 elif uC_resp[1] == 'p':
                     if MOVE_NUM == 1:
-                        p_pos_true += rot_direction_param*p_dir*float(uC_resp[2])*360/(rot_gear_ratio*move1_microsteps*rot_motor_steps)
+                        p_pos_true += p_direction_param*p_dir*float(uC_resp[2])*360/(rot_gear_ratio*move1_microsteps*rot_motor_steps)
                     elif MOVE_NUM == 2:
-                        p_pos_true += rot_direction_param*p_dir*float(uC_resp[2])*360/(rot_gear_ratio*move2_microsteps*rot_motor_steps)
+                        p_pos_true += p_direction_param*p_dir*float(uC_resp[2])*360/(rot_gear_ratio*move2_microsteps*rot_motor_steps)
                 print(y_pos_true)
             return None
 
@@ -443,6 +482,7 @@ def GUI_state_machine():
     global x_datum_offset, z_datum_offset, y_datum_offset, p_datum_offset
     global x_lim, z_lim, y_lim, p_lim
     global X_STOPPED
+    global x_direction_param, z_direction_param, y_direction_param, p_direction_param
 
     parsed = read_data()
     if parsed:
@@ -638,7 +678,7 @@ def GUI_state_machine():
                 # if not ZERO_SENT:
                 print('zeroing encoder')
                 ser.write(bytes('z;x'.encode('utf-8')))
-                x_pos_true = lin_direction_param*x_datum_offset
+                x_pos_true = x_direction_param*x_datum_offset
                 # ZERO_SENT = True
                 ZERO_SEQ += 1
                 GUI_STATE = 1
@@ -776,7 +816,7 @@ def GUI_state_machine():
                 # if not ZERO_SENT:
                 print('zeroing encoder')
                 ser.write(bytes('z;z'.encode('utf-8')))
-                z_pos_true = lin_direction_param*z_datum_offset
+                z_pos_true = z_direction_param*z_datum_offset
                 # ZERO_SENT = True
                 ZERO_SEQ += 1
                 GUI_STATE = 1
@@ -847,7 +887,7 @@ def GUI_state_machine():
                 # if not ZERO_SENT:
                 print('zeroing encoder')
                 ser.write(bytes('z;y'.encode('utf-8')))
-                y_pos_true = rot_direction_param*y_datum_offset
+                y_pos_true = y_direction_param*y_datum_offset
                 # ZERO_SENT = True
                 ZERO_SEQ += 1
                 GUI_STATE = 1
@@ -918,7 +958,7 @@ def GUI_state_machine():
                 # if not ZERO_SENT:
                 print('zeroing encoder')
                 ser.write(bytes('z;p'.encode('utf-8')))
-                p_pos_true = rot_direction_param*p_datum_offset
+                p_pos_true = p_direction_param*p_datum_offset
                 # ZERO_SENT = True
                 ZERO_SEQ += 1
                 GUI_STATE = 1
@@ -963,28 +1003,34 @@ def GUI_state_machine():
             # ZERO_SENT = False
         prev_GUI_STATE = 4
 
-# Motion Parameters
-lin_direction_param = -1 # 1 or -1 for direction sign change
+# Default Motion Parameters
+x_direction_param = -1 # 1 or -1 for direction sign change
+z_direction_param = 1
 lin_init_speed_param = 50 # Hz
 lin_max_speed_param = 1500 # Hz
 lin_accel_param = 50 # Hz/s
-lin_motor_steps = 360/1.8 # 200 full steps per revolution
-rot_direction_param = 1
-rot_init_speed_param = 50
-rot_max_speed_param = 3000
-rot_accel_param = 50
-rot_motor_steps = 360/1.8 # 200 full steps per revolution
 
+y_direction_param = 1
+p_direction_param = 1
+rot_init_speed_param = 50
+rot_max_speed_param = 1500
+rot_accel_param = 50
+
+lin_motor_steps = 360/1.8 # 200 full steps per revolution
 lin_Pitch = 1.5875
 lin_enc_CPR = 4000
+
+rot_motor_steps = 360/1.8 # 200 full steps per revolution
 rot_gear_ratio = 72
 rot_enc_CPR = 4000
 
 move1_microsteps = 2
 move2_microsteps = 256
+
 lin_overshoot = 5 # steps
 rot_overshoot = 1
 
+# Default Instrument Parameters
 x_datum_offset = 5 # mm
 z_datum_offset = 50 # mm
 y_datum_offset = 30 # deg
@@ -1008,18 +1054,19 @@ def set_microstep(stage, microstep):
 def move(stage, move, zero = False, to_datum = False):
     global x_target, z_target, y_target, p_target, x_pos_true, z_pos_true, y_pos_true, p_pos_true
     global x_dir, z_dir, y_dir, p_dir
-    global lin_direction_param, lin_init_speed_param, lin_max_speed_param, lin_accel_param, lin_motor_steps, lin_Pitch
-    global rot_direction_param, rot_init_speed_param, rot_max_speed_param, rot_accel_param, rot_motor_steps, rot_gear_ratio
+    global x_direction_param, z_direction_param, y_direction_param, p_direction_param
+    global lin_init_speed_param, lin_max_speed_param, lin_accel_param, lin_motor_steps, lin_Pitch
+    global rot_init_speed_param, rot_max_speed_param, rot_accel_param, rot_motor_steps, rot_gear_ratio
     global move1_microsteps, move2_microsteps, lin_overshoot, rot_overshoot
     global lin_travel_range, rot_travel_range
     if move == 1:
         if stage == 'x':
             if zero:
-                x_dir = -lin_direction_param
+                x_dir = -x_direction_param
                 steps = round(move1_microsteps*lin_travel_range*lin_motor_steps/lin_Pitch) + 20*lin_overshoot
                 move_string = 'm;x;'+ str(steps)+';'+str(x_dir)+';'+str(lin_init_speed_param)+';'+str(lin_max_speed_param)+';'+str(lin_accel_param)
             elif to_datum:
-                x_dir = lin_direction_param
+                x_dir = x_direction_param
                 steps = round(move1_microsteps*abs(0-x_pos_true)*lin_motor_steps/lin_Pitch) + lin_overshoot
                 move_string = 'm;x;'+ str(steps)+';'+str(x_dir)+';'+str(lin_init_speed_param)+';'+str(lin_max_speed_param)+';'+str(lin_accel_param)
             else:
@@ -1027,20 +1074,20 @@ def move(stage, move, zero = False, to_datum = False):
                 # print(x_target)
                 # print(x_pos_true)
                 if (x_target > x_pos_true):
-                    x_dir = lin_direction_param
+                    x_dir = x_direction_param
                     steps = round(move1_microsteps*abs(x_target-x_pos_true)*lin_motor_steps/lin_Pitch) + lin_overshoot
                     move_string = 'm;x;'+ str(steps)+';'+str(x_dir)+';'+str(lin_init_speed_param)+';'+str(lin_max_speed_param)+';'+str(lin_accel_param)
                 else:
-                    x_dir = -lin_direction_param
+                    x_dir = -x_direction_param
                     steps = round(move1_microsteps*abs(x_target-x_pos_true)*lin_motor_steps/lin_Pitch) - lin_overshoot
                     move_string = 'm;x;'+ str(steps)+';'+str(x_dir)+';'+str(lin_init_speed_param)+';'+str(lin_max_speed_param)+';'+str(lin_accel_param)
         if stage == 'z':
             if (z_target > z_pos_true):
-                z_dir = lin_direction_param
+                z_dir = z_direction_param
                 steps = round(move1_microsteps*abs(z_target-z_pos_true)*lin_motor_steps/lin_Pitch) + lin_overshoot
                 move_string = 'm;z;'+ str(steps)+';'+str(z_dir)+';'+str(lin_init_speed_param)+';'+str(lin_max_speed_param)+';'+str(lin_accel_param)
             else:
-                z_dir = -lin_direction_param
+                z_dir = -z_direction_param
                 steps = round(move1_microsteps*abs(z_target-z_pos_true)*lin_motor_steps/lin_Pitch) - lin_overshoot
                 move_string = 'm;z;'+ str(steps)+';'+str(z_dir)+';'+str(lin_init_speed_param)+';'+str(lin_max_speed_param)+';'+str(lin_accel_param)
         if stage == 'y':
@@ -1048,20 +1095,20 @@ def move(stage, move, zero = False, to_datum = False):
             # print(y_target)
             # print(y_pos_true)
             if (y_target > y_pos_true):
-                y_dir = rot_direction_param
+                y_dir = y_direction_param
                 steps = round(move1_microsteps*abs(y_target-y_pos_true)*rot_motor_steps*rot_gear_ratio/360) + rot_overshoot
                 move_string = 'm;y;'+ str(steps)+';'+str(y_dir)+';'+str(rot_init_speed_param)+';'+str(rot_max_speed_param)+';'+str(rot_accel_param)
             else:
-                y_dir = -rot_direction_param
+                y_dir = -y_direction_param
                 steps = round(move1_microsteps*abs(y_target-y_pos_true)*rot_motor_steps*rot_gear_ratio/360) - rot_overshoot
                 move_string = 'm;y;'+ str(steps)+';'+str(y_dir)+';'+str(rot_init_speed_param)+';'+str(rot_max_speed_param)+';'+str(rot_accel_param)
         if stage == 'p':
             if (p_target > p_pos_true):
-                p_dir = rot_direction_param
+                p_dir = p_direction_param
                 steps = round(move1_microsteps*abs(p_target-p_pos_true)*rot_motor_steps*rot_gear_ratio/360) + rot_overshoot
                 move_string = 'm;p;'+ str(steps)+';'+str(p_dir)+';'+str(rot_init_speed_param)+';'+str(rot_max_speed_param)+';'+str(rot_accel_param)
             else:
-                p_dir = -rot_direction_param
+                p_dir = -p_direction_param
                 steps = round(move1_microsteps*abs(p_target-p_pos_true)*rot_motor_steps*rot_gear_ratio/360) - rot_overshoot
                 move_string = 'm;p;'+ str(steps)+';'+str(p_dir)+';'+str(rot_init_speed_param)+';'+str(rot_max_speed_param)+';'+str(rot_accel_param)
     elif move == 2:
@@ -1070,7 +1117,7 @@ def move(stage, move, zero = False, to_datum = False):
                 print('datum2')
                 # print(0)
                 print(x_pos_true)
-                x_dir = -lin_direction_param
+                x_dir = -x_direction_param
                 steps = round(move2_microsteps*abs(0-x_pos_true)*lin_motor_steps/lin_Pitch)
                 move_string = 'm;x;'+ str(steps)+';'+str(x_dir)+';'+str(lin_init_speed_param)+';'+str(lin_max_speed_param)+';'+str(lin_accel_param)
             else:
@@ -1078,20 +1125,20 @@ def move(stage, move, zero = False, to_datum = False):
                 # print(x_target)
                 # print(x_pos_true)
                 if (x_target > x_pos_true):
-                    x_dir = lin_direction_param
+                    x_dir = x_direction_param
                     steps = round(move2_microsteps*abs(x_target-x_pos_true)*lin_motor_steps/lin_Pitch)
                     move_string = 'm;x;'+ str(steps)+';'+str(x_dir)+';'+str(lin_init_speed_param)+';'+str(lin_max_speed_param)+';'+str(lin_accel_param)
                 else:
-                    x_dir = -lin_direction_param
+                    x_dir = -x_direction_param
                     steps = round(move2_microsteps*abs(x_target-x_pos_true)*lin_motor_steps/lin_Pitch)
                     move_string = 'm;x;'+ str(steps)+';'+str(x_dir)+';'+str(lin_init_speed_param)+';'+str(lin_max_speed_param)+';'+str(lin_accel_param)
         if stage == 'z':
             if (z_target > z_pos_true):
-                z_dir = lin_direction_param
+                z_dir = z_direction_param
                 steps = round(move2_microsteps*abs(z_target-z_pos_true)*lin_motor_steps/lin_Pitch)
                 move_string = 'm;z;'+ str(steps)+';'+str(z_dir)+';'+str(lin_init_speed_param)+';'+str(lin_max_speed_param)+';'+str(lin_accel_param)
             else:
-                z_dir = -lin_direction_param
+                z_dir = -z_direction_param
                 steps = round(move2_microsteps*abs(z_target-z_pos_true)*lin_motor_steps/lin_Pitch)
                 move_string = 'm;z;'+ str(steps)+';'+str(z_dir)+';'+str(lin_init_speed_param)+';'+str(lin_max_speed_param)+';'+str(lin_accel_param)
         if stage == 'y':
@@ -1099,20 +1146,20 @@ def move(stage, move, zero = False, to_datum = False):
             # print(y_target)
             # print(y_pos_true)
             if (y_target > y_pos_true):
-                y_dir = rot_direction_param
+                y_dir = y_direction_param
                 steps = round(move2_microsteps*abs(y_target-y_pos_true)*rot_motor_steps*rot_gear_ratio/360)
                 move_string = 'm;y;'+ str(steps)+';'+str(y_dir)+';'+str(rot_init_speed_param)+';'+str(rot_max_speed_param)+';'+str(rot_accel_param)
             else:
-                y_dir = -rot_direction_param
+                y_dir = -y_direction_param
                 steps = round(move2_microsteps*abs(y_target-y_pos_true)*rot_motor_steps*rot_gear_ratio/360)
                 move_string = 'm;y;'+ str(steps)+';'+str(y_dir)+';'+str(rot_init_speed_param)+';'+str(rot_max_speed_param)+';'+str(rot_accel_param)
         if stage == 'p':
             if (p_target > p_pos_true):
-                p_dir = rot_direction_param
+                p_dir = p_direction_param
                 steps = round(move2_microsteps*abs(p_target-p_pos_true)*rot_motor_steps*rot_gear_ratio/360)
                 move_string = 'm;p;'+ str(steps)+';'+str(p_dir)+';'+str(rot_init_speed_param)+';'+str(rot_max_speed_param)+';'+str(rot_accel_param)
             else:
-                p_dir = -rot_direction_param
+                p_dir = -p_direction_param
                 steps = round(move2_microsteps*abs(p_target-p_pos_true)*rot_motor_steps*rot_gear_ratio/360)
                 move_string = 'm;p;'+ str(steps)+';'+str(p_dir)+';'+str(rot_init_speed_param)+';'+str(rot_max_speed_param)+';'+str(rot_accel_param)
     else:
@@ -1136,16 +1183,22 @@ def clearBit(int_type, offset):
     mask = ~(1 << offset)
     return(int_type & mask)
 
+# def move_pitch():
+#     messagebox.showinfo("Control","move pitch")
+
+def move_instrument():
+    messagebox.showinfo("Control","move Instrument")
+
 def update_status(status):
     global x_pos, z_pos, y_pos, p_pos, prev_x_pos, prev_z_pos, prev_y_pos, prev_p_pos
     global x_lim, z_lim, y_lim, p_lim, x_speed, z_speed, y_speed, p_speed
     global X_STOPPED
     global lin_Pitch, lin_enc_CPR, rot_gear_ratio, rot_enc_CPR
-    global lin_direction_param, rot_direction_param
-    x_pos = lin_direction_param*float(status[0])*lin_Pitch/lin_enc_CPR  # convert to deg
-    z_pos = lin_direction_param*float(status[1])*lin_Pitch/lin_enc_CPR
-    y_pos = rot_direction_param*float(status[2])*360/(rot_enc_CPR*rot_gear_ratio)
-    p_pos = rot_direction_param*float(status[3])*360/(rot_enc_CPR*rot_gear_ratio)
+    global x_direction_param, z_direction_param, y_direction_param, p_direction_param
+    x_pos = x_direction_param*float(status[0])*lin_Pitch/lin_enc_CPR  # convert to deg
+    z_pos = z_direction_param*float(status[1])*lin_Pitch/lin_enc_CPR
+    y_pos = y_direction_param*float(status[2])*360/(rot_enc_CPR*rot_gear_ratio)
+    p_pos = p_direction_param*float(status[3])*360/(rot_enc_CPR*rot_gear_ratio)
     if abs(x_pos-prev_x_pos) <= 0.02:
         X_STOPPED = True
     else:
@@ -1217,7 +1270,7 @@ def log_print(to_print):
 window = Tk()
 window.title("MUVI User Interface")
 window.configure(background='white')
-window.geometry("1500x1000")
+window.geometry("1250x950")
 
 # Top Row
 cal_poly_logo = PhotoImage(file = "cal_poly_me_logo.gif")
@@ -1230,7 +1283,7 @@ Label (window, image=ucb_logo, bg="white") .grid(row=0, column = 5, sticky = 'E'
 
 # Status Row
 status_frame = LabelFrame(window, text="Status Panel", bg='white')
-status_frame.grid(row=3, column=0, rowspan=5, columnspan=50, sticky='WE', ipadx=5, ipady=5)
+status_frame.grid(row=3, column=0, rowspan=1, columnspan=50, sticky='WE', ipadx=5, ipady=5)
 
 x_status_frame = status_box(status_frame, 4, 0, "mm", "X Translation")
 z_status_frame = status_box(status_frame, 4, 3, "mm", "Z Translation")
@@ -1256,9 +1309,9 @@ p_status_frame.update_mark()
 
 # Control Row
 control_frame = LabelFrame(window, text="Control Panel", bg='white')
-control_frame.grid(row=8, column=0, rowspan=5, columnspan=50, sticky='WE', ipadx=5, ipady=5)
+control_frame.grid(row=8, column=0, rowspan=1, columnspan=50, sticky='WE', ipadx=5, ipady=5)
 
-Button(control_frame, text ="STOP", command = stop_manipulator, bg="red3", height=2, width=20).grid(row=1,column=0, sticky='W')
+Button(control_frame, text ="STOP", command = stop_manipulator, bg="red3", height=2, width=20).grid(row=1,column=0, sticky='W', padx=10, pady=5)
 
 cmd_label = Label(control_frame, text="Send Command:", bg='white').grid(row=1,column=3, sticky=E)
 cmd = Entry(control_frame, width = 25, bg="white", justify='right')
@@ -1266,17 +1319,17 @@ cmd.grid(row=1, column=4, columnspan = 4, sticky=W)
 cmd.insert(0,'m;p;1000;1;50;6000;50')
 # cmd.insert(0,'d;p')
 
-Button(control_frame, text ="Send", command = send_cmd, height=2, width=20).grid(row=1,column=9, sticky='W')
+Button(control_frame, text ="Send", command = send_cmd, height=2, width=20).grid(row=1,column=9, sticky='W', padx=10, pady=5)
 
-Button(control_frame, text ="Reset", command = reset, height=2, width=10).grid(row=1,column=10, sticky='W')
+Button(control_frame, text ="Reset\nSystem", command = reset, height=2, width=10).grid(row=1,column=13, columnspan = 1, sticky='W')
 
-Button(control_frame, text= "Move Stages", height=2, width=20, command=move_stages).grid(row=9, column=0, sticky=W)
+Button(control_frame, text= "Move Stages", height=2, width=20, command=move_stages).grid(row=9, column=0, sticky=W, padx=10, pady=5)
 
-Button(control_frame, text= "Enable All", height=2, width=20, command=enable_all).grid(row=9, column=3, sticky=W)
+Button(control_frame, text= "Enable All", height=2, width=20, command=enable_all).grid(row=9, column=3, sticky=W, padx=10, pady=5)
 
-Button(control_frame, text= "Zero All", height=2, width=20, command=zero_all).grid(row=9, column=6, sticky=W)
+Button(control_frame, text= "Zero All", height=2, width=20, command=zero_all).grid(row=9, column=6, sticky=W, padx=10, pady=5)
 
-Button(control_frame, text= "Set Motion Parameters", height=2, width=20, command=set_motion_params).grid(row=9, column=9, sticky=W)
+Button(control_frame, text= "Load Motion Parameters", height=2, width=20, command=set_motion_params).grid(row=9, column=9, sticky=W, padx=10, pady=5)
 
 x_control_frame = control_box(control_frame, 10, 0, "mm", "X Translation", x_status_frame, 'x')
 z_control_frame = control_box(control_frame, 10, 3, "mm", "Z Translation", z_status_frame, 'z')
@@ -1288,25 +1341,44 @@ z_control_frame.update_target('0.0000')
 y_control_frame.update_target('0.0000')
 p_control_frame.update_target('0.0000')
 
+x_control_frame.set_jogsize('0.0000')
+z_control_frame.set_jogsize('0.0000')
+y_control_frame.set_jogsize('0.0000')
+p_control_frame.set_jogsize('0.0000')
+
 # Run Test Row
 test_frame = LabelFrame(window, text="Run Test", bg='white')
-test_frame.grid(row=25, column=0, columnspan=50, sticky='WE', ipadx=5, ipady=5)
+test_frame.grid(row=9, column=0, columnspan=50, sticky='WE', ipadx=5, ipady=5)
 
-Button(test_frame, text= "Instrument Parameters", width=20, command=ins_params).grid(row=26, column=1, sticky=W)
+Button(test_frame, text= "Instrument Parameters", height=2, width=20, command=ins_params).grid(row=26, column=1, columnspan = 3, sticky=W, padx=5, pady=3)
 
-config_label = Label(test_frame, text="Config File:", bg='white').grid(row=26,column=2, sticky=E)
-config = Entry(test_frame, width = 60, bg="white", justify='right')
-config.grid(row=26, column=3, columnspan = 3, sticky=W)
+config_label = Label(test_frame, text="Config File:", bg='white').grid(row=26,column=7, sticky=E, padx=10, pady=5)
+config = Entry(test_frame, width = 50, bg="white", justify='right')
+config.grid(row=26, column=8, columnspan = 3, sticky=W)
 
-Button(test_frame, text= "Browse File", width=12, command=browse_button).grid(row=26, column=6, sticky=E)
+Button(test_frame, text= "Load Config File", height=2, width=20, command=browse_button).grid(row=26, column=4, columnspan = 3, sticky=W, padx=5, pady=3)
 
-Button(test_frame, text= "FOV Sweep", width=20, command=FOV_sweep).grid(row=27, column=1, sticky=W)
+Button(test_frame, text= "FOV Sweep", height=2, width=20, command=FOV_sweep).grid(row=27, column=1, columnspan = 3, sticky=W, padx=5, pady=3)
 
-Button(test_frame, text= "Boresight", width=20, command=boresight).grid(row=27, column=3, sticky=W)
+Button(test_frame, text= "Boresight", height=2, width=20, command=boresight).grid(row=27, column=4, columnspan = 3, sticky=W, padx=5, pady=3)
 
-Button(test_frame, text= "Stray Light Sweep", width=20, command=SL_sweep).grid(row=27, column=5, sticky=W)
+Button(test_frame, text= "Stray Light Sweep", height=2, width=20, command=SL_sweep).grid(row=27, column=7, columnspan = 3, sticky=W, padx=5, pady=3)
 
-Label(window, text="Created by: Jason Grillo \n Cal Poly Mechanical Engineering \n In Collaboration with UCB Space Sciences Laboratories \n \u00A9 2019, All Rights Reserved", bg='white',font=(None, 10)).grid(row=28,column=3)
+pitch_label = Label(test_frame, text="Pitch (\u03B8):", bg='white').grid(row=28,column=1, sticky=W, padx=5, pady=(10,3))
+pitch = Entry(test_frame, width = 14, bg="white", justify='right')
+pitch.grid(row=28, column=2, columnspan = 1, sticky=W, pady=(10,3))
+pitch_units = Label(test_frame, text="deg", bg='white').grid(row=28,column=3, sticky=W, pady=(10,3))
+
+# Button(test_frame, text= "Move Pitch", width=20, command=move_pitch).grid(row=29, column=1, columnspan = 3, sticky=W, padx=5, pady=3)
+
+yaw_label = Label(test_frame, text="Yaw (\u03C8):", bg='white').grid(row=28,column=4, sticky=W, padx=5, pady=(10,3))
+yaw = Entry(test_frame, width = 14, bg="white", justify='right')
+yaw.grid(row=28, column=5, columnspan = 1, sticky=W, pady=(10,3))
+yaw_units = Label(test_frame, text="deg", bg='white').grid(row=28,column=6, sticky=W, pady=(10,3))
+
+Button(test_frame, text= "Move Instrument", width=20, command=move_instrument).grid(row=29, column=1, columnspan = 3, sticky=W, padx=5, pady=3)
+
+Label(window, text="Created by: Jason Grillo \n Cal Poly Mechanical Engineering \n In Collaboration with UCB Space Sciences Laboratories \n \u00A9 2019, All Rights Reserved", bg='white',font=(None, 10)).grid(row=10,column=3)
 
 
 # -----------------------------------------------------------------------------#
@@ -1317,8 +1389,13 @@ Label(window, text="Created by: Jason Grillo \n Cal Poly Mechanical Engineering 
 
 # Credit to: https://robotic-controls.com/learn/python-guis/tkinter-serial
 
-log = Text (window, width=80, height=30, takefocus=0, bg='white')
-log.grid(row=0,rowspan=10, column = 60, sticky = E)
+log_label = Label(window, text="Manipulator Feedback Received", bg='white').grid(row=0,column=61, sticky=SW)
+log = Text (window, width=50, height=30, takefocus=0, bg='white')
+log.grid(row=1,rowspan=10, column = 60, columnspan = 3, sticky = NE)
+
+gui_printer_label = Label(window, text="GUI Commands Sent", bg='white').grid(row=8,column=61, sticky=SW)
+gui_printer = Text (window, width=50, height=10, takefocus=0, bg='white')
+gui_printer.grid(row=9,rowspan=20, column = 60, columnspan = 3, sticky = NE)
 
 # serialPort = "COM6"
 serialPort = "COM7"

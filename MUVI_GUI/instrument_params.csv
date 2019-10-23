@@ -1,0 +1,2 @@
+x_datum_offset,z_datum_offset,y_datum_offset,p_datum_offset,lin_travel_range,rot_travel_range,iris_offset,mirror_offset,iris_shim_x,iris_shim_z
+50,50,30,30,100,60,,,,

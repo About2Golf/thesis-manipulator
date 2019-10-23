@@ -1,0 +1,2 @@
+x_direction,z_direction,y_direction,p_direction,lin_init_speed,lin_max_speed,lin_accel,rot_init_speed,rot_max_speed,rot_accel,lin_motor_spr,lin_pitch,lin_enc_CPR,rot_motor_spr,rot_gear_ratio,rot_enc_CPR,move1_uS,move2_uS,lin_overshoot,rot_overshoot
+1,1,1,1,50,1500,50,50,1500,50,200,1.5875,4000,200,72,4000,2,256,5,1
