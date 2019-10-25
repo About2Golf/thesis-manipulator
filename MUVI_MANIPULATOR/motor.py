@@ -1,7 +1,7 @@
 """
 Created on Thu Jan 11 21:19:40 2018
 
-@author: mecha10, JGrillo
+@author: JGrillo
 """
 import pyb
 import micropython
