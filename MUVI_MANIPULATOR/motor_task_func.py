@@ -31,7 +31,7 @@ class Motor_Task:
         self.Motor = motor.TMC2160Driver(step_pin, dir_pin, enable_pin, dco_pin, step_timer, step_channel, accel_timer, accel_ch, name)
         self.ENABLED = 0
         self.DONE = 1
-        # self.step_counter = 0
+        self.limit_counter = 0
         self.name = name
 
     def mot_fun(self):
@@ -61,18 +61,20 @@ class Motor_Task:
                     self.Motor.set_accel_rate(int(self.params.get()))
                     self.Motor.move_to(int(self.params.get()))
                     self.DONE = 0
+                    self.limit_counter = 0
                     self.state = STATE_2
                 self.status.put(self.DONE)
 
             ## STATE 2: MOVING
             elif self.state == STATE_2:
                 self.check_disable()
+                self.limit_counter += 1
                 # print('mot')
                 # print(self.Motor.is_done())
                 # print(self.limit.get())
                 # print(self.ENABLED)
-                # if abs(self.limit.get()) or not self.ENABLED:
-                if not self.ENABLED:
+                if (self.limit_counter > 200 and abs(self.limit.get())) or not self.ENABLED:
+                # if not self.ENABLED:
                     # print('stopping by force')
                     self.Motor.stop()
                     # print('stopped motor')

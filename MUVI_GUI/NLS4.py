@@ -10,16 +10,16 @@ class NewmarkLinearStage:
         self.MC_Period = 25     # ms
         self.pos_dir = 1        # unitless
         self.init_speed = 50    # Hz
-        self.max_speed = 1500   # Hz
+        self.max_speed = 1000   # Hz
         self.accel = 50         # Hz
         self.mot_SPR = 200      # mot_deg/fullstep_deg
         self.pitch = 1.5875     # mm/rev
         self.enc_CPR = 4000     # counts/rev
         self.overshoot = 5      # steps
         self.move1_uS = 2       # microsteps/fullstep
-        self.move2_uS = 256     # microsteps/fullstep
-        self.datum = 50         # mm
-        # self.range = 100        # mm
+        self.move2_uS = 64      # microsteps/fullstep
+        self.datum = 25         # mm
+        self.travel = 100       # mm
 
         self.enc_pos = 0        # mm
         self.enc_prev_pos = 0   # mm
@@ -28,6 +28,7 @@ class NewmarkLinearStage:
         # self.true_position = 0  # mm
         self.lim = 0            # unitless
         self.direction = 1      # unitless
+        self.enable_time = 0    # s
 
         self.ENABLED = False
         self.MOVING = False
@@ -61,8 +62,13 @@ class NewmarkLinearStage:
         self.step_pos = 0
         self.enc_speed = 0
         self.lim = 0
+        self.ENABLED = False
+        self.MOVING = False
+        self.MICROSTEP_SET = False # True means move 2 microstep is set, False means move 1 microstep is set
+        self.ZEROED = False
 
-    # def set_datum_to_position(self, value):
+    def set_enable_time(self, value):
+        self.enable_time = value
 
     def set_microstep(self, value):
         self.MICROSTEP_SET = value
@@ -136,11 +142,20 @@ class NewmarkLinearStage:
     def get_limit(self):
         return self.lim*self.pos_dir
 
+    def get_move1_uS(self):
+        return self.move1_uS
+
+    def get_move2_uS(self):
+        return self.move2_uS
+
     def get_microstep(self):
         return self.MICROSTEP_SET
 
     def get_direction(self):
         return self.direction
+
+    def get_enable_time(self):
+        return self.enable_time
 
     def get_name(self):
         return self.name

@@ -155,23 +155,23 @@ if __name__ == "__main__":
 
     # Feedback Tasks
     task2 = cotask.Task (x_feedback.fb_fun, name = 'Task_2', priority = 5,
-                            period = 10, profile = True, trace = False)
+                            period = 8, profile = True, trace = False)
     task3 = cotask.Task (z_feedback.fb_fun, name = 'Task_3', priority = 5,
-                            period = 10, profile = True, trace = False)
+                            period = 8, profile = True, trace = False)
     task4 = cotask.Task (y_feedback.fb_fun, name = 'Task_4', priority = 5,
-                            period = 10, profile = True, trace = False)
+                            period = 8, profile = True, trace = False)
     task5 = cotask.Task (p_feedback.fb_fun, name = 'Task_5', priority = 5,
-                            period = 10, profile = True, trace = False)
+                            period = 8, profile = True, trace = False)
 
     # Motor Tasks
     task6 = cotask.Task (x_motor.mot_fun, name = 'Task_6', priority = 3,
-                            period = 15, profile = True, trace = False)
+                            period = 16, profile = True, trace = False)
     task7 = cotask.Task (z_motor.mot_fun, name = 'Task_7', priority = 3,
-                            period = 15, profile = True, trace = False)
+                            period = 16, profile = True, trace = False)
     task8 = cotask.Task (y_motor.mot_fun, name = 'Task_8', priority = 3,
-                            period = 15, profile = True, trace = False)
+                            period = 16, profile = True, trace = False)
     task9 = cotask.Task (p_motor.mot_fun, name = 'Task_9', priority = 3,
-                            period = 15, profile = True, trace = False)
+                            period = 16, profile = True, trace = False)
 
     # task10 = cotask.Task (print_object.run, name = 'Printing', priority = 0,
     #                         profile = True)

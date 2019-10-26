@@ -436,16 +436,16 @@ class Hub_Task:
         elif action == "t":
             if axis == "x":
                 self.set_TMC_microstep(int(command[2]), self.x_csn_pin)
-                print('t;x'+command[2])
+                print('t;x'+';'+command[2])
             elif axis == "z":
                 self.set_TMC_microstep(int(command[2]), self.z_csn_pin)
-                print('t;z'+command[2])
+                print('t;z'+';'+command[2])
             elif axis == "y":
                 self.set_TMC_microstep(int(command[2]), self.y_csn_pin)
-                print('t;y'+command[2])
+                print('t;y'+';'+command[2])
             elif axis == "p":
                 self.set_TMC_microstep(int(command[2]), self.p_csn_pin)
-                print('t;p'+command[2])
+                print('t;p'+';'+command[2])
 
         # RESET
         elif action == "r":
