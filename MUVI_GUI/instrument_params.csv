@@ -1,2 +1,5 @@
-x_datum_offset,z_datum_offset,y_datum_offset,p_datum_offset,x_travel_range,z_travel_range,y_travel_range,p_travel_range,iris_offset,mirror_offset,iris_shim_x,iris_shim_z
-50,50,30,30,100,100,60,60,,,,
+x_datum_offset,z_datum_offset,y_datum_offset,p_datum_offset,x_travel,z_travel,y_travel,p_travel,iris_diameter,FOV,r_bot1,r_bot2,r_bot3,r_top4,r_top5,r_top6,beam1,beam2
+25,25,50,50,100,100,60,60,5.8,30,0,0,0,0,0,0,0,0
+,,,,,,,,,,-12.7,0,12.7,-25.4,0,25.4,0,0
+,,,,,,,,,,20.882,11.901,20.882,23.324,5.364,23.324,80,18.57
+,,,,,,,,,,2.312,-6.669,2.312,37.204,19.244,37.204,32.45,32.45

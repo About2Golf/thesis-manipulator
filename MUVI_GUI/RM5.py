@@ -21,6 +21,7 @@ class NewmarkRotaryStage:
         self.datum = 50         # mm
         self.travel = 100       # mm
 
+        self.encoder_restore = 0
         self.enc_pos = 0        # mm
         self.enc_prev_pos = 0   # mm
         self.enc_speed = 0      # mm/s
@@ -57,6 +58,7 @@ class NewmarkRotaryStage:
         self.datum += self.get_true_position()
 
     def reset(self):
+        self.encoder_restore = 0
         self.enc_pos = 0
         self.enc_prev_pos = 0
         self.step_pos = 0
@@ -85,26 +87,26 @@ class NewmarkRotaryStage:
     def set_feedback(self, encoder, limit):
         self.lim = float(limit)
         if self.ZEROED:
-            self.direction*float(encoder)*360/(self.enc_CPR*self.gear_ratio)
-            self.enc_pos = self.pos_dir*float(encoder)*360/(self.enc_CPR*self.gear_ratio) - self.datum
+            self.enc_pos = self.pos_dir*float(encoder)*360/(self.enc_CPR*self.gear_ratio) - self.datum + self.encoder_restore
         else:
-            self.enc_pos = self.pos_dir*float(encoder)*360/(self.enc_CPR*self.gear_ratio)
+            self.enc_pos = self.pos_dir*float(encoder)*360/(self.enc_CPR*self.gear_ratio) + self.encoder_restore
         self.enc_speed = 1000*(self.enc_pos - self.enc_prev_pos)/self.MC_Period
         self.enc_prev_pos = self.enc_pos
 
     # def set_motion_params(self, MC_Period, dir, init_speed, max_speed, accel, mot_SPR, pitch, enc_CPR, overshoot, move1_uS, move2_uS):
     def set_motion_params(self, param_list):
-        self.pos_dir = param_list[0]
-        self.init_speed = param_list[1]
-        self.max_speed = param_list[2]
-        self.accel = param_list[3]
-        self.mot_SPR = param_list[4]
-        self.gear_ratio = param_list[5]
-        self.enc_CPR = param_list[6]
-        self.overshoot = param_list[7]
-        self.move1_uS = param_list[8]
-        self.move2_uS = param_list[9]
-        self.MC_Period = param_list[10]
+        self.pos_dir = float(param_list[0])
+        self.init_speed = float(param_list[1])
+        self.max_speed = float(param_list[2])
+        self.accel = float(param_list[3])
+        self.mot_SPR = float(param_list[4])
+        self.gear_ratio = float(param_list[5])
+        self.enc_CPR = float(param_list[6])
+        self.overshoot = float(param_list[7])
+        self.move1_uS = float(param_list[8])
+        self.move2_uS = float(param_list[9])
+        self.encoder_restore = float(param_list[10])
+        self.MC_Period = float(param_list[11])
         # self.range = range
 
     def set_instrument_params(self, param_list):
@@ -113,9 +115,9 @@ class NewmarkRotaryStage:
 
     def set_step_pos(self, steps, move):
         if move == 1:
-            self.step_pos += self.pos_dir*self.direction*float(steps)*360/(self.move1_uS*self.gear_ratio*self.mot_SPR)
+            self.step_pos += self.pos_dir*self.direction*float(steps)*360/(self.move1_uS*self.gear_ratio*self.mot_SPR) + self.encoder_restore
         elif move == 2:
-            self.step_pos += self.pos_dir*self.direction*float(steps)*360/(self.move2_uS*self.gear_ratio*self.mot_SPR)
+            self.step_pos += self.pos_dir*self.direction*float(steps)*360/(self.move2_uS*self.gear_ratio*self.mot_SPR) + self.encoder_restore
 
     def cal_step_pos(self, type = 0):
         if type == 0:
@@ -154,6 +156,9 @@ class NewmarkRotaryStage:
 
     def get_direction(self):
         return self.direction
+
+    def get_datum(self):
+        return self.datum
 
     def get_enable_time(self):
         return self.enable_time
