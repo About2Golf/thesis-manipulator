@@ -1,0 +1,28 @@
+|||Timestamp (ms)||	Feedback|||
+103 0.0;2559.0;0.0;-3.0;0;0;0;0
+1112 Resetting the RTOS
+2756 X Encoder Successfully Initialized
+2757 X Limit Switch Successfully Initialized
+2758 Z Encoder Successfully Initialized
+2769 Z Limit Switch Successfully Initialized
+2770 Y Encoder Successfully Initialized
+2780 Y Limit Switch Successfully Initialized
+2781 P Encoder Successfully Initialized
+2782 P Limit Switch Successfully Initialized
+2793 X Stepper Successfully Initialized
+2793 Z Stepper Successfully Initialized
+2804 Y Stepper Successfully Initialized
+2815 P Stepper Successfully Initialized
+2826 Running the MUVI Manipulator RTOS
+3027 0.0;3.0;0.0;0.0;0;0;0;0
+87210 e;x
+88655 0.0;3.0;0.0;0.0;0;0;0;0
+100021 Traceback (most recent call last):
+|100022   File "main.py", line 284, in <module>|
+|100023   File "cotask.py", line 130, in schedule|
+|100034   File "hub_task_func.py", line 127, in hub_fun|
+|100035   File "hub_task_func.py", line 316, in read_GUI|
+|100036   File "hub_task_func.py", line 438, in GUI_Lookup_Table|
+100047 ValueError: invalid syntax for integer with base 10
+101555 MicroPython v1.9.4 on 2018-10-28; NUCLEO-L476RG with STM32L476RG
+101556 Type "help()" for more information.

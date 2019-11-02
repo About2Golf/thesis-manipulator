@@ -24,14 +24,14 @@ class MUVI_manipulator:
         self.FOV = 30*m.pi/180  # rad
         self.l_focus = self.iris_D/(2*m.tan(self.FOV/2))   # mm
         # Define Mirror and Laser Quaternions
-        self.r_bot1 = [0, -12.7, 20.882, 2.312]
-        self.r_bot2 = [0, 0, 11.901, -6.669]
-        self.r_bot3 = [0, 12.7, 20.882, 2.312]
-        self.r_top4 = [0, -25.4, 23.324, 37.204]
-        self.r_top5 = [0, 0, 5.364, 19.244]
-        self.r_top6 = [0, 25.4, 23.324, 37.204]
-        self.beam1 = [0, 0, 80, 32.45]
-        self.beam2 = [0, 0, 18.57, 32.45]
+        self.r_bot1 = [0, -12.7191, 21.6663, 3.6961]
+        self.r_bot2 = [0, -0.4506, 12.2728, -5.8707]
+        self.r_bot3 = [0, 12.2255, 21.2872, 3.0825]
+        self.r_top4 = [0, -25.4325, 23.8267, 37.9334]
+        self.r_top5 = [0, -0.2472, 5.8059, 19.9078]
+        self.r_top6 = [0, 25.1571, 23.8419, 37.9761]
+        self.beam1 = [0, 0, 54.7426, 32.0261]
+        self.beam2 = [0, 0, 17.9768, 32.0261]
         # Initialize Rotation Variables
         self.r_bot1_prime = [0, 0, 0, 0]
         self.r_bot2_prime = [0, 0, 0, 0]
@@ -67,14 +67,20 @@ class MUVI_manipulator:
     # def set_instrument_quaternions(self, quaternions):
 
     def get_point_targets(self, theta_targ, psi_targ):
-        if psi_targ > 0:
-            x_mm = self.calc_rotation('YAW',psi_targ)
+        if psi_targ == 0:
+            x_mm = 0
         else:
-            x_mm = -self.calc_rotation('YAW',psi_targ)
-        if theta_targ > 0:
-            z_mm = self.calc_rotation('PITCH',theta_targ)
+            if psi_targ > 0:
+                x_mm = self.calc_rotation('YAW',psi_targ)
+            else:
+                x_mm = -self.calc_rotation('YAW',psi_targ)
+        if theta_targ == 0:
+            z_mm = 0
         else:
-            z_mm = -self.calc_rotation('PITCH',theta_targ)
+            if theta_targ > 0:
+                z_mm = self.calc_rotation('PITCH',theta_targ)
+            else:
+                z_mm = -self.calc_rotation('PITCH',theta_targ)
         y_deg = psi_targ
         p_deg = theta_targ
         return round(x_mm,4), round(z_mm,4), round(y_deg,4), round(p_deg,4)
@@ -105,6 +111,7 @@ class MUVI_manipulator:
         self.top_mirror_norm = self.normalize(self.top_mirror_norm)
         self.top_ints_pt, self.beam_top_refl = self.calc_beam_refl('top')
         self.bot_ints_pt, self.beam_bot_refl = self.calc_beam_refl('bot')
+        print(self.top_ints_pt,self.bot_ints_pt)
         if rotation == 'PITCH':
             trans_comp = abs(self.bot_ints_pt[2]) + abs(self.l_focus*m.sin(rad))
         else:
@@ -164,4 +171,4 @@ class MUVI_manipulator:
 
 # # For Testing Purposes:
 # MUVI = MUVI_manipulator(1,1,1,1)
-# print(MUVI.get_point_targets(15,-15))
+# print(MUVI.get_point_targets(15,0))

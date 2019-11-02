@@ -190,14 +190,14 @@ class control_box():
 
     def jog_m(self):
         try:
-            self.TARGET -= float(self.jog_size.get())
+            self.TARGET = float(self.get_target()) - float(self.jog_size.get())
         except:
             gui_print('Must enter number to target')
         self.update_target(round(self.TARGET,4))
 
     def jog_p(self):
         try:
-            self.TARGET += float(self.jog_size.get())
+            self.TARGET =  float(self.get_target()) + float(self.jog_size.get())
         except:
             gui_print('Must enter number to target')
         self.update_target(round(self.TARGET,4))
@@ -210,6 +210,7 @@ class control_box():
         self.target.delete(0, END)
         self.target.insert(0, '0')
         self.stage.new_datum()
+        self.stage.set_encoder_restore(0)
 
     def update_target(self, new_target):
         self.target.delete(0, END)
@@ -257,6 +258,7 @@ def set_motion_params():
         stage.set_motion_params(param_list)
         start += 1
         param = start
+    clear_limits()
     gui_print('Motion Parameters Loaded.')
 
 def set_instr_params():
@@ -275,10 +277,11 @@ def set_instr_params():
         for index in range(2):
             param_list.append(instrument_params.get_col_row(param,2))
             param += 4
+        # print(param_list)
         stage.set_instrument_params(param_list)
         start += 1
         param = start
-    stage.set_instrument_params(param_list)
+    # stage.set_instrument_params(param_list)
     param_list = [instrument_params.get_col_row(9,2), instrument_params.get_col_row(10,2)]
     param = 11
     for index in range(8):
@@ -289,6 +292,13 @@ def set_instr_params():
         param += 1
     MUVI.set_instrument_params(param_list)
     gui_print('Instrument Parameters Loaded.')
+
+def set_microstep():
+    global x_stage, z_stage, y_stage, p_stage
+    x_stage.set_microstep(True)
+    z_stage.set_microstep(True)
+    y_stage.set_microstep(True)
+    p_stage.set_microstep(True)
 
 def move_stages():
     global MOTOR_MASK, GUI_STATE, EXECUTING, MOVE_NUM
@@ -318,6 +328,7 @@ def move_stages():
         MOVE_NUM = 1
         GUI_STATE = 3
         EXECUTING = True
+        set_microstep()
         gui_print('Moving Stages: '+ 'x '+ str(x_target) + '; z '+ str(z_target) +'; \u03B8 ' + str(p_target)+ '; \u03C8 ' + str(y_target))
     else:
         return
@@ -346,6 +357,7 @@ def move_instrument():
         MOVE_NUM = 1
         GUI_STATE = 3
         EXECUTING = True
+        set_microstep()
         x_control_frame.update_target(str(x_target))
         z_control_frame.update_target(str(z_target))
         y_control_frame.update_target(str(y_target))
@@ -368,23 +380,28 @@ def zero_all():
     if not EXECUTING:
         if x_control_frame.get_enable():
             MOTOR_MASK = setBit(MOTOR_MASK,3)
+            x_stage.set_encoder_restore(0)
         else:
             MOTOR_MASK = clearBit(MOTOR_MASK,3)
         if z_control_frame.get_enable():
             MOTOR_MASK = setBit(MOTOR_MASK,2)
+            z_stage.set_encoder_restore(0)
         else:
             MOTOR_MASK = clearBit(MOTOR_MASK,2)
         if y_control_frame.get_enable():
             MOTOR_MASK = setBit(MOTOR_MASK,1)
+            y_stage.set_encoder_restore(0)
         else:
             MOTOR_MASK = clearBit(MOTOR_MASK,1)
         if p_control_frame.get_enable():
             MOTOR_MASK = setBit(MOTOR_MASK,0)
+            p_stage.set_encoder_restore(0)
         else:
             MOTOR_MASK = clearBit(MOTOR_MASK,0)
         GUI_STATE = 4
         EXECUTING = True
         ZERO_SEQ = 1
+        set_microstep()
         gui_print('Zeroing Stages')
     else:
         return
@@ -405,8 +422,18 @@ def send_cmd():
     write_string_to_ser(cmd.get())
     gui_print('Command sent.')
 
+def clear_limits():
+    x_status_frame.limit_off('p')
+    x_status_frame.limit_off('m')
+    z_status_frame.limit_off('p')
+    z_status_frame.limit_off('m')
+    y_status_frame.limit_off('p')
+    y_status_frame.limit_off('m')
+    p_status_frame.limit_off('p')
+    p_status_frame.limit_off('m')
+
 def reset_params():
-    global x_stage, z_stage, y_stage, p_stage
+    # global x_stage, z_stage, y_stage, p_stage
     global x_target, z_target, y_target, p_target
     global GUI_STATE, prev_GUI_STATE, MOTOR_MASK, ACK, EXECUTING, MOVE_NUM, ZERO_SEQ
     x_target = 0.0
@@ -429,6 +456,7 @@ def reset():
     z_control_frame.toggle_enable(force = 0, disable = 1, send_cmd = False)
     y_control_frame.toggle_enable(force = 0, disable = 1, send_cmd = False)
     p_control_frame.toggle_enable(force = 0, disable = 1, send_cmd = False)
+    clear_limits()
     reset_params()
     x_control_frame.update_target('0.0000')
     z_control_frame.update_target('0.0000')
@@ -544,8 +572,10 @@ def read_data():
                     p_stage.set_zeroed(True)
             return None
 
+CMD_send = 0
+
 def GUI_state_machine():
-    global GUI_STATE, prev_GUI_STATE, MOTOR_MASK, ACK, EXECUTING, MOVE_NUM, ZERO_SEQ, enable_time
+    global GUI_STATE, prev_GUI_STATE, MOTOR_MASK, ACK, EXECUTING, MOVE_NUM, ZERO_SEQ, enable_time, CMD_send
     global x_stage, z_stage, y_stage, p_stage
     global x_target, z_target, y_target, p_target
     global x_datum_offset, z_datum_offset, y_datum_offset, p_datum_offset
@@ -568,16 +598,13 @@ def GUI_state_machine():
     elif GUI_STATE == 1:
         if ACK == 'e':
             GUI_STATE = prev_GUI_STATE
-            # prev_GUI_STATE = 1
             ACK = None
         elif ACK == 's':
             MOVE_NUM += 1
-            # SET_MICROSTEP = True
             GUI_STATE = prev_GUI_STATE
             ACK = None
         elif ACK == 't':
             GUI_STATE = prev_GUI_STATE
-            # SET_MICROSTEP = False
             ACK = None
         elif ACK == 'd':
             GUI_STATE = prev_GUI_STATE
@@ -585,10 +612,10 @@ def GUI_state_machine():
         elif ACK == 'z':
             GUI_STATE = prev_GUI_STATE
             ACK = None
-        elif (time.time()-ACK_start) > 10 and not (x_stage.get_status()[1] or z_stage.get_status()[1] or y_stage.get_status()[1] or p_stage.get_status()[1]):
-            # if there hasnt been an acknowledge in 5 seconds, send the cmd again, unless there's a stage moving..
-            gui_print('acknowledge timeout')
-            GUI_STATE = prev_GUI_STATE
+        # elif (time.time()-ACK_start) > 10 and not (x_stage.get_status()[1] or z_stage.get_status()[1] or y_stage.get_status()[1] or p_stage.get_status()[1]):
+            # # if there hasnt been an acknowledge in 5 seconds, send the cmd again, unless there's a stage moving..
+            # gui_print('acknowledge timeout')
+            # GUI_STATE = prev_GUI_STATE
 
     # SENDING ENABLE
     elif GUI_STATE == 2:
@@ -596,22 +623,26 @@ def GUI_state_machine():
             x_control_frame.toggle_enable(disable=0)
             MOTOR_MASK = clearBit(MOTOR_MASK,3)
             # prev_GUI_STATE = 2
-            GUI_STATE = 1
+            GUI_STATE = 5
+            CMD_send = time.time()
         elif testBit(MOTOR_MASK,2):
             z_control_frame.toggle_enable(disable=0)
             MOTOR_MASK = clearBit(MOTOR_MASK,2)
             # prev_GUI_STATE = 2
-            GUI_STATE = 1
+            GUI_STATE = 5
+            CMD_send = time.time()
         elif testBit(MOTOR_MASK,1):
             y_control_frame.toggle_enable(disable=0)
             MOTOR_MASK = clearBit(MOTOR_MASK,1)
             # prev_GUI_STATE = 2
-            GUI_STATE = 1
+            GUI_STATE = 5
+            CMD_send = time.time()
         elif testBit(MOTOR_MASK,0):
             p_control_frame.toggle_enable(disable=0)
             MOTOR_MASK = clearBit(MOTOR_MASK,0)
             # prev_GUI_STATE = 2
-            GUI_STATE = 1
+            GUI_STATE = 5
+            CMD_send = time.time()
         else:
             # prev_GUI_STATE = 2
             GUI_STATE = 0
@@ -625,17 +656,21 @@ def GUI_state_machine():
                 if MOVE_NUM == 1:
                     if x_stage.get_microstep():
                         send_microstep('x', x_stage.get_move1_uS())
-                        GUI_STATE = 1
+                        GUI_STATE = 5
+                        CMD_send = time.time()
                     else:
                         move('x', 1)
-                        GUI_STATE = 1
+                        GUI_STATE = 5
+                        CMD_send = time.time()
                 elif MOVE_NUM == 2:
                     if not x_stage.get_microstep():
                         send_microstep('x', x_stage.get_move2_uS())
-                        GUI_STATE = 1
+                        GUI_STATE = 5
+                        CMD_send = time.time()
                     else:
                         move('x', 2)
-                        GUI_STATE = 1
+                        GUI_STATE = 5
+                        CMD_send = time.time()
                 elif MOVE_NUM == 3:
                     MOTOR_MASK = clearBit(MOTOR_MASK,3)
                     MOVE_NUM = 1
@@ -647,17 +682,21 @@ def GUI_state_machine():
                 if MOVE_NUM == 1:
                     if z_stage.get_microstep():
                         send_microstep('z', z_stage.get_move1_uS())
-                        GUI_STATE = 1
+                        GUI_STATE = 5
+                        CMD_send = time.time()
                     else:
                         move('z', 1)
-                        GUI_STATE = 1
+                        GUI_STATE = 5
+                        CMD_send = time.time()
                 elif MOVE_NUM == 2:
                     if not z_stage.get_microstep():
                         send_microstep('z', z_stage.get_move2_uS())
-                        GUI_STATE = 1
+                        GUI_STATE = 5
+                        CMD_send = time.time()
                     else:
                         move('z', 2)
-                        GUI_STATE = 1
+                        GUI_STATE = 5
+                        CMD_send = time.time()
                 elif MOVE_NUM == 3:
                     MOTOR_MASK = clearBit(MOTOR_MASK,2)
                     MOVE_NUM = 1
@@ -669,17 +708,21 @@ def GUI_state_machine():
                 if MOVE_NUM == 1:
                     if y_stage.get_microstep():
                         send_microstep('y', y_stage.get_move1_uS())
-                        GUI_STATE = 1
+                        GUI_STATE = 5
+                        CMD_send = time.time()
                     else:
                         move('y', 1)
-                        GUI_STATE = 1
+                        GUI_STATE = 5
+                        CMD_send = time.time()
                 elif MOVE_NUM == 2:
                     if not y_stage.get_microstep():
                         send_microstep('y', y_stage.get_move2_uS())
-                        GUI_STATE = 1
+                        GUI_STATE = 5
+                        CMD_send = time.time()
                     else:
                         move('y', 2)
-                        GUI_STATE = 1
+                        GUI_STATE = 5
+                        CMD_send = time.time()
                 elif MOVE_NUM == 3:
                     MOTOR_MASK = clearBit(MOTOR_MASK,1)
                     MOVE_NUM = 1
@@ -691,17 +734,21 @@ def GUI_state_machine():
                 if MOVE_NUM == 1:
                     if p_stage.get_microstep():
                         send_microstep('p', p_stage.get_move1_uS())
-                        GUI_STATE = 1
+                        GUI_STATE = 5
+                        CMD_send = time.time()
                     else:
                         move('p', 1)
-                        GUI_STATE = 1
+                        GUI_STATE = 5
+                        CMD_send = time.time()
                 elif MOVE_NUM == 2:
                     if not p_stage.get_microstep():
                         send_microstep('p', p_stage.get_move2_uS())
-                        GUI_STATE = 1
+                        GUI_STATE = 5
+                        CMD_send = time.time()
                     else:
                         move('p', 2)
-                        GUI_STATE = 1
+                        GUI_STATE = 5
+                        CMD_send = time.time()
                 elif MOVE_NUM == 3:
                     MOTOR_MASK = clearBit(MOTOR_MASK,0)
                     MOVE_NUM = 1
@@ -723,7 +770,8 @@ def GUI_state_machine():
                         gui_print('... Setting coarse microsteps')
                         send_microstep('x', x_stage.get_move1_uS())
                         ZERO_SEQ += 1
-                        GUI_STATE = 1
+                        GUI_STATE = 5
+                        CMD_send = time.time()
                     else:
                         ZERO_SEQ += 1
                 elif ZERO_SEQ == 2:
@@ -740,22 +788,26 @@ def GUI_state_machine():
                     x_stage.cal_step_pos()
                     MOVE_NUM = 1
                     ZERO_SEQ += 1
-                    GUI_STATE = 1
+                    GUI_STATE = 5
+                    CMD_send = time.time()
                 elif ZERO_SEQ == 5:
                     if MOVE_NUM == 1:
                         ACK = None
                         gui_print('... Moving to DATUM with coarse microsteps')
                         move('x', 1, to_datum = True)
-                        GUI_STATE = 1
+                        GUI_STATE = 5
+                        CMD_send = time.time()
                     elif MOVE_NUM == 2:
                         if not x_stage.get_microstep():
                             gui_print('... Setting fine microsteps')
                             send_microstep('x', x_stage.get_move2_uS())
-                            GUI_STATE = 1
+                            GUI_STATE = 5
+                            CMD_send = time.time()
                         else:
                             gui_print('... Finishing move to DATUM with fine microsteps')
                             move('x', 2, to_datum = True)
-                            GUI_STATE = 1
+                            GUI_STATE = 5
+                            CMD_send = time.time()
                     elif MOVE_NUM == 3:
                         MOTOR_MASK = clearBit(MOTOR_MASK,3)
                         MOVE_NUM = 1
@@ -772,7 +824,8 @@ def GUI_state_machine():
                         gui_print('... Setting coarse microsteps')
                         send_microstep('z', z_stage.get_move1_uS())
                         ZERO_SEQ += 1
-                        GUI_STATE = 1
+                        GUI_STATE = 5
+                        CMD_send = time.time()
                     else:
                         ZERO_SEQ += 1
                 elif ZERO_SEQ == 2:
@@ -789,22 +842,27 @@ def GUI_state_machine():
                     z_stage.cal_step_pos()
                     MOVE_NUM = 1
                     ZERO_SEQ += 1
-                    GUI_STATE = 1
+                    GUI_STATE = 5
+                    CMD_send = time.time()
+                    ACK = None
                 elif ZERO_SEQ == 5:
                     if MOVE_NUM == 1:
                         ACK = None
                         gui_print('... Moving to DATUM with coarse microsteps')
                         move('z', 1, to_datum = True)
-                        GUI_STATE = 1
+                        GUI_STATE = 5
+                        CMD_send = time.time()
                     elif MOVE_NUM == 2:
                         if not z_stage.get_microstep():
                             gui_print('... Setting fine microsteps')
                             send_microstep('z', z_stage.get_move2_uS())
-                            GUI_STATE = 1
+                            GUI_STATE = 5
+                            CMD_send = time.time()
                         else:
                             gui_print('... Finishing move to DATUM with fine microsteps')
                             move('z', 2, to_datum = True)
-                            GUI_STATE = 1
+                            GUI_STATE = 5
+                            CMD_send = time.time()
                     elif MOVE_NUM == 3:
                         MOTOR_MASK = clearBit(MOTOR_MASK,2)
                         MOVE_NUM = 1
@@ -814,55 +872,6 @@ def GUI_state_machine():
                 MOTOR_MASK = clearBit(MOTOR_MASK,2)
                 MOVE_NUM = 1
                 ZERO_SEQ = 1
-        elif testBit(MOTOR_MASK,1):
-            if y_stage.get_status()[0]:
-                if ZERO_SEQ == 1:
-                    if y_stage.get_microstep():
-                        gui_print('... Setting coarse microsteps')
-                        send_microstep('y', y_stage.get_move1_uS())
-                        ZERO_SEQ += 1
-                        GUI_STATE = 1
-                    else:
-                        ZERO_SEQ += 1
-                elif ZERO_SEQ == 2:
-                    gui_print('... Finding negative hard stop')
-                    move('y', 1, zero = True)
-                    ZERO_SEQ += 1
-                elif ZERO_SEQ == 3:
-                    if abs(y_stage.get_limit()):
-                        gui_print('... Hard stop reached')
-                        ZERO_SEQ += 1
-                elif ZERO_SEQ == 4:
-                    gui_print('... Zeroing encoder and updating current position')
-                    write_string_to_ser('z;y')
-                    y_stage.cal_step_pos()
-                    MOVE_NUM = 1
-                    ZERO_SEQ += 1
-                    GUI_STATE = 1
-                elif ZERO_SEQ == 5:
-                    if MOVE_NUM == 1:
-                        ACK = None
-                        gui_print('... Moving to DATUM with coarse microsteps')
-                        move('y', 1, to_datum = True)
-                        GUI_STATE = 1
-                    elif MOVE_NUM == 2:
-                        if not y_stage.get_microstep():
-                            gui_print('... Setting fine microsteps')
-                            send_microstep('y', y_stage.get_move2_uS())
-                            GUI_STATE = 1
-                        else:
-                            gui_print('... Finishing move to DATUM with fine microsteps')
-                            move('y', 2, to_datum = True)
-                            GUI_STATE = 1
-                    elif MOVE_NUM == 3:
-                        MOTOR_MASK = clearBit(MOTOR_MASK,1)
-                        MOVE_NUM = 1
-                        ZERO_SEQ = 1
-                        gui_print('... Y Stage zeroing complete')
-            else:
-                MOTOR_MASK = clearBit(MOTOR_MASK,1)
-                MOVE_NUM = 1
-                ZERO_SEQ = 1
         elif testBit(MOTOR_MASK,0):
             if p_stage.get_status()[0]:
                 if ZERO_SEQ == 1:
@@ -870,7 +879,8 @@ def GUI_state_machine():
                         gui_print('... Setting coarse microsteps')
                         send_microstep('p', p_stage.get_move1_uS())
                         ZERO_SEQ += 1
-                        GUI_STATE = 1
+                        GUI_STATE = 5
+                        CMD_send = time.time()
                     else:
                         ZERO_SEQ += 1
                 elif ZERO_SEQ == 2:
@@ -887,22 +897,26 @@ def GUI_state_machine():
                     p_stage.cal_step_pos()
                     MOVE_NUM = 1
                     ZERO_SEQ += 1
-                    GUI_STATE = 1
+                    GUI_STATE = 5
+                    CMD_send = time.time()
                 elif ZERO_SEQ == 5:
                     if MOVE_NUM == 1:
                         ACK = None
                         gui_print('... Moving to DATUM with coarse microsteps')
                         move('p', 1, to_datum = True)
-                        GUI_STATE = 1
+                        GUI_STATE = 5
+                        CMD_send = time.time()
                     elif MOVE_NUM == 2:
                         if not p_stage.get_microstep():
                             gui_print('... Setting fine microsteps')
                             send_microstep('p', p_stage.get_move2_uS())
-                            GUI_STATE = 1
+                            GUI_STATE = 5
+                            CMD_send = time.time()
                         else:
                             gui_print('... Finishing move to DATUM with fine microsteps')
                             move('p', 2, to_datum = True)
-                            GUI_STATE = 1
+                            GUI_STATE = 5
+                            CMD_send = time.time()
                     elif MOVE_NUM == 3:
                         MOTOR_MASK = clearBit(MOTOR_MASK,0)
                         MOVE_NUM = 1
@@ -912,11 +926,72 @@ def GUI_state_machine():
                 MOTOR_MASK = clearBit(MOTOR_MASK,0)
                 MOVE_NUM = 1
                 ZERO_SEQ = 1
+        elif testBit(MOTOR_MASK,1):
+            if y_stage.get_status()[0]:
+                if ZERO_SEQ == 1:
+                    if y_stage.get_microstep():
+                        gui_print('... Setting coarse microsteps')
+                        send_microstep('y', y_stage.get_move1_uS())
+                        ZERO_SEQ += 1
+                        GUI_STATE = 5
+                        CMD_send = time.time()
+                    else:
+                        ZERO_SEQ += 1
+                elif ZERO_SEQ == 2:
+                    gui_print('... Finding negative hard stop')
+                    move('y', 1, zero = True)
+                    ZERO_SEQ += 1
+                elif ZERO_SEQ == 3:
+                    if abs(y_stage.get_limit()):
+                        gui_print('... Hard stop reached')
+                        ZERO_SEQ += 1
+                elif ZERO_SEQ == 4:
+                    gui_print('... Zeroing encoder and updating current position')
+                    write_string_to_ser('z;y')
+                    y_stage.cal_step_pos()
+                    MOVE_NUM = 1
+                    ZERO_SEQ += 1
+                    GUI_STATE = 5
+                    CMD_send = time.time()
+                elif ZERO_SEQ == 5:
+                    if MOVE_NUM == 1:
+                        ACK = None
+                        gui_print('... Moving to DATUM with coarse microsteps')
+                        move('y', 1, to_datum = True)
+                        GUI_STATE = 5
+                        CMD_send = time.time()
+                    elif MOVE_NUM == 2:
+                        if not y_stage.get_microstep():
+                            gui_print('... Setting fine microsteps')
+                            send_microstep('y', y_stage.get_move2_uS())
+                            GUI_STATE = 5
+                            CMD_send = time.time()
+                        else:
+                            gui_print('... Finishing move to DATUM with fine microsteps')
+                            move('y', 2, to_datum = True)
+                            GUI_STATE = 5
+                            CMD_send = time.time()
+                    elif MOVE_NUM == 3:
+                        MOTOR_MASK = clearBit(MOTOR_MASK,1)
+                        MOVE_NUM = 1
+                        ZERO_SEQ = 1
+                        gui_print('... Y Stage zeroing complete')
+            else:
+                MOTOR_MASK = clearBit(MOTOR_MASK,1)
+                MOVE_NUM = 1
+                ZERO_SEQ = 1
+
         else:
             GUI_STATE = 0
             EXECUTING = False
         prev_GUI_STATE = 4
 
+    # Delay until WAIT FOR ACK
+    elif GUI_STATE == 5:
+        if (time.time() - CMD_send) > 5:
+            GUI_STATE = 1
+        else:
+            return
 # Default Motion Parameters
 
 # Default Instrument Parameters
@@ -930,6 +1005,10 @@ rot_travel_range = 60 # deg
 
 def send_microstep(stage, microstep):
     if stage == 'x':
+        # if microstep == x_stage.move1_uS:
+        #     x_stage.set_microstep(False)
+        # else:
+        #     x_stage.set_microstep(True)
         uS_string = 't;x;' + str(microstep)
     elif stage == 'z':
         uS_string = 't;z;' + str(microstep)
@@ -967,9 +1046,9 @@ def move(stage, move, zero = False, to_datum = False):
                     move_string = z_stage.move_neg(abs(z_target-z_stage.get_true_position()), 1)
         if stage == 'y':
             if zero:
-                move_string = y_stage.move_neg(rot_travel_range, 1, os_mult = 20)
+                move_string = y_stage.move_pos(rot_travel_range, 1, os_mult = 20)
             elif to_datum:
-                move_string = y_stage.move_pos(abs(0-y_stage.get_true_position()), 1)
+                move_string = y_stage.move_neg(abs(0-y_stage.get_true_position()), 1)
             else:
                 if (y_target > y_stage.get_true_position()):
                     move_string = y_stage.move_pos(abs(y_target-y_stage.get_true_position()), 1)
@@ -1094,8 +1173,10 @@ def log_print(to_print, stamp = True):
         if stamp:
             log.insert(END, str(int(time.time()*1000 - timestamp))+ ' ')
             log.insert(END, to_print)
+            log.see('end')  # show the last line printed
         else:
             log.insert(END, to_print)
+            log.see('end')
     prev_string = to_print
 
 def gui_print(to_print, stamp = True):
@@ -1104,9 +1185,11 @@ def gui_print(to_print, stamp = True):
         gui_printer.insert(END, str(int(time.time()*1000 - timestamp))+ ' ')
         gui_printer.insert(END, to_print)
         gui_printer.insert(END, '\n')
+        gui_printer.see('end')
     else:
         gui_printer.insert(END, to_print)
         gui_printer.insert(END, '\n')
+        gui_printer.see('end')
 
 def save_motion_file():
     global x_stage, z_stage, y_stage, p_stage
@@ -1340,8 +1423,8 @@ def readSerial():
             serBuffer += "\n" # add the newline to the buffer
             #add the line to the TOP of the log
             GUI_state_machine()
-            log.see('end')  # show the last line printed
-            gui_printer.see('end')
+            # log.see('end')  # show the last line printed
+            # gui_printer.see('end')
             serBuffer = "" # empty the buffer
         else:
             serBuffer += c # add to the buffer

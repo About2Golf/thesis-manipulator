@@ -17,7 +17,7 @@ l_focus = 10.823;   % mm
 mode = "PITCH";  
 % mode = "YAW";
 
-theta = 11.5651; % deg of rotation
+theta = 15; % deg of rotation
 
 if mode == "PITCH"
     q = [cosd(theta/2) unitx*sind(theta/2)];
@@ -28,12 +28,15 @@ else
 end
 
 %% Define Initial Mirror Quaternions (mm)
-r_bot1 = [0 -12.7 20.882 2.312];
-r_bot2 = [0 0 11.901 -6.669];
-r_bot3 = [0 12.7 20.882 2.312];
-r_top4 = [0 -25.4 23.324 37.204];
-r_top5 = [0 0 5.364 19.244];
-r_top6 = [0 25.4 23.324 37.204];
+% CAD Values
+% r_bot1 = [0 -12.7 20.882 2.312];
+% r_bot2 = [0 0 11.901 -6.669];
+% r_bot3 = [0 12.7 20.882 2.312];
+% r_top4 = [0 -25.4 23.324 37.204];
+% r_top5 = [0 0 5.364 19.244];
+% r_top6 = [0 25.4 23.324 37.204];
+% beam1 = [0 0 80 32.45];
+% beam2 = [0 0 18.57 32.45];
 r_FOV1 = [0 0 12.359 -6.211];
 r_FOV2 = [0 -7.876 18.57 0];
 r_FOV3 = [0 0 29.329 10.759];
@@ -43,8 +46,19 @@ r_FOV6 = [0 0 41.206 55.086];
 r_iris1 = [0 -2.9 0 0];
 r_iris2 = [0 0 0 -2.9];
 r_iris3 = [0 0 0 2.9];
-beam1 = [0 0 80 32.45];
-beam2 = [0 0 18.57 32.45];
+r_detc1 = [0 -10 -10.823 0];
+r_detc2 = [0 0 -10.823 -10];
+r_detc3 = [0 0 -10.823 10];
+
+% Measured Values
+r_bot1 = [0	-12.7191	21.6663	3.6961];
+r_bot2 = [0	-0.4506	12.2728	-5.8707];
+r_bot3 = [0	12.2255	21.2872	3.0825];
+r_top4 = [0	-25.4325	23.8267	37.9334];
+r_top5 = [0	-0.2472	5.8059	19.9078];		
+r_top6 = [0	25.1571	23.8419	37.9761];	
+beam1 = [0	0	17.9768	32.3248];
+beam2 = [0	0	54.7426	32.3248];
 
 p1 = [r_iris1(2:4);r_bot1(2:4);r_top4(2:4)];
 p2 = [r_iris2(2:4);r_bot2(2:4);r_top5(2:4)];
@@ -68,10 +82,14 @@ r_FOV6_prime = quatmultiply(quatmultiply(q,r_FOV6),q_star);
 r_iris1_prime = quatmultiply(quatmultiply(q,r_iris1),q_star);
 r_iris2_prime = quatmultiply(quatmultiply(q,r_iris2),q_star);
 r_iris3_prime = quatmultiply(quatmultiply(q,r_iris3),q_star);
+r_detc1_prime = quatmultiply(quatmultiply(q,r_detc1),q_star);
+r_detc2_prime = quatmultiply(quatmultiply(q,r_detc2),q_star);
+r_detc3_prime = quatmultiply(quatmultiply(q,r_detc3),q_star);
 
-p1_prime = [r_iris1_prime(2:4);r_bot1_prime(2:4);r_top4_prime(2:4)];
-p2_prime = [r_iris2_prime(2:4);r_bot2_prime(2:4);r_top5_prime(2:4)];
-p3_prime = [r_iris3_prime(2:4);r_bot3_prime(2:4);r_top6_prime(2:4)];
+
+p1_prime = [r_iris1_prime(2:4);r_bot1_prime(2:4);r_top4_prime(2:4);r_detc1_prime(2:4)];
+p2_prime = [r_iris2_prime(2:4);r_bot2_prime(2:4);r_top5_prime(2:4);r_detc2_prime(2:4)];
+p3_prime = [r_iris3_prime(2:4);r_bot3_prime(2:4);r_top6_prime(2:4);r_detc3_prime(2:4)];
 
 [center_prime, rad_prime, v1_prime, v2_prime] = circlefit3d(p1_prime,p2_prime,p3_prime);
 
@@ -83,6 +101,7 @@ bot_mirror_norm = bot_mirror_norm/norm(bot_mirror_norm);
 top_mirror_norm = top_mirror_norm/norm(top_mirror_norm);
 
 %% Calculate Beam Line Intersection Point on Top Mirror
+
 norm = top_mirror_norm;
 P0 = beam1(2:4);
 P1 = beam2(2:4);
@@ -101,7 +120,6 @@ top_ints_pt = [P0(1)+t_top*(P1(1)-P0(1)) P0(2)+t_top*(P1(2)-P0(2)) P0(3)+t_top*(
 
 beam_top_refl = -quatmultiply(quatmultiply([0 norm],([0 P0]-[0 P1])),[0 norm]);
 
-
 %% Calculate Beam Line Intersection Point on Bottom Mirror
 norm = bot_mirror_norm;
 P0 = top_ints_pt;
@@ -119,7 +137,7 @@ bot_ints_pt = [P0(1)+t_bot*(P1(1)-P0(1)) P0(2)+t_bot*(P1(2)-P0(2)) P0(3)+t_bot*(
 
 %% Calculate Beam Reflection from Bottom Mirror
 
-beam_bot_refl = -0.5*quatmultiply(quatmultiply([0 norm],([0 P0]-[0 P1])),[0 norm]);
+beam_bot_refl = quatmultiply(quatmultiply([0 norm],([0 P0]-[0 P1])),[0 norm]);
 
 %% Calculate Translation Compensation
 
@@ -142,6 +160,9 @@ if mode == "PITCH"
         r_top4_comp = r_top4_prime(2:4)+ [0 0 trans_comp];
         r_top5_comp = r_top5_prime(2:4)+ [0 0 trans_comp];
         r_top6_comp = r_top6_prime(2:4)+ [0 0 trans_comp];
+        r_detc1_comp = r_detc1_prime(2:4)+ [0 0 trans_comp];
+        r_detc2_comp = r_detc2_prime(2:4)+ [0 0 trans_comp];
+        r_detc3_comp = r_detc3_prime(2:4)+ [0 0 trans_comp];
     else
         r_iris1_comp = r_iris1_prime(2:4)- [0 0 trans_comp];
         r_iris2_comp = r_iris2_prime(2:4)- [0 0 trans_comp];
@@ -152,6 +173,9 @@ if mode == "PITCH"
         r_top4_comp = r_top4_prime(2:4)- [0 0 trans_comp];
         r_top5_comp = r_top5_prime(2:4)- [0 0 trans_comp];
         r_top6_comp = r_top6_prime(2:4)- [0 0 trans_comp];
+        r_detc1_comp = r_detc1_prime(2:4)- [0 0 trans_comp];
+        r_detc2_comp = r_detc2_prime(2:4)- [0 0 trans_comp];
+        r_detc3_comp = r_detc3_prime(2:4)- [0 0 trans_comp];
     end
 else
     if theta > 0
@@ -164,6 +188,9 @@ else
         r_top4_comp = r_top4_prime(2:4)- [trans_comp 0 0];
         r_top5_comp = r_top5_prime(2:4)- [trans_comp 0 0];
         r_top6_comp = r_top6_prime(2:4)- [trans_comp 0 0];
+        r_detc1_comp = r_detc1_prime(2:4)- [trans_comp 0 0];
+        r_detc2_comp = r_detc2_prime(2:4)- [trans_comp 0 0];
+        r_detc3_comp = r_detc3_prime(2:4)- [trans_comp 0 0];
     else
         r_iris1_comp = r_iris1_prime(2:4)+ [trans_comp 0 0];
         r_iris2_comp = r_iris2_prime(2:4)+ [trans_comp 0 0];
@@ -174,11 +201,14 @@ else
         r_top4_comp = r_top4_prime(2:4)+ [trans_comp 0 0];
         r_top5_comp = r_top5_prime(2:4)+ [trans_comp 0 0];
         r_top6_comp = r_top6_prime(2:4)+ [trans_comp 0 0];
+        r_detc1_comp = r_detc1_prime(2:4)+ [trans_comp 0 0];
+        r_detc2_comp = r_detc2_prime(2:4)+ [trans_comp 0 0];
+        r_detc3_comp = r_detc3_prime(2:4)+ [trans_comp 0 0];
     end
 end
-p1_comp = [r_iris1_comp;r_bot1_comp;r_top4_comp];
-p2_comp = [r_iris2_comp;r_bot2_comp;r_top5_comp];
-p3_comp = [r_iris3_comp;r_bot3_comp;r_top6_comp];
+p1_comp = [r_iris1_comp;r_bot1_comp;r_top4_comp; r_detc1_comp];
+p2_comp = [r_iris2_comp;r_bot2_comp;r_top5_comp; r_detc2_comp];
+p3_comp = [r_iris3_comp;r_bot3_comp;r_top6_comp; r_detc3_comp];
 
 [center_comp, rad_comp, v1_comp, v2_comp] = circlefit3d(p1_comp,p2_comp,p3_comp);
 

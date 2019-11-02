@@ -1,0 +1,17 @@
+|||Timestamp (ms)||	Feedback|||
+104 0.0;0.0;0.0;-1.0;0;0;0;0
+1083 Resetting the RTOS
+2722 X Encoder Successfully Initialized
+2734 X Limit Switch Successfully Initialized
+2735 Z Encoder Successfully Initialized
+2737 Z Limit Switch Successfully Initialized
+2748 Y Encoder Successfully Initialized
+2749 Y Limit Switch Successfully Initialized
+2750 P Encoder Successfully Initialized
+2761 P Limit Switch Successfully Initialized
+2762 X Stepper Successfully Initialized
+2773 Z Stepper Successfully Initialized
+2773 Y Stepper Successfully Initialized
+2784 P Stepper Successfully Initialized
+2795 Running the MUVI Manipulator RTOS
+2998 0.0;0.0;0.0;0.0;0;0;0;0

@@ -73,7 +73,7 @@ class Motor_Task:
                 # print(self.Motor.is_done())
                 # print(self.limit.get())
                 # print(self.ENABLED)
-                if (self.limit_counter > 200 and abs(self.limit.get())) or not self.ENABLED:
+                if (self.limit_counter > 400 and abs(self.limit.get())) or not self.ENABLED:
                 # if not self.ENABLED:
                     # print('stopping by force')
                     self.Motor.stop()

@@ -1,0 +1,75 @@
+|||Timestamp (ms)||	Feedback|||
+104 0.0;76.0;0.0;0.0;0;0;0;0
+1055 Resetting the RTOS
+2695 X Encoder Successfully Initialized
+2696 X Limit Switch Successfully Initialized
+2697 Z Encoder Successfully Initialized
+2708 Z Limit Switch Successfully Initialized
+2709 Y Encoder Successfully Initialized
+2720 Y Limit Switch Successfully Initialized
+2720 P Encoder Successfully Initialized
+2721 P Limit Switch Successfully Initialized
+2732 X Stepper Successfully Initialized
+2732 Z Stepper Successfully Initialized
+2743 Y Stepper Successfully Initialized
+2744 P Stepper Successfully Initialized
+2765 Running the MUVI Manipulator RTOS
+2967 -5.0;0.0;0.0;0.0;0;0;0;0
+17059 e;z
+18509 -5.0;0.0;0.0;0.0;0;0;0;0
+19544 t;z;2
+20992 -5.0;0.0;0.0;0.0;0;0;0;0
+22026 m;z
+23491 -5.0;0.0;0.0;0.0;0;0;0;0
+24503 m;z
+25963 s;z;0.0
+25984 -5.0;0.0;0.0;0.0;0;0;0;0
+27019 t;z;64
+28480 -5.0;0.0;0.0;0.0;0;0;0;0
+28502 s;z;0.0
+28522 -5.0;0.0;0.0;0.0;0;0;0;0
+29551 m;z
+31057 -5.0;-11.0;0.0;0.0;0;0;0;0
+31150 -5.0;-12.0;0.0;0.0;0;0;0;0
+31243 -5.0;-13.0;0.0;0.0;0;0;0;0
+31336 -5.0;-14.0;0.0;0.0;0;0;0;0
+31439 -5.0;-15.0;0.0;0.0;0;0;0;0
+31500 -5.0;-16.0;0.0;0.0;0;0;0;0
+31635 -5.0;-17.0;0.0;0.0;0;0;0;0
+31728 -5.0;-18.0;0.0;0.0;0;0;0;0
+31821 -5.0;-19.0;0.0;0.0;0;0;0;0
+31914 -5.0;-20.0;0.0;0.0;0;0;0;0
+31956 -5.0;-21.0;0.0;0.0;0;0;0;0
+32059 -5.0;-22.0;0.0;0.0;0;0;0;0
+32100 -5.0;-23.0;0.0;0.0;0;0;0;0
+32193 -5.0;-24.0;0.0;0.0;0;0;0;0
+32245 -5.0;-25.0;0.0;0.0;0;0;0;0
+32297 -5.0;-26.0;0.0;0.0;0;0;0;0
+32380 -5.0;-27.0;0.0;0.0;0;0;0;0
+32431 -5.0;-28.0;0.0;0.0;0;0;0;0
+32524 -5.0;-29.0;0.0;0.0;0;0;0;0
+32618 -5.0;-30.0;0.0;0.0;0;0;0;0
+32721 -5.0;-31.0;0.0;0.0;0;0;0;0
+32855 -5.0;-32.0;0.0;0.0;0;0;0;0
+32948 -5.0;-33.0;0.0;0.0;0;0;0;0
+33103 -5.0;-34.0;0.0;0.0;0;0;0;0
+33186 s;z;116.5
+33198 -5.0;-34.0;0.0;0.0;0;0;0;0
+33300 -5.0;-35.0;0.0;0.0;0;0;0;0
+47126 d;z
+48566 -5.0;-35.0;0.0;0.0;0;0;0;0
+54184 Resetting the RTOS
+55823 X Encoder Successfully Initialized
+55826 X Limit Switch Successfully Initialized
+55828 Z Encoder Successfully Initialized
+55840 Z Limit Switch Successfully Initialized
+55841 Y Encoder Successfully Initialized
+55842 Y Limit Switch Successfully Initialized
+55853 P Encoder Successfully Initialized
+55854 P Limit Switch Successfully Initialized
+55865 X Stepper Successfully Initialized
+55866 Z Stepper Successfully Initialized
+55877 Y Stepper Successfully Initialized
+55878 P Stepper Successfully Initialized
+55898 Running the MUVI Manipulator RTOS
+56092 0.0;0.0;0.0;0.0;0;0;0;0

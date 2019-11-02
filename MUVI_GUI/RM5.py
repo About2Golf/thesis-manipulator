@@ -10,18 +10,19 @@ class NewmarkRotaryStage:
         self.MC_Period = 25     # ms
         self.pos_dir = 1        # unitless
         self.init_speed = 50    # Hz
-        self.max_speed = 1500   # Hz
+        self.max_speed = 500   # Hz
         self.accel = 50         # Hz
         self.mot_SPR = 200      # mot_deg/fullstep_deg
         self.gear_ratio = 72    # mot_rev/stage_rev
         self.enc_CPR = 4000     # counts/rev
         self.overshoot = 5      # steps
-        self.move1_uS = 2       # microsteps/fullstep
+        self.move1_uS = 16       # microsteps/fullstep
         self.move2_uS = 256     # microsteps/fullstep
         self.datum = 50         # mm
         self.travel = 100       # mm
 
         self.encoder_restore = 0
+        self.restored_encoder_offset = 0
         self.enc_pos = 0        # mm
         self.enc_prev_pos = 0   # mm
         self.enc_speed = 0      # mm/s
@@ -35,14 +36,15 @@ class NewmarkRotaryStage:
         self.MOVING = False
         self.MICROSTEP_SET = False # True means move 2 microstep is set, False means move 1 microstep is set
         self.ZEROED = False
+        self.RESTORED = False
 
     def move_neg(self, target, move, os_mult = 1):
         self.direction = -self.pos_dir
         if move == 1:
-            steps = round(target*self.move1_uS*self.mot_SPR*self.gear_ratio/360) - os_mult*self.overshoot
+            steps = int(round(target*self.move1_uS*self.mot_SPR*self.gear_ratio/360) - os_mult*self.overshoot)
         elif move == 2:
-            steps = round(target*self.move2_uS*self.mot_SPR*self.gear_ratio/360) - os_mult*self.overshoot
-        move_string = 'm;'+self.name+';'+ str(steps)+';'+str(self.direction)+';'+str(self.init_speed)+';'+str(self.max_speed)+';'+str(self.accel)
+            steps = int(round(target*self.move2_uS*self.mot_SPR*self.gear_ratio/360) - os_mult*self.overshoot)
+        move_string = 'm;'+self.name+';'+ str(abs(steps))+';'+str(self.direction)+';'+str(self.init_speed)+';'+str(self.max_speed)+';'+str(self.accel)
         return move_string
 
     def move_pos(self, target, move, os_mult = 1):
@@ -51,14 +53,16 @@ class NewmarkRotaryStage:
             steps = round(target*self.move1_uS*self.mot_SPR*self.gear_ratio/360) + os_mult*self.overshoot
         elif move == 2:
             steps = round(target*self.move2_uS*self.mot_SPR*self.gear_ratio/360) + os_mult*self.overshoot
-        move_string = 'm;'+self.name+';'+ str(steps)+';'+str(self.direction)+';'+str(self.init_speed)+';'+str(self.max_speed)+';'+str(self.accel)
+        move_string = 'm;'+self.name+';'+ str(abs(steps))+';'+str(self.direction)+';'+str(self.init_speed)+';'+str(self.max_speed)+';'+str(self.accel)
         return move_string
 
-    def new_datum(self, datum):
+    def new_datum(self):
         self.datum += self.get_true_position()
+        self.restored_encoder_offset = self.enc_pos
 
     def reset(self):
         self.encoder_restore = 0
+        self.restored_encoder_offset = 0
         self.enc_pos = 0
         self.enc_prev_pos = 0
         self.step_pos = 0
@@ -68,6 +72,7 @@ class NewmarkRotaryStage:
         self.MOVING = False
         self.MICROSTEP_SET = False # True means move 2 microstep is set, False means move 1 microstep is set
         self.ZEROED = False
+        self.RESTORED = False
 
     def set_enable_time(self, value):
         self.enable_time = value
@@ -84,34 +89,39 @@ class NewmarkRotaryStage:
     def set_zeroed(self, value):
         self.ZEROED = True
 
+    def set_encoder_restore(self,value):
+        self.encoder_restore = value
+
     def set_feedback(self, encoder, limit):
         self.lim = float(limit)
         if self.ZEROED:
-            self.enc_pos = self.pos_dir*float(encoder)*360/(self.enc_CPR*self.gear_ratio) - self.datum + self.encoder_restore
+            self.enc_pos = self.pos_dir*float(encoder)*360/(self.enc_CPR*self.gear_ratio) - self.datum
+        elif self.RESTORED:
+            self.enc_pos = self.encoder_restore + self.pos_dir*float(encoder)*360/(self.enc_CPR*self.gear_ratio) - self.restored_encoder_offset
         else:
-            self.enc_pos = self.pos_dir*float(encoder)*360/(self.enc_CPR*self.gear_ratio) + self.encoder_restore
+            self.enc_pos = self.pos_dir*float(encoder)*360/(self.enc_CPR*self.gear_ratio)
         self.enc_speed = 1000*(self.enc_pos - self.enc_prev_pos)/self.MC_Period
         self.enc_prev_pos = self.enc_pos
 
-    # def set_motion_params(self, MC_Period, dir, init_speed, max_speed, accel, mot_SPR, pitch, enc_CPR, overshoot, move1_uS, move2_uS):
     def set_motion_params(self, param_list):
-        self.pos_dir = float(param_list[0])
-        self.init_speed = float(param_list[1])
-        self.max_speed = float(param_list[2])
-        self.accel = float(param_list[3])
+        self.pos_dir = int(param_list[0])
+        self.init_speed = int(param_list[1])
+        self.max_speed = int(param_list[2])
+        self.accel = int(param_list[3])
         self.mot_SPR = float(param_list[4])
         self.gear_ratio = float(param_list[5])
         self.enc_CPR = float(param_list[6])
-        self.overshoot = float(param_list[7])
-        self.move1_uS = float(param_list[8])
-        self.move2_uS = float(param_list[9])
+        self.overshoot = int(param_list[7])
+        self.move1_uS = int(param_list[8])
+        self.move2_uS = int(param_list[9])
         self.encoder_restore = float(param_list[10])
         self.MC_Period = float(param_list[11])
-        # self.range = range
+        self.restored_encoder_offset = self.enc_pos
+        self.RESTORED = True
 
     def set_instrument_params(self, param_list):
-        self.datum = param_list[0]
-        self.travel = param_list[1]
+        self.datum = float(param_list[0])
+        self.travel = float(param_list[1])
 
     def set_step_pos(self, steps, move):
         if move == 1:
@@ -123,15 +133,17 @@ class NewmarkRotaryStage:
         if type == 0:
             self.step_pos = -self.pos_dir*self.datum
             self.ZEROED = True
+            self.RESTORED = False
         else:
             self.step_pos = self.enc_pos
 
     def get_true_position(self):
-        if abs(self.enc_pos - self.step_pos) > 0.1:
-            self.cal_step_pos(type=1)
-            return self.enc_pos
-        else:
-            return self.step_pos
+        return self.enc_pos
+        # if abs(self.enc_pos - self.step_pos) > 0.1:
+        #     self.cal_step_pos(type=1)
+        #     return self.enc_pos
+        # else:
+        #     return self.step_pos
 
     def get_status(self):
         return [self.ENABLED, self.MOVING, self.MICROSTEP_SET, self.ZEROED]
