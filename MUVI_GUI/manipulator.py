@@ -1,11 +1,21 @@
 """
 @author: Jason Grillo
 """
-# import quaternions as q
 import math as m
 
 class MUVI_manipulator:
+    '''
+    The class definition for the MUVI instrument manipulator.
+    '''
     def __init__(self, x_stage, z_stage, y_stage, p_stage):
+        '''
+        Initialize the manipulator. The quaternions that calculate Translation
+        compensation are defined here.
+        @param x_stage - The Newmark linear stage class object
+        @param z_stage - The Newmark linear stage class object
+        @param y_stage - The Newmark rotary stage class object
+        @param p_stage - The Newmark rotary stage class object
+        '''
         self.x_stage = x_stage
         self.z_stage = z_stage
         self.y_stage = y_stage
@@ -47,10 +57,20 @@ class MUVI_manipulator:
         self.beam_bot_refl = [0, 0, 0, 0]
 
     def set_angle(self):
+        '''
+        Sets the current field angle of the instrument based on the true position
+        of the Y and P stages.
+        '''
         self.psi = self.y_stage.get_true_position()
         self.theta = self.p_stage.get_true_position()
 
     def set_instrument_params(self, param_list):
+        '''
+        Updates the instrument specific parameters that are defined in the
+        insturment parameters config file.
+        @param param_list - A list of the motion parameters from the instrument
+                            parameters config file.
+        '''
         self.iris_D = float(param_list[0])
         self.FOV = float(param_list[1])*m.pi/180
         for quaternion in range(4):
@@ -64,9 +84,13 @@ class MUVI_manipulator:
             self.beam2[quaternion] = float(param_list[9][quaternion])
         self.l_focus = self.iris_D/(2*m.tan(self.FOV/2))
 
-    # def set_instrument_quaternions(self, quaternions):
-
     def get_point_targets(self, theta_targ, psi_targ):
+        '''
+        Calculates and returns the 4 stage positions in order to point at a
+        desired field angle.
+        @param theta_targ - The pitch component of the field angle
+        @param psi_targ - The yaw component of the field angle
+        '''
         if psi_targ == 0:
             x_mm = 0
         else:
@@ -86,12 +110,26 @@ class MUVI_manipulator:
         return round(x_mm,4), round(z_mm,4), round(y_deg,4), round(p_deg,4)
 
     def get_current_psi(self):
+        '''
+        Retrieves the current yaw position.
+        @return psi - The current yaw position
+        '''
         return self.psi
 
     def get_current_theta(self):
+        '''
+        Retrieves the current pitch position.
+        @return theta - The current pitch position
+        '''
         return self.theta
 
     def calc_rotation(self, rotation, deg):
+        '''
+        Method that calculates the translation compensation for a field angle component.
+        @param rotation - Indicates which field angle component the compensation is for
+        @param deg - The angle to rotate in the given rotation component
+        @return trans_comp - The translation compensation for the given rotation
+        '''
         rad = deg*m.pi/180
         if rotation == 'PITCH':
             q = [m.cos(rad/2), self.unitx[0]*m.sin(rad/2), self.unitx[1]*m.sin(rad/2), self.unitx[2]*m.sin(rad/2)]
@@ -119,6 +157,12 @@ class MUVI_manipulator:
         return trans_comp
 
     def calc_beam_refl(self,mirror):
+        '''
+        Method that calculates the reflection of the beam from the given mirror.
+        @param mirror - The mirror to calculate the beam reflection from
+        @return ints_pt - The intersection point of the beam on the mirror plane
+        @return reflection - The beam reflection vector
+        '''
         if mirror == 'top':
             norm = self.top_mirror_norm
             P0 = self.beam1[1::]
@@ -135,27 +179,63 @@ class MUVI_manipulator:
         return ints_pt, reflection
 
     def sub(self, A, B):
+        '''
+        Method that calculates the subtraction between two vectors.
+        @param A - The first vector
+        @param B - The second vector
+        @return subtraction - The result of A - B
+        '''
         return [a - b for a, b in zip(A, B)]
 
     def add(self, A, B):
+        '''
+        Method that calculates the addition between two vectors.
+        @param A - The first vector
+        @param B - The second vector
+        @return addition - The result of A + B
+        '''
         return [a + b for a, b in zip(A, B)]
 
     def mag(self, x):
-        # https://stackoverflow.com/questions/9171158/how-do-you-get-the-magnitude-of-a-vector-in-numpy
+        '''
+        Method that calculates the magnitude of a vector.
+        Credit: https://stackoverflow.com/questions/9171158/how-do-you-get-the-magnitude-of-a-vector-in-numpy
+        @param x - The vector of interest
+        @return magnitude - The magnitude of vector x
+        '''
         return m.sqrt(sum(i**2 for i in x))
 
     def cross(self, a, b):
-        # https://stackoverflow.com/questions/1984799/cross-product-of-two-vectors-in-python
+        '''
+        Method that calculates the cross product between two vectors.
+        Credit: https://stackoverflow.com/questions/1984799/cross-product-of-two-vectors-in-python
+        @param a - The first vector
+        @param b - The second vector
+        @return c - The cross product of a and b (a X b)
+        '''
         c = [a[1]*b[2] - a[2]*b[1],
              a[2]*b[0] - a[0]*b[2],
              a[0]*b[1] - a[1]*b[0]]
         return c
 
     def dot(self, a, b):
-        # https://stackoverflow.com/questions/35208160/dot-product-in-python-without-numpy
+        '''
+        Method that calculates the dot product between two vectors.
+        Credit: https://stackoverflow.com/questions/35208160/dot-product-in-python-without-numpy
+        @param a - The first vector
+        @param b - The second vector
+        @return dot - The dot product of a and b (a X b)
+        '''
         return sum(x*y for x,y in zip(a,b))
 
     def quatmultiply(self, p,q):
+        '''
+        Method that multiplies two quaternions.
+        @param p - The first quaternion
+        @param q - The second quaternion
+        @return quaternion - The resulting quaternion with a scalar component
+                            and three vector components
+        '''
         scalar = p[0]*q[0] - self.dot(p[1::],q[1::])
         vi = p[0]*q[1] + q[0]*p[1] + self.cross(p[1::],q[1::])[0]
         vj = p[0]*q[2] + q[0]*p[2] + self.cross(p[1::],q[1::])[1]
@@ -163,9 +243,20 @@ class MUVI_manipulator:
         return [scalar, vi, vj, vk]
 
     def make_quat(self, vector):
+        '''
+        Converts a vector into a quaternion representation.
+        @param vector - The vector to convert into a quaternion
+        @return quaternion - The resulting quaternion with a scalar component
+                            and three vector components
+        '''
         return [0, vector[0], vector[1], vector[2]]
 
     def normalize(self, vector):
+        '''
+        Method that normalizes a vector.
+        @param vector - The vector to normalize
+        @return norm - The normalized vector
+        '''
         magnitude = self.mag(vector)
         return [i/magnitude for i in vector]
 

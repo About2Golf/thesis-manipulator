@@ -9,10 +9,23 @@ import machine
 
 class TMC2160Driver:
     '''
+    This is the class definition for the stepper driver ICs. The hardware pins
+    are defined, as well as the step generator and ramp accelerator.
     '''
 
-    def __init__ (self, step_pin, dir_pin, enable_pin, dco_pin, step_timer, step_channel, accel_timer, accel_ch, name):
+    def __init__ (self, step_pin, dir_pin, enable_pin, dco_pin, step_timer,
+                        step_channel, accel_timer, accel_ch, name):
         '''
+        The initialization method for the stepper driver.
+        @param step_pin - The step pin for the driver
+        @param dir_pin - The direction pin for the driver
+        @param enable_pin - The enable pin for the driver (active low)
+        @param dco_pin - The DC step pin
+        @param step_timer - The step generating timer
+        @param step_channel - The step generator channel specific to the stage
+        @param accel_timer - The ramp acceleration timer
+        @param accel_ch - The ramp acceleration channel specific to the stage
+        @param name - The name of the stage ('X' or 'Z' or 'Y' or 'P')
         '''
         # Initialize Stepper Driver Pins
         self.step =  machine.Pin(step_pin, mode = machine.Pin.OUT, pull = machine.Pin.PULL_UP)
@@ -47,12 +60,12 @@ class TMC2160Driver:
 
     def move_to(self, steps):
         '''
+        The command to move the motor a given number of steps.
+        @param steps - The number of steps to move the motor.
         '''
         if steps == 0:
             return
         self.DONE = 0
-        # print('move_to')
-        # print(steps)
         self.steps_moved = 0
         self.total_steps = 2*steps
         accel1 = round(self.total_steps*0.20)
@@ -64,30 +77,28 @@ class TMC2160Driver:
 
     def stop(self):
         '''
-        Method to turn off the step generator.
+        Method to deactivate the step generator and stop the motor.
         '''
         self.steps_moved = self.step_count
-        # print('self.steps_moved')
         self.stepping = 0
-        # print('self.stepping')
         self.accelerating = 0
-        # print('self.accelerating')
         self.step_count = 0
-        # print('self.step_count')
         self.total_steps = 0
-        # print('self.total_steps')
         self.step_rate = self.init_speed
-        # print('self.step_rate')
         self.step_timer.freq(self.step_rate)
-        # print('timer freq')
         self.DONE = 1
-        # print('done')
 
     def get_steps_moved(self):
+        '''
+        Method to get the number of steps the motor moved.
+        @return steps_moved
+        '''
         return self.steps_moved/2
 
     def cb(self, tim):
         '''
+        The step generator interrupt callback function.
+        @param tim - The timer interrupt instance
         '''
         if self.stepping:
             if self.step_count <= self.total_steps:
@@ -109,20 +120,13 @@ class TMC2160Driver:
                 #     self.paused = 1
             else:
                 self.stop()
-                # print('spd')
-                # self.steps_moved = self.step_count
-                # self.stepping = 0
-                # self.accelerating = 0
-                # self.step_count = 0
-                # self.total_steps = 0
-                # self.step_rate = self.init_speed
-                # self.step_timer.freq(self.step_rate)
-                # self.DONE = 1
         else:
             self.step.value(0)
 
     def accel_cb(self, tim):
         '''
+        The ramp accelerator interrupt callback function.
+        @param tim - The timer interrupt instance
         '''
         if self.accelerating and not self.paused:
             if self.step_count <= self.accel_steps:
@@ -139,53 +143,61 @@ class TMC2160Driver:
             return
 
     def set_direction (self, direction):
-        ''' This method sets the direction of the motor.
-        @param direction Either 1 or 0'''
+        '''
+        This method sets the direction of the motor.
+        @param direction - Either 1 or 0
+        '''
         if (direction > 0):
             self.dir.value(1)
         else:
             self.dir.value(0)
-        # print('dir')
-        # print(direction)
 
     def set_init_speed(self,init_speed):
         '''
+        This method defines the initial step generator frequency in Hz.
+        @param init_speed - The initial ramp speed
         '''
         self.init_speed = init_speed
         self.set_step_freq(self.init_speed)
-        # print('init_s')
-        # print(init_speed)
 
     def set_max_speed(self,max_step_rate):
         '''
+        This method defines the maximum step generator frequency in Hz.
+        @param max_step_rate - The maximum step frequency of the motion.
         '''
         self.max_step_rate = max_step_rate
-        # print('max_s')
-        # print(max_step_rate)
 
     def set_accel_rate(self,accel_rate):
         '''
+        This method defines the acceleration frequency of the ramp in Hz/sec.
+        @param accel_rate - The acceleration frequency.
         '''
         self.accel_rate = accel_rate
         self.accel_timer.freq(self.accel_rate)
-        # print('accel')
-        # print(accel_rate)
 
     def set_step_freq(self,step_rate):
         '''
+        This method sets the step generator timer frequency in Hz.
+        @param step_rate - The frequency to set the step timer.
         '''
         self.step_rate = step_rate
         self.step_timer.freq(self.step_rate)
 
     def enable_motor (self):
-        ''' This method turns on the motor.'''
+        '''
+        This method turns on the motor.
+        '''
         self.enable.value(0)
 
     def disable_motor (self):
-        ''' This method turns off the motor.'''
+        '''
+        This method turns off the motor.
+        '''
         self.enable.value(1)
 
     def is_done (self):
         '''
+        This method indicates whether or not the motor has finished moving.
+        @return DONE
         '''
         return self.DONE

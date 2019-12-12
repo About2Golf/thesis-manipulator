@@ -17,19 +17,23 @@ import manipulator
 # -----------------------------------------------------------------------------#
 # -----------------------------------------------------------------------------#
 
+# Misc. Variables
 config_file = None
 serBuffer = ""
+CMD_send = 0
+prev_string = ''
 
+# Control Box Variables
 x_target = 0.0
 z_target = 0.0
 y_target = 0.0
 p_target = 0.0
-
 x_jog = 0.0
 z_jog = 0.0
 y_jog = 0.0
 p_jog = 0.0
 
+# State Machine Variables
 GUI_STATE = 0
 prev_GUI_STATE = 0
 MOTOR_MASK = 0b0000  # x;z;y;p
@@ -38,6 +42,14 @@ EXECUTING = False
 MOVE_NUM = 1
 ZERO_SEQ = 1
 
+# Default Instrument Parameters
+x_datum_offset = 5 # mm
+z_datum_offset = 50 # mm
+y_datum_offset = 30 # deg
+p_datum_offset = 30 # deg
+lin_travel_range = 100 # mm
+rot_travel_range = 60 # deg
+
 # -----------------------------------------------------------------------------#
 # -----------------------------------------------------------------------------#
 # -------------------------- Class Definitions --------------------------------#
@@ -45,79 +57,128 @@ ZERO_SEQ = 1
 # -----------------------------------------------------------------------------#
 
 class CSV_Read():
+    '''
+    The class definition for reading a CSV file. This creates a file object
+    to read the file without having to open it multiple times.
+    '''
     def __init__(self, filename):
+        '''
+        Create a CSV file object. This method opens and reads the CSV file.
+        @param filename - The CSV file to read
+        '''
         with open(filename, "r") as f_input:
             csv_input = csv.reader(f_input)
             self.details = list(csv_input)
         f_input.close()
 
     def get_col_row(self, col, row):
+        '''
+        Retrieve data from the CSV file.
+        @param col - The column of data to read (one-indexed)
+        @param row - The row of data to read (one-indexed)
+        @return details - The data at the specified column and row
+        '''
         return self.details[row-1][col-1]
 
 class status_box():
+    '''
+    The class definition for the status box. This creates a status box window
+    for a stage.
+    '''
     def __init__(self,frame, row, column, units, name):
+        '''
+        Create a status box object in the GUI.
+        @param frame - The GUI frame where the status box is placed
+        @param row - The starting row where the status box will be placed
+        @param column - The starting column where the status box will be placed
+        @param units - The base unit for the status box (mm, deg)
+        @param name - The status box's name corresponding to the stage's name
+        '''
         self.row = row
         self.column = column
         self.units = units
         self.name = name
-
+        # Create the sub-frame for the box
         self.status_frame = LabelFrame(frame, text=self.name, bg='white')
         self.status_frame.grid(row=self.row, column=self.column, rowspan=3, columnspan=3, sticky='WE', padx=5, pady=5)
-
+        # Create the position feedback line with units
         self.pos_label = Label(self.status_frame, text="Position:", bg='white').grid(row=self.row,column=self.column, sticky=W, padx=5, pady=1)
         self.position = Entry(self.status_frame, width = 10, bg='gray80', justify='right')
         self.position.grid(row=self.row, column=self.column+1, sticky=E)
         self.pos_units = Label(self.status_frame, text=self.units, bg='white').grid(row=self.row,column=self.column+2, sticky=W)
-
+        # Create the speed feedback line with units
         self.speed_label = Label(self.status_frame, text="Speed:", bg='white').grid(row=(self.row+1),column=self.column, sticky=W, padx=5, pady=1)
         self.speed = Entry(self.status_frame, width = 10, bg='gray80', justify='right')
         self.speed.grid(row=(self.row+1), column=self.column+1, sticky=E)
         self.speed_units = Label(self.status_frame, text=(self.units+"/s"), bg='white').grid(row=(self.row+1),column=self.column+2, sticky=W)
-
+        # Create the mark position line with units
         self.mark_label = Label(self.status_frame, text="Mark:", bg='white').grid(row=(self.row+2),column=self.column, sticky=W, padx=5, pady=1)
         self.mark = Entry(self.status_frame, width = 10, bg='gray80',  justify='right')
         self.mark.grid(row=(self.row+2), column=self.column+1, sticky=E)
         self.pos_units = Label(self.status_frame, text=self.units, bg='white').grid(row=(self.row+2),column=self.column+2, sticky=W)
-
+        # Create the limit switch labels
         self.m_lim_label = Label(self.status_frame, text="-Limit", bg='white').grid(row=(self.row+3),column=self.column, sticky=W, padx=5, pady=1)
         self.p_lim_label = Label(self.status_frame, text="+Limit", bg='white').grid(row=(self.row+3),column=self.column+1, sticky=E, padx=5, pady=1)
-
+        # Create the minus limit switch button
         self.m_limit_button = Canvas(self.status_frame, bg ='white', height = 30, width = 30,bd=0,highlightthickness=0)
         self.m_limit_button.grid(row=(self.row+4),column=self.column, padx=10)
         self.m_lim = self.m_limit_button.create_oval(5,5,25,25, fill ='gray80')
-
+        # Create the plus limit switch button
         self.p_limit_button = Canvas(self.status_frame, bg ='white', height = 30, width = 30,bd=0,highlightthickness=0)
         self.p_limit_button.grid(row=(self.row+4),column=self.column+1, sticky=E, padx=10)
         self.p_lim = self.p_limit_button.create_oval(5,5,25,25, fill ='gray80')
-
+        # Create the button to mark the current position
         self.mark_mark = Button(self.status_frame, text="Mark Position", width=15, command=self.mark_mark, bg='light blue')
         self.mark_mark.grid(row=self.row+5, column=self.column,columnspan=4, sticky=W, padx=25, pady=1)
 
     def limit_on(self, identifier):
+        '''
+        Method that turns a limit switch button color to Red.
+        @param identifier - The button to turn on ('p' or 'm')
+        '''
         if identifier == 'p':
             self.p_limit_button.itemconfigure(self.p_lim, fill='red')
         elif identifier == 'm':
             self.m_limit_button.itemconfigure(self.m_lim, fill='red')
 
     def limit_off(self, identifier):
+        '''
+        Method that turns a limit switch button color to Gray.
+        @param identifier - The button to turn off ('p' or 'm')
+        '''
         if identifier == 'p':
             self.p_limit_button.itemconfigure(self.p_lim, fill='gray80')
         elif identifier == 'm':
             self.m_limit_button.itemconfigure(self.m_lim, fill='gray80')
 
     def update_position(self, position = None):
+        '''
+        Method that puts data into the position feedback line.
+        @param position - The position data to display
+        '''
         self.position.delete(0, END)
         self.position.insert(0, str(position))
 
     def update_speed(self, speed = None):
+        '''
+        Method that puts data into the position feedback line.
+        @param position - The position data to display
+        '''
         self.speed.delete(0, END)
         self.speed.insert(0, str(speed))
 
     def mark_mark(self):
+        '''
+        Method that inserts the current position into the mark position line.
+        '''
         self.mark.delete(0, END)
         self.mark.insert(0, self.position.get())
 
     def update_mark(self, mark = None):
+        '''
+        Method that puts data into the mark position line.
+        @param mark - The position data to insert into the mark position line
+        '''
         self.mark.delete(0, END)
         self.mark.insert(0, str(mark))
 
@@ -125,7 +186,21 @@ class status_box():
         return self.mark.get()
 
 class control_box():
+    '''
+    The class definition for the control box. This creates a control box window
+    for a stage.
+    '''
     def __init__(self, frame, row, column, units, name, status_box, stage):
+        '''
+        Create a control box object in the GUI.
+        @param frame - The GUI frame where the control box is placed
+        @param row - The starting row where the control box will be placed
+        @param column - The starting column where the control box will be placed
+        @param units - The base unit for the control box (mm, deg)
+        @param name - The control box's name corresponding to the stage's name
+        @param status_box - The corresponding status box to transfer data between boxes
+        @param stage - The Newmark Stage class object of which the control box is associated
+        '''
         self.status_box = status_box
         self.row = row
         self.column = column
@@ -165,11 +240,12 @@ class control_box():
         self.mark_datum.grid(row=self.row+5, column=self.column,columnspan=4, sticky=W, padx=20, pady=3)
 
     def toggle_enable(self, force = 1, disable = 1, send_cmd = True):
-        # https://www.daniweb.com/programming/software-development/code/429838/simple-tkinter-toggle-button
         '''
-        use
-        t_btn.config('text')[-1]
-        to get the present state of the toggle button
+        Toggles the Enable Motor button to turn on/off the motor.
+        Referenced: \link https://www.daniweb.com/programming/software-development/code/429838/simple-tkinter-toggle-button \endlink
+        @param force - Used to force the button state to OFF if toggle is not desired (i.e. if button is OFF but STOP is hit)
+        @param disable - Used to distinguish whether or button should be ON or OFF
+        @param send_cmd - Sends the Enable/Disable motor command via serial to the microcontroller
         '''
         if (self.enable_mot.config('text')[-1] == 'ON' or not force) and disable:
             if send_cmd:
@@ -189,6 +265,9 @@ class control_box():
             self.ENABLED = 1
 
     def jog_m(self):
+        '''
+        Decrements the global stage target variable by the amount specified in the job size box.
+        '''
         try:
             self.TARGET = float(self.get_target()) - float(self.jog_size.get())
         except:
@@ -196,6 +275,9 @@ class control_box():
         self.update_target(round(self.TARGET,4))
 
     def jog_p(self):
+        '''
+        Increments the global stage target variable by the amount specified in the job size box.
+        '''
         try:
             self.TARGET =  float(self.get_target()) + float(self.jog_size.get())
         except:
@@ -203,27 +285,50 @@ class control_box():
         self.update_target(round(self.TARGET,4))
 
     def set_mark_to_targ(self):
+        '''
+        Sets the marked position value as the target.
+        '''
         self.target.delete(0, END)
         self.target.insert(0, self.status_box.mark.get())
 
     def mark_datum(self):
+        '''
+        Sets the current position as the datum. The hardstop offset is updated
+        for future zeroing procedures.
+        '''
         self.target.delete(0, END)
         self.target.insert(0, '0')
         self.stage.new_datum()
         self.stage.set_encoder_restore(0)
 
     def update_target(self, new_target):
+        '''
+        The target box is updated with the new string.
+        @param new_target - The string to place in the target box
+        '''
         self.target.delete(0, END)
         self.target.insert(0, str(new_target))
 
     def get_target(self):
+        '''
+        The target is retrieved.
+        @return target - The current target for the stage to move
+        '''
         return float(self.target.get())
 
     def set_jogsize(self, new_jogsize):
+        '''
+        Sets the stage's jog size. Used to initialize the jog size upon GUI startup.
+        @param new_jogsize - The jog size value to set
+        '''
         self.jog_size.delete(0, END)
         self.jog_size.insert(0, str(new_jogsize))
 
     def get_enable(self):
+        '''
+        Retrieve the enable status of the Newmark stage class object.
+        @return ENABLED - The status variable indicating whether or not the stage is enabled or disabled
+        '''
         return self.stage.get_status()[0]
 
 # -----------------------------------------------------------------------------#
@@ -233,7 +338,11 @@ class control_box():
 # -----------------------------------------------------------------------------#
 
 def stop_manipulator():
-    write_string_to_ser('a;a')
+    '''
+    Stops the manipulator by disabling the motors. Some GUI parameters are reset
+    to default values.
+    '''
+    write_string_to_ser('a;a')  # send abort command to microcontroller
     x_control_frame.toggle_enable(force = 0, disable = 1, send_cmd = False)
     z_control_frame.toggle_enable(force = 0, disable = 1, send_cmd = False)
     y_control_frame.toggle_enable(force = 0, disable = 1, send_cmd = False)
@@ -242,6 +351,12 @@ def stop_manipulator():
     gui_print('Manipulator stopped by User.')
 
 def set_motion_params():
+    '''
+    Establishes the stages' motion parameters based on the motion parameters
+    config file (CSV format). The motion parameters are used to define the ramp
+    profile, positive coordinate direction, overshoot values, and encoder
+    restoration values for each of the stages independently.
+    '''
     global x_stage, z_stage, y_stage, p_stage
     global motion_filename, motion_params
     motion_filename = filedialog.askopenfilename(initialdir = "E:\MUVI\Manipulator\Code_Repository\thesis-manipulator\MUVI_GUI",title = "Select file",filetypes = (("csv files","*.csv"),("all files","*.*")))
@@ -258,10 +373,16 @@ def set_motion_params():
         stage.set_motion_params(param_list)
         start += 1
         param = start
-    clear_limits()
+    clear_limits()  # fixes a bug with the limit switch buttons
     gui_print('Motion Parameters Loaded.')
 
 def set_instr_params():
+    '''
+    Establishes the manipulator's parameters based on the instrument parameters
+    config file (CSV format). The instrument parameters are used to define the
+    datum locations for each stage and the quaternions that calculate the
+    translation compensation.
+    '''
     global x_stage, z_stage, y_stage, p_stage
     global MUVI
     global instrument_filename, instrument_params
@@ -294,6 +415,11 @@ def set_instr_params():
     gui_print('Instrument Parameters Loaded.')
 
 def set_microstep():
+    '''
+    Sets all of the stages' MIRCOSTEP status parameter to "fine". This is
+    necessary for the motor's first movement because there is a check of whether
+    the stage's microstep is set to "coarse".
+    '''
     global x_stage, z_stage, y_stage, p_stage
     x_stage.set_microstep(True)
     z_stage.set_microstep(True)
@@ -301,6 +427,11 @@ def set_microstep():
     p_stage.set_microstep(True)
 
 def move_stages():
+    '''
+    Begins the procedure to move all enabled stages. A stage's bit in the
+    MOTOR_MASK is not set if a stage is disabled or if the stage is already at
+    its target position.
+    '''
     global MOTOR_MASK, GUI_STATE, EXECUTING, MOVE_NUM
     global x_stage, z_stage, y_stage, p_stage
     global x_target, z_target, y_target, p_target
@@ -334,6 +465,12 @@ def move_stages():
         return
 
 def move_instrument():
+    '''
+    Begins the procedure to move all enabled stages based on pitch/yaw inputs.
+    The targets are first calculated via the quaternion translation compensation
+    algorithm. A stage's bit in the MOTOR_MASK is not set if a stage is disabled
+    or if the stage is already at its target position.
+    '''
     global MOTOR_MASK, GUI_STATE, EXECUTING, MOVE_NUM
     global x_target, z_target, y_target, p_target
     x_target, z_target, y_target, p_target = MUVI.get_point_targets(float(pitch.get()), float(yaw.get()))
@@ -367,6 +504,9 @@ def move_instrument():
         return
 
 def enable_all():
+    '''
+    Begins the sequence to enable all of the stages.
+    '''
     global MOTOR_MASK, GUI_STATE, EXECUTING
     if not EXECUTING:
         MOTOR_MASK = 0b1111
@@ -376,6 +516,9 @@ def enable_all():
         return
 
 def zero_all():
+    '''
+    Begins the sequence to zero all enabled stages.
+    '''
     global MOTOR_MASK, GUI_STATE, EXECUTING, ZERO_SEQ
     if not EXECUTING:
         if x_control_frame.get_enable():
@@ -407,22 +550,41 @@ def zero_all():
         return
 
 def FOV_sweep():
+    '''
+    This method would be called to begin the FOV sweep automated sequence.
+    '''
     messagebox.showinfo("Run Test","Sweeping FOV")
 
 def boresight():
+    '''
+    This method would be called to begin the boresight automated sequence.
+    '''
     messagebox.showinfo("Run Test","Boresight")
 
 def SL_sweep():
+    '''
+    This method would be called to begin the stray light sweep automated sequence.
+    '''
     messagebox.showinfo("Run Test","Sweeping Stray Light")
 
 def take_picture():
+    '''
+    This method would be called to capture an image.
+    '''
     messagebox.showinfo("Run Test","Capture Image")
 
 def send_cmd():
+    '''
+    This method sends a command string to the microcontroller. This feature
+    is for development or debugging purposes.
+    '''
     write_string_to_ser(cmd.get())
     gui_print('Command sent.')
 
 def clear_limits():
+    '''
+    Sets all the limit switch button colors to their OFF configuration.
+    '''
     x_status_frame.limit_off('p')
     x_status_frame.limit_off('m')
     z_status_frame.limit_off('p')
@@ -433,6 +595,10 @@ def clear_limits():
     p_status_frame.limit_off('m')
 
 def reset_params():
+    '''
+    Sets the target position and GUI state machine variables to their default
+    values.
+    '''
     # global x_stage, z_stage, y_stage, p_stage
     global x_target, z_target, y_target, p_target
     global GUI_STATE, prev_GUI_STATE, MOTOR_MASK, ACK, EXECUTING, MOVE_NUM, ZERO_SEQ
@@ -449,6 +615,11 @@ def reset_params():
     ZERO_SEQ = 1
 
 def reset():
+    '''
+    Resets the microcontroller and GUI to its default state. This may be used if
+    the microcontroller is responsive to UART commands. Otherwise, a hardware reset
+    may be required for the microcontroller.
+    '''
     global x_stage, z_stage, y_stage, p_stage
     global x_target, z_target, y_target, p_target
     write_string_to_ser('r;a')
@@ -477,17 +648,27 @@ def reset():
 
 
 def read_data():
+    '''
+    Reads the serial buffer for feedback data and command echos. If the
+    GUI receives a command echo, the appropriate GUI action is
+    handled by this method and nothing is returned. Otherwise, feedback data
+    is returned.
+    @return feedback_data - If no command echo, the feedback data is returned
+    @return None - Nothing is returned if there was a command echo
+    '''
     global serBuffer, MOVE_NUM, ACK
     global x_stage, z_stage, y_stage, p_stage
     log_print(serBuffer)
     uC_resp = serBuffer[:-1:] # remove last character (/n)
-    uC_resp = uC_resp.split(';')
-    if not (' ' in uC_resp[0]):
-        # filter out non-acknowledge data
+    uC_resp = uC_resp.split(';') # split string by delimiter
+    if not (' ' in uC_resp[0]): # filters microcontroller initilization strings
+        # filter out feedback data
         if not uC_resp[0].isalpha() and len(uC_resp)>1:
             return uC_resp
-        else:
+        else: # microcontroller command echo
             ACK = uC_resp[0]
+            # Movement was completed - update the stage's position based on the
+            # steps completed that was returned by the microcontroller.
             if ACK == 's':
                 if uC_resp[1] == 'x':
                     x_stage.set_moving(False)
@@ -513,6 +694,7 @@ def read_data():
                         p_stage.set_step_pos(uC_resp[2],1)
                     elif MOVE_NUM == 2:
                         p_stage.set_step_pos(uC_resp[2],2)
+            # Microstep was set - Update the stage's microstep status accordingly
             elif ACK == 't':
                 if uC_resp[1] == 'x':
                     if float(uC_resp[2]) == x_stage.get_move1_uS():
@@ -534,6 +716,7 @@ def read_data():
                         p_stage.set_microstep(False)
                     elif float(uC_resp[2]) == p_stage.get_move2_uS():
                         p_stage.set_microstep(True)
+            # Stage is now moving - Update the stage's move status
             elif ACK == 'm':
                 if uC_resp[1] == 'x':
                     x_stage.set_moving(True)
@@ -543,6 +726,7 @@ def read_data():
                     y_stage.set_moving(True)
                 elif uC_resp[1] == 'p':
                     p_stage.set_moving(True)
+            # Stage enabled - update the stage's enable status
             elif ACK == 'e':
                 if uC_resp[1] == 'x':
                     x_stage.set_enable(True)
@@ -552,6 +736,7 @@ def read_data():
                     y_stage.set_enable(True)
                 elif uC_resp[1] == 'p':
                     p_stage.set_enable(True)
+            # Stage disabled - update the stage's enable status
             elif ACK == 'd':
                 if uC_resp[1] == 'x':
                     x_stage.set_enable(False)
@@ -561,6 +746,7 @@ def read_data():
                     y_stage.set_enable(False)
                 elif uC_resp[1] == 'p':
                     p_stage.set_enable(False)
+            # Stage was zeroed - Update the stage's zero status
             elif ACK == 'z':
                 if uC_resp[1] == 'x':
                     x_stage.set_zeroed(True)
@@ -572,14 +758,21 @@ def read_data():
                     p_stage.set_zeroed(True)
             return None
 
-CMD_send = 0
+
 
 def GUI_state_machine():
+    '''
+    This method runs the GUI state machine. The state machine is repeatedly
+    called by the serial read method if the serial buffer contains a newline
+    character.
+    '''
     global GUI_STATE, prev_GUI_STATE, MOTOR_MASK, ACK, EXECUTING, MOVE_NUM, ZERO_SEQ, enable_time, CMD_send
     global x_stage, z_stage, y_stage, p_stage
     global x_target, z_target, y_target, p_target
     global x_datum_offset, z_datum_offset, y_datum_offset, p_datum_offset
 
+    # Parse the serial buffer and update the feedback status panel if the serial
+    # buffer contained feedback data.
     parsed = read_data()
     if parsed:
         update_status(parsed)
@@ -992,18 +1185,13 @@ def GUI_state_machine():
             GUI_STATE = 1
         else:
             return
-# Default Motion Parameters
 
-# Default Instrument Parameters
-x_datum_offset = 5 # mm
-z_datum_offset = 50 # mm
-y_datum_offset = 30 # deg
-p_datum_offset = 30 # deg
-
-lin_travel_range = 100 # mm
-rot_travel_range = 60 # deg
 
 def send_microstep(stage, microstep):
+    '''
+    Sends the appropriate microstep command to the microcontroller.
+    @param microstep - The microstep setting to set (1,2,4,8,16,32...,256)
+    '''
     if stage == 'x':
         # if microstep == x_stage.move1_uS:
         #     x_stage.set_microstep(False)
@@ -1020,9 +1208,16 @@ def send_microstep(stage, microstep):
     write_string_to_ser(uS_string)
 
 def move(stage, move, zero = False, to_datum = False):
+    '''
+    Sends the appropriate move command to the microcontroller.
+    @param move - Indicates if its the first move (coarse microstep) or second move (fine microstep)
+    @param zero - Specifies if the movement is from the zeroing routine
+    @param to_datum - Specifies if the movement is to the datum from a hardstop
+    '''
     global x_target, z_target, y_target, p_target
     global lin_travel_range, rot_travel_range
     global x_stage, z_stage, y_stage, p_stage
+    # If microstep setting is coarse
     if move == 1:
         if stage == 'x':
             if zero:
@@ -1064,6 +1259,7 @@ def move(stage, move, zero = False, to_datum = False):
                     move_string = p_stage.move_pos(abs(p_target-p_stage.get_true_position()), 1)
                 else:
                     move_string = p_stage.move_neg(abs(p_target-p_stage.get_true_position()), 1)
+    # If microstep setting is fine
     elif move == 2:
         if stage == 'x':
             if to_datum:
@@ -1104,26 +1300,55 @@ def move(stage, move, zero = False, to_datum = False):
     write_string_to_ser(move_string)
 
 def testBit(int_type, offset):
-    # Credit to: https://wiki.python.org/moin/BitManipulation
+    '''
+    Tests the whether or not a bit is set in the specified mask.
+    Credit to: https://wiki.python.org/moin/BitManipulation
+    @param int_type - The mask to test.
+    @param offset - The bit to test in the mask.
+    @return True/False - True if bit is set, False if it is not set
+    '''
     mask = 1 << offset
     return(int_type & mask)
 
 def setBit(int_type, offset):
-    # Credit to: https://wiki.python.org/moin/BitManipulation
+    '''
+    Sets a bit in the specified mask.
+    Credit to: https://wiki.python.org/moin/BitManipulation
+    @param int_type - The mask of interest.
+    @param offset - The bit to set in the mask.
+    @return - The mask with the bit set
+    '''
     mask = 1 << offset
     return(int_type | mask)
 
 def clearBit(int_type, offset):
-    # Credit to: https://wiki.python.org/moin/BitManipulation
+    '''
+    Clears a bit in the specified mask.
+    Credit to: https://wiki.python.org/moin/BitManipulation
+    @param int_type - The mask of interest.
+    @param offset - The bit to clear in the mask.
+    @return - The mask with the bit cleared
+    '''
     mask = ~(1 << offset)
     return(int_type & mask)
 
 def write_string_to_ser(string):
+    '''
+    Writes a string to the serial port and starts the acknowledgement timer.
+    @param string - The string to write to the serial port.
+    '''
     global ACK_start
     ser.write(bytes(string.encode('utf-8')))
     ACK_start = time.time()
 
 def update_status(status):
+    '''
+    Updates the status panel variables with the feedback data. The unit
+    conversions are handled in this method, along with the limit switch button
+    configurations.
+    @param status - The feedback string received from the microcontroller that
+                    contains the encoder position and limit switch data.
+    '''
     global x_stage, z_stage, y_stage, p_stage
     x_stage.set_feedback(status[0],status[4])
     z_stage.set_feedback(status[1],status[5])
@@ -1166,8 +1391,14 @@ def update_status(status):
         p_status_frame.limit_off('p')
         p_status_frame.limit_off('m')
 
-prev_string = ''
+
 def log_print(to_print, stamp = True):
+    '''
+    Method that prints a string to the Manipulator Log text box. Duplicate values
+    are not consecutively printed.
+    @param to_print - The string to print in the text box
+    @param stamp - Indicates if the timestamp should be printed with the string
+    '''
     global prev_string, timestamp
     if to_print != prev_string:
         if stamp:
@@ -1180,6 +1411,11 @@ def log_print(to_print, stamp = True):
     prev_string = to_print
 
 def gui_print(to_print, stamp = True):
+    '''
+    Method that prints a string to the GUI Log text box.
+    @param to_print - The string to print in the text box
+    @param stamp - Indicates if the timestamp should be printed with the string
+    '''
     global timestamp
     if stamp:
         gui_printer.insert(END, str(int(time.time()*1000 - timestamp))+ ' ')
@@ -1192,6 +1428,10 @@ def gui_print(to_print, stamp = True):
         gui_printer.see('end')
 
 def save_motion_file():
+    '''
+    Writes and saves the current motion parameters into the motion parameters
+    config file.
+    '''
     global x_stage, z_stage, y_stage, p_stage
     path = 'E:\\MUVI\\Manipulator\\Code_Repository\\thesis-manipulator\\MUVI_GUI\\motion_params.csv'
     mot_params = CSV_Read(path)
@@ -1212,6 +1452,10 @@ def save_motion_file():
     writeFile.close()
 
 def save_instrument_file():
+    '''
+    Writes and saves the current instrument parameters into the instrument
+    parameters config file.
+    '''
     global x_stage, z_stage, y_stage, p_stage
     path = 'E:\\MUVI\\Manipulator\\Code_Repository\\thesis-manipulator\\MUVI_GUI\\instrument_params.csv'
     instr_params = CSV_Read(path)
@@ -1232,6 +1476,11 @@ def save_instrument_file():
     writeFile.close()
 
 def shutdown_gui():
+        '''
+        This method safely closes the GUI. Data inside the Manipulator Log text
+        box is written to a CSV file and stored in the Log Files folder. It is
+        recommended to use this feature whenever the GUI is closed.
+        '''
     log_filename = 'E:\\MUVI\\Manipulator\\Code_Repository\\thesis-manipulator\\MUVI_GUI\\Log_Files\\MUVI_Manipulator_log_'+ time.strftime("%Y-%m-%d_%H-%M-%S", time.gmtime()) + '.csv'
     MUVI_log = log.get("1.0","end-1c").splitlines()
     with open(log_filename, 'w') as csvfile:
@@ -1250,6 +1499,7 @@ def shutdown_gui():
 # -----------------------------------------------------------------------------#
 # -----------------------------------------------------------------------------#
 
+# Initiate instances of the hardware classes
 x_stage = NLS4.NewmarkLinearStage('x')
 z_stage = NLS4.NewmarkLinearStage('z')
 y_stage = RM5.NewmarkRotaryStage('y')
@@ -1262,6 +1512,8 @@ MUVI = manipulator.MUVI_manipulator(x_stage,z_stage,y_stage,p_stage)
 # ----------------------------- GUI Window ------------------------------------#
 # -----------------------------------------------------------------------------#
 # -----------------------------------------------------------------------------#
+
+# Create the GUI window
 window = Tk()
 window.title("MUVI Manipulator User Interface")
 window.configure(background='white')
@@ -1409,6 +1661,10 @@ except:
 serBuffer = ""
 
 def readSerial():
+    '''
+    This method reads the serial port and calls the GUI state machine whenever
+    the newline character is read. This method runs about every 10 ms.
+    '''
     while True:
         c = ser.read().decode("utf-8") # attempt to read a character from Serial
         #was anything read?
@@ -1433,4 +1689,5 @@ def readSerial():
 # after initializing serial, a microcontroller may need a bit of time to reset
 window.after(100, readSerial)
 
+# Run the GUI
 window.mainloop()

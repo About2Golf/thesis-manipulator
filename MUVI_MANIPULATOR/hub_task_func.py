@@ -1,6 +1,4 @@
 """
-Created on Fri Feb  9 23:53:47 2018
-
 @author: JasonGrillo
 """
 import pyb
@@ -8,10 +6,12 @@ import micropython
 import machine
 import utime
 
-import print_task
-
 class Hub_Task:
     '''
+    This defines the task object for the hub. The hub is purposed to be the
+    information processing center for the manipulator, and handles the GUI
+    input and output. The hub also handles the TMC2160 stepper driver
+    configuration via SPI.
     '''
     def __init__(self, x_params, z_params, y_params, p_params,
                 x_steps, z_steps, y_steps, p_steps,
@@ -23,8 +23,43 @@ class Hub_Task:
                                         x_csn_pin, z_csn_pin, y_csn_pin, p_csn_pin,
                                             dcen_pin):
         '''
+        The initialization method for the hub class object. The shared data is
+        defined and hardware pins are defined. Class data is also declared upon
+        startup.
+        @param x_params - X stage motor parameters Queue
+        @param z_params - Z stage motor parameters Queue
+        @param y_params - Y stage motor parameters Queue
+        @param p_params - P stage motor parameters Queue
+        @param x_steps - X stage completed steps Queue
+        @param z_steps - Z stage completed steps Queue
+        @param y_steps - Y stage completed steps Queue
+        @param p_steps - P stage completed steps Queue
+        @param x_status - X stage motion status Share (done moving or not)
+        @param z_status - Z stage motion status Share (done moving or not)
+        @param y_status - Y stage motion status Share (done moving or not)
+        @param p_status - P stage motion status Share (done moving or not)
+        @param x_enable - X motor enable Share
+        @param z_enable - Z motor enable Share
+        @param y_enable - Y motor enable Share
+        @param p_enable - P motor enable Share
+        @param x_encoder - X encoder feedback data Share
+        @param z_encoder - Z encoder feedback data Share
+        @param y_encoder - Y encoder feedback data Share
+        @param p_encoder - P encoder feedback data Share
+        @param x_zero - X zero encoder command Share
+        @param z_zero - Z zero encoder command Share
+        @param y_zero - Y zero encoder command Share
+        @param p_zero - P zero encoder command Share
+        @param x_limit - X limit switch feedback data Share
+        @param z_limit - Z limit switch feedback data Share
+        @param y_limit - Y limit switch feedback data Share
+        @param p_limit - P limit switch feedback data Share
+        @param x_csn_pin - X hardware pin for SPI chip select
+        @param z_csn_pin - Z hardware pin for SPI chip select
+        @param y_csn_pin - Y hardware pin for SPI chip select
+        @param p_csn_pin - P hardware pin for SPI chip select
+        @param dcen_pin - DC step pin for TMC2160 Cool Step operation
         '''
-        # self.print_q = printing_object
         # Motor Parameters Task Queue
         self.x_params = x_params
         self.z_params = z_params
@@ -97,7 +132,7 @@ class Hub_Task:
 
     def hub_fun(self):
         '''
-        Defines the task function method that runs repeatedly.
+        Defines the hub task state machine that is repeatedly called.
         '''
         STATE_0 = micropython.const (0)
         STATE_1 = micropython.const (1)
@@ -143,18 +178,12 @@ class Hub_Task:
                     self.state = STATE_5
                     # print("Moving X")
 
-            ## NEED TO RETURN TOTAL STEPS TRAVELED ONCE MOTOR DONE
-
             ## STATE 2: MOVING YAW
             elif self.state == STATE_2:
                 self.update_feedback()
-                # yield()
                 self.read_GUI()
                 yield()
-                # wait for motor to say done or limit reached or motor disabled
-                # if (self.y_status.get()) or abs(self.y_limit.get()) or not self.y_enable.get():
                 if self.y_status.get():
-                    # print('Done')
                     self.steps_moved = 's;y;' + str(self.y_steps.get())
                     print(self.steps_moved)
                     self.state = STATE_1
@@ -162,17 +191,9 @@ class Hub_Task:
             ## STATE 3: MOVING PITCH
             elif self.state == STATE_3:
                 self.update_feedback()
-                # yield()
                 self.read_GUI()
                 yield()
-                # wait for motor to say done or limit reached or motor disabled
-                # print('hub')
-                # print(self.p_status.get())
-                # print(self.p_limit.get())
-                # print(self.p_enable.get())
-                # if (self.p_status.get()) or abs(self.p_limit.get()) or not self.p_enable.get():
                 if self.p_status.get():
-                    # print('Done')
                     self.steps_moved = 's;p;' + str(self.p_steps.get())
                     print(self.steps_moved)
                     self.state = STATE_1
@@ -180,13 +201,8 @@ class Hub_Task:
             ## STATE 4: MOVING Z TRANSLATION
             elif self.state == STATE_4:
                 self.update_feedback()
-                # yield()
                 self.read_GUI()
-                yield()
-                # wait for motor to say done or limit reached or motor disabled
-                # if (self.z_status.get()) or abs(self.z_limit.get()) or not self.z_enable.get():
                 if self.z_status.get():
-                    # print('Done')
                     self.steps_moved = 's;z;' + str(self.z_steps.get())
                     print(self.steps_moved)
                     self.state = STATE_1
@@ -194,17 +210,13 @@ class Hub_Task:
             ## STATE 5: MOVING X TRANSLATION
             elif self.state == STATE_5:
                 self.update_feedback()
-                # yield()
                 self.read_GUI()
                 yield()
-                # wait for motor to say done or limit reached or motor disabled
-                # if (self.x_status.get()) or (self.x_limit.get()) or not self.x_enable.get():
                 if self.x_status.get():
-                    # print('Done')
                     self.steps_moved = 's;x;' + str(self.x_steps.get())
                     print(self.steps_moved)
                     self.state = STATE_1
-            # print(self.state)
+
             yield(self.state)
 
 
@@ -212,6 +224,8 @@ class Hub_Task:
 # --------------------------------------------------------------------------- #
     def TMC_init(self, csn_pin):
         '''
+        This method intitializes a TMC2160 stepper driver upon startup.
+        @param csn_pin The stepper driver SPI chip select pin
         '''
         csn_pin.value(0)
         self.spi2.send(self.spi_command1_2)
@@ -237,10 +251,15 @@ class Hub_Task:
         self.spi2.send(self.spi_command5)
         utime.sleep_us(5)
         csn_pin.value(1)
+        # put dcen pin high here to setup DC STEP on the steppers
         self.dcen_pin.value(0)
-        # !!!!! put dcen pin high here to setup DC STEP on the steppers
 
     def set_TMC_microstep(self, command, csn_pin):
+        '''
+        This method sets the microstep setting for the TMC2160 stepper driver.
+        @param command - The microstep SPI command to send
+        @param csn_pin - The stepper driver SPI chip select pin
+        '''
         if command == 1:
             csn_pin.value(0)
             self.spi2.send(self.spi_command1_0)
@@ -282,9 +301,9 @@ class Hub_Task:
 # --------------------------------------------------------------------------- #
     def update_feedback(self):
         '''
+        This method reads the feedback shared variables and prints the data
+        for the GUI to receive in the serial port.
         '''
-        # print('updating feedback')
-        # write the following to the GUI
         x_enc = str(self.x_encoder.get())
         z_enc = str(self.z_encoder.get())
         y_enc = str(self.y_encoder.get())
@@ -295,8 +314,6 @@ class Hub_Task:
         p_lim = str(self.p_limit.get())
         feedback_data = x_enc +";"+ z_enc +";"+ y_enc +";"+ p_enc +";"+ \
                             x_lim +";"+ z_lim +";"+ y_lim +";"+ p_lim
-        # self.put_bytes(feedback_data.encode('UTF-8'))
-        # print(feedback_data.encode('UTF-8'))
         print(feedback_data)
 
 # --------------------------------------------------------------------------- #
@@ -304,26 +321,24 @@ class Hub_Task:
     def read_GUI(self):
         ''' Reads the serial port for incoming commands and executes the command.
         '''
-        # print('reading gui')
-        # print(self.vcp.isconnected())
-        # if self.vcp.any():
-        #     print('command received')
-        #     self.GUI_input = self.vcp.read().decode('UTF-8')
-        #     self.GUI_Lookup_Table(self.GUI_input.split(";"))
         if self.uart.any():
             self.GUI_input = self.uart.read().decode('UTF-8')
-            # self.GUI_Lookup_Table(self.GUI_input.split(";"))
             self.GUI_Lookup_Table(self.GUI_input)
 
 # --------------------------------------------------------------------------- #
 # --------------------------------------------------------------------------- #
     def GUI_Lookup_Table(self, input):
-        ''' Decodes GUI commands based on a defined list of commands.
-        @param command The incoming GUI command to decode.
+        ''' Decodes GUI commands based on a defined list of commands. Once
+        received, an acknowledgement is printed so the GUI knows the
+        command was processed.
+        @param input - The incoming GUI command to decode and act upon.
         Command Variations:
             "abort (a); axis (x,z,y,p)"
             "enable (e); axis (x,z,y,p)" or "disable (d); axis (x,z,y,p)"
             "move (m); axis (x,z,y,p); steps; direction; init speed; max speed; accel rate"
+            "zero (z); axis (x,z,y,p)"
+            "microstep (t); axis (x,z,y,p); microsteps per fullstep"
+            "reset (r)"
         '''
         command = input.split(";")
         action = command[0]
@@ -334,7 +349,6 @@ class Hub_Task:
             self.z_enable.put(0)
             self.y_enable.put(0)
             self.p_enable.put(0)
-            # shares.print_task.put_bytes(b'a')
             print('a')
 
         # ENABLE MOTOR
@@ -351,8 +365,6 @@ class Hub_Task:
             elif axis == "p":
                 self.p_enable.put(1)
                 print('e;p')
-            # shares.print_task.put_bytes(b'e')
-            # print('e')
 
         # DISABLE MOTOR
         elif action == "d":
@@ -368,8 +380,6 @@ class Hub_Task:
             elif axis == "p":
                 self.p_enable.put(0)
                 print('d;p')
-            # shares.print_task.put_bytes(b'd')
-            # print('d')
 
         # MOVE MOTOR
         elif action == "m":
@@ -404,16 +414,12 @@ class Hub_Task:
                 print('m;y')
             elif axis == "p":
                 self.P_POSITIONING = True
-                # print(type(input).encode('UTF-8'))
-                # print(move[2].encode('UTF-8'))
                 self.p_params.put(direction)
                 self.p_params.put(init_speed)
                 self.p_params.put(max_speed)
                 self.p_params.put(accel_rate)
                 self.p_params.put(steps)
                 print('m;p')
-            # shares.print_task.put_bytes(b'm')
-            # print('m')
 
         # ZERO
         elif action == "z":
@@ -429,8 +435,6 @@ class Hub_Task:
             elif axis == "p":
                 self.p_zero.put(1)
                 print('z;p')
-            # shares.print_task.put_bytes(b'z')
-            # print('z')
 
         # SEND TMC COMMAND
         elif action == "t":

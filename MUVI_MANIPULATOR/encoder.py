@@ -4,24 +4,18 @@ import machine
 
 class Encoder:
     '''
+    This is the hardware class definition for an encoder. It utilizes the
+    STM32 quadrature encoder timer counter to keep track of the encoder position.
     '''
 
     def __init__ (self, timer, enc_A, enc_B, name):
         '''
         Initializes the pins and timer channels for an encoder object.
-        To create PB6 and PB7 Encoder reader: \n
-            pin1 = pyb.Pin.board.PB6 # Pin A \n
-            pin2 = pyb.Pin.board.PB7 # Pin B \n
-            timer = 4 \n\n
-        To create PC6 and PC7 Encoder reader: \n
-            pin1 = pyb.Pin.board.PC6 # Pin A \n
-            pin2 = pyb.Pin.board.PC7 # Pin B \n
-            timer = 8 \n
-        @param timer: Specifies the timer for the encoder
-        @param pin1: First pin (A) used to read the encoder
-        @param pin2: Second pin (B) used to read the encoder
-        '''
-        # print ('Creating an encoder')
+        @param timer - Specifies the timer for the encoder
+        @param enc_A - First pin (A) used to read the encoder
+        @param enc_B - Second pin (B) used to read the encoder
+        @param name - The name of the stage ('X' or 'Z' or 'Y' or 'P')
+        ''']
         ## First encoder pin associated with the pin1 (A) input parameter
         self.pin_object_1 = pyb.Pin(enc_A)
         ## Second encoder pin associated with the pin2 (B) input parameter
@@ -80,7 +74,11 @@ class Encoder:
         return self.__encoder_val
 
     def restore_encoder(self, restore_val):
-        # self.restore_val = self.__encoder_val - self.__delta_count
+        '''
+        Restores the encoder to a previous state.
+        @param restore_val - The encoder value to restore
+        @return encoder_val
+        '''
         self.__encoder_val = restore_val
         self.__last_count = restore_val
         self.timer_val.counter(restore_val)

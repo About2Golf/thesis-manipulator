@@ -11,29 +11,23 @@ import micropython
 import machine
 
 class Feedback_Task:
-    ''' This defines the task function method for an encoder and limit switch. The class
-        passes its data via a shared variable with another task.
-        To create an instance of this task class (example):
-            # create encoder position shared variable
-            pan_position = task_share.Share ('i', thread_protect = False,
-                                               name = "Share_0_pan_position")
-            # create encoder 1 task object
-            pan_encoder = Encoder_Task(pan_position, 4,
-                                     pyb.Pin.board.PB6, pyb.Pin.board.PB7)
-            # create task1 function
-            task1 = cotask.Task (pan_encoder.enc_fun(), name = 'Task_1', priority = 5,
-                         period = 2, profile = True, trace = False)
-            # append task1 to list of scheduled tasks
-            cotask.task_list.append (task1)
+    '''  The class definition for the feedback task. The feedback task
+    handles the sensor hardware for the encoder and limit switches for both
+    linear and rotary stages.
     '''
 
-    def __init__(self, encoder_share, limit_share, zero_share, timer, enc_A, enc_B, ls_pin_m, ls_pin_p, name):
-        ''' Construct an encoder task function by initilizing any shared
-            variables and initialize the encoder object
-            @param encoder_share The shared variable between tasks that contains the Encoder readings
-            @param timer The Encoder's timer channel
-            @param pin1 The Encoder's first pin, Pin A
-            @param pin2 The Encoder's second pin, Pin B
+    def __init__(self, encoder_share, limit_share, zero_share, timer,
+                        enc_A, enc_B, ls_pin_m, ls_pin_p, name):
+        ''' The initialization method for a stage's feedback sensors.
+            @param encoder_share - The shared variable between tasks that contains the encoder readings
+            @param limit_share - The shared variable that contains the plus and minus limit switch readings
+            @param zero_share - The command to zero the encoder
+            @param timer - The encoder's timer channel
+            @param enc_A - The encoder's first pin, Pin A
+            @param enc_B - The encoder's second pin, Pin B
+            @param ls_pin_m - The minus limit switch pin
+            @param ls_pin_p - The plus limit switch pin
+            @param name - The name of the stage ('X' or 'Z' or 'Y' or 'P')
         '''
         self.encoder_share = encoder_share
         self.limit_share = limit_share
@@ -48,7 +42,7 @@ class Feedback_Task:
 
     def fb_fun(self):
         '''
-        Defines the task function method for a Motor object.
+        Defines the feedback task state machine that is repeatedly called.
         '''
         STATE_0 = micropython.const (0)
         STATE_1 = micropython.const (1)
@@ -62,19 +56,6 @@ class Feedback_Task:
                 self.limit_val = self.Limit.read_limit()
                 self.prev_limit_val = self.limit_val
                 self.state = STATE_1
-
-            # ## STATE 1: Send Feedback
-            # if self.state == STATE_1:
-            #     self.limit_val = self.Limit.read_limit()
-            #     self.encoder_val = self.Encoder.read_encoder()
-            #     if (self.name == 'X ' or self.name == 'Z ') and self.limit_toggled():
-            #         self.encoder_val = self.Encoder.restore_encoder(self.prev_encoder_val)
-            #     self.limit_share.put(self.limit_val)
-            #     self.encoder_share.put(self.encoder_val)
-            #     if self.zero.get():
-            #         self.state = STATE_2
-            #     self.prev_limit_val = self.limit_val
-            #     self.prev_encoder_val = self.encoder_val
 
             ## STATE 1: Send Feedback
             if self.state == STATE_1:
@@ -94,6 +75,9 @@ class Feedback_Task:
             yield(self.state)
 
     def limit_toggled(self):
+        '''
+        This method indicates whether or not a limit switch changed its state.
+        '''
         if self.prev_limit_val == self.limit_val:
             return False
         else:

@@ -14,12 +14,12 @@ l_focus = 10.823;   % mm
 
 %% Define Rotation Quaternions
 % PITCH or YAW
-mode = "PITCH";  
-% mode = "YAW";
+% mode = 'PITCH';  
+mode = 'YAW';
 
-theta = 15; % deg of rotation
+theta = 30; % deg of rotation
 
-if mode == "PITCH"
+if strcmp('PITCH',mode)
     q = [cosd(theta/2) unitx*sind(theta/2)];
     q_star = [cosd(theta/2) -unitx*sind(theta/2)];
 else
@@ -141,7 +141,7 @@ beam_bot_refl = quatmultiply(quatmultiply([0 norm],([0 P0]-[0 P1])),[0 norm]);
 
 %% Calculate Translation Compensation
 
-if mode == "PITCH"
+if strcmp('PITCH',mode)
     trans_comp = abs(bot_ints_pt(3)) + abs(l_focus*sind(theta));
 else
     trans_comp = abs(bot_ints_pt(1)) + abs(l_focus*sind(theta));
@@ -149,7 +149,7 @@ end
 
 %% Translate Mirrors
 
-if mode == "PITCH"
+if strcmp('PITCH',mode)
     if theta > 0
         r_iris1_comp = r_iris1_prime(2:4)+ [0 0 trans_comp];
         r_iris2_comp = r_iris2_prime(2:4)+ [0 0 trans_comp];
